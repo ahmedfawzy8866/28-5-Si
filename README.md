@@ -1,51 +1,168 @@
-# Sierra AI — PropTech SaaS Monorepo
+# 👑 Sierra AI — Real Estate PropTech SaaS OS
 
-Welcome to the official, fully integrated monorepo for **Sierra AI**! This workspace consolidated all components, layouts, schemas, pipelines, and assets from the 4 local source branches, establishing 100% brand compliance and clean build compilation with **zero errors** and **zero warnings**.
+Welcome to the official, fully consolidated monorepo for **Sierra AI** (stored at `I:\28-5 Si`). 
 
-## Monorepo Architecture
+This master system integrates all components, layouts, schemas, AI matching engines, WhatsApp scraper bots, and CRM dashboards from across all 12 localized localized repositories and branches into a single high-performance workspace. The production build compiles cleanly with **0 errors and 0 warnings**.
 
-This workspace is laid out as a standard, high-performance web development Monorepo:
+---
+
+## 🗺️ Codebase Directory Inventory
+
+This monorepo is divided into two primary directories: the Next.js frontend application (`frontend-vercel`) and the Firebase functions backend (`firebase-backend`).
 
 ```
 I:\28-5 Si
-├── frontend-vercel/         # Optimized Next.js Luxury Frontend App
-│   ├── app/                 # Next.js 14 App Router routes & APIs
-│   │   ├── api/crm/leads/   # Sierra AI Lead Scoring Engine
-│   │   └── api/crm/property-finder/   # Property Finder Sync/Webhook
-│   ├── components/          # React Components
-│   │   ├── ui/              # Luxury custom frontend components
-│   │   └── legacy/          # Safely deduplicated & brand-compliant legacy components
-│   └── public/              # Global luxury assets
-└── firebase-backend/        # Firebase Configurations & Cloud Functions
-    ├── functions/           # Node.js 20 Backend pipeline
-    │   ├── collectData      # Scraper Ingestion http endpoint
-    │   └── processData      # Real-time cleaning & normalization listener
-    ├── firestore.rules      # Secure firestore rules
-    └── storage.rules        # Secure storage rules
+├── frontend-vercel/                  # Optimized Next.js Luxury Frontend App (Next.js 14)
+│   ├── app/                          # Next.js 14 App Router routes & APIs
+│   │   ├── admin/                    # Admin Dashboard, Login, Sync portal, Units, and Deals
+│   │   ├── api/                      # Backend API Endpoints (detailed below)
+│   │   ├── concierge/[leadId]/       # Personalized, VIP swipeable curation portal
+│   │   ├── proposals/[id]/           # High-end client proposal views
+│   │   ├── system-kit/               # Internal design tokens and typography kit
+│   │   └── page.tsx                  # Quiet Luxury property showcase homepage
+│   ├── components/                   # React Components (Modular Design)
+│   │   ├── Admin/                    # PasteUnit, DatabaseExplorer, MediaHub, TeamCRM
+│   │   ├── CRM/                      # CRMKanban board, LeadsFlow pipelines, ClientsScreen
+│   │   ├── Dashboard/                # NeuralHub header, AIPanel, StrategicIntelligence
+│   │   ├── Landing/                  # ParticlesCanvas, ShieldLogo, CinematicHero
+│   │   ├── Proposals/                # Swipeable ConciergeGallery (S8 Curation Swiper)
+│   │   ├── Maps/                     # Geolocation-ready LiveMap component
+│   │   └── UI/                       # Luxury UI elements (buttons, skeletal loaders, modals)
+│   ├── lib/                          # Core shared services & engines
+│   │   ├── agents/                   # Scribe, Matchmaker, Curator, and Closer AI Agents
+│   │   ├── services/                 # WhatsApp parser, Sheets sync, ROI metrics, closing simulator
+│   │   ├── server/                   # Firebase admin core initialization, Google AI SDK
+│   │   ├── I18nContext.tsx           # Bilingual translation (English/Arabic) client context
+│   │   └── AuthContext.tsx           # Firebase authentication observer context
+│   └── public/                       # Luxury assets, logos, and local translation files
+│
+└── firebase-backend/                 # Firebase Cloud Functions & Deploy configs
+    ├── functions/                    # Real-time background pipelines (Node.js 20)
+    │   ├── src/                      # TypeScript functions source
+    │   │   ├── index.ts              # Main entry point registering Cloud triggers
+    │   │   └── core/                 # Scraper intake & property normalization pipelines
+    │   ├── package.json              # Backend dependencies (firebase-admin, express)
+    │   └── tsconfig.json             # Backend compiler settings
+    ├── firestore.rules               # Secure rules for stakeholder, unit, and analytics data
+    ├── storage.rules                 # Rules allowing authenticated media assets upload
+    └── firebase.json                 # Firebase deployment configurations
 ```
 
-## Key Core Features Implemented
+---
 
-1. **Brand Compliance**: Standardized all conversational scripts, lead qualifiers, logs, and interfaces to use the official brand name **"Sierra AI"** (purged all outdated references to "Sierra Blu" or "Sierra Blue").
-2. **Next.js 14 App**: Configured a production-ready luxury frontend utilizing a custom Tailwind design token system with colors like `#F4F0E8` (luxury ivory) and `#071422` (deep branding navy).
-3. **Interactive CRM Map**: Modern map component showing custom live markers and geolocation stubs for seamless navigation.
-4. **CRM Lead Scoring API**: A `/api/crm/leads` POST route scoring leads (1-10 scale) dynamically based on intent, budget, and timeframe, with an automated webhook trigger when score is $\geq 8$.
-5. **Property Finder Sync Webhook**: An automated `/api/crm/property-finder` route that performs SHA-256 cryptographic deduplication and normalized Egyptian mobile number routing (stripping local/international prefixes to 01x standard).
-6. **Data Collection Pipeline**: Firebase backend function that ingests scraper raw data privately, and moves cleaned and structured assets directly into the application in real-time.
+## 🔌 API Route Inventory (Next.js App Router)
 
-## Optimization & Speed
+* `/api/listings` [DYNAMIC] - Dynamically queries and retrieves property listings from Firestore with custom filtration (Compound, Bedroom count, Price caps).
+* `/api/concierge/[leadId]` - Curates the VIP "Concierge Selection" by mapping matching units.
+* `/api/crm/leads` - Receives new leads, evaluates buy/rent intent, and triggers automated alerts if lead score is high.
+* `/api/leads/request-viewing` - Triggers a real-time notification to the concierge agent ("Sierra") when a client requests a property viewing.
+* `/api/cron/sync-leads` - Automatically synchronizes customer profiles and activity logs with external endpoints.
+* `/api/whatsapp/webhook` - Standardized intake webhook receiving WhatsApp conversations from scraper bots.
+* `/api/openclaw` - Interface connecting your localized scraping infrastructure ("OpenClaw").
+* `/api/seed/listings` - Developers' seeding utility generating premium property mocks (Mivida, Mountain View, SwanLake).
 
-We isolated and bypassed performance bottlenecks by targeting Tailwind CSS compilation exclusively onto `./components/ui/**/*` (excluding the 1000+ preserved `components/legacy` files from class scanning). This resulted in build times dropping from **20+ minutes** to under **20 seconds**!
+---
 
-## Git Commit & Merge Instructions
+## 👩‍💼 The "Sierra" AI Persona Guidelines
 
-This repository is initialized and pre-staged with a custom `.gitignore` ready to link to your GitHub repository. Once you share the GitHub repository URL, you can run the provided `deploy-git.bat` script or simply run:
+All client-facing copy, automated WhatsApp follow-ups, and curated emails utilize the official voice **"Sierra"**:
+* **Tone:** Warm, professional, highly editorial, and exclusive.
+* **Role:** A luxury property concierge advisor helping high-net-worth clients navigate premium properties in New Cairo, Madinaty, and El Shorouk.
+* **Branding Rules:** Never refer to the persona as "Laila" (completely purged). All swiper indicators, welcome greetings, and insights are signed by **Sierra, Senior Concierge**.
 
-```bash
-git init
-git add .
-git commit -m "feat: complete initial Sierra AI consolidation, brand compliance, and zero-warning compilation"
-git branch -M main
-git remote add origin <your-github-repo-url>
-git push -u origin main --force
+---
+
+## 🔑 Environment Variables & Secrets (`.env.local`)
+
+To run the Next.js development server, make sure the following environment variables are present in `frontend-vercel/.env.local`:
+
+```ini
+# --- Property Finder Integration API ---
+PF_API_KEY="YHDNf.LadthM6TyLlAOs8fqQu8IpTt65yhzXE9ae"
+PF_API_SECRET="GBuxCDac4pZ6GEFaTq4crIBNR7YXILon"
+
+# --- Public & Server-Side Firebase Admin Core ---
+NEXT_PUBLIC_FIREBASE_API_KEY="AIzaSyBZLN2jTTKV34SneGPoWRz1zoRpX5uODjs"
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="sierra-blu.firebaseapp.com"
+NEXT_PUBLIC_FIREBASE_PROJECT_ID="sierra-blu"
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="sierra-blu.firebasestorage.app"
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID="941030513456"
+NEXT_PUBLIC_FIREBASE_APP_ID="1:941030513456:web:56209a1495d69f217086f5"
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID="G-ZP054BPJ8Q"
+
+# --- Localized AI Agents & Bots Connectors ---
+OPENCLAW_BASE_URL="http://127.0.0.1:18789/v1"
+OPENCLAW_TOKEN="02b25ffca992d1128741c5fb58a34f8b680cfef51bfbec02"
+GOOGLE_AI_API_KEY="AIzaSyArwaR7eiJmwcFUyUzV-vqVHnsyrt5HTZc"
+GOOGLE_MAPS_API_KEY="AIzaSyBFLZ6edyLeVu5aXVgyaawBZqGSwwQvonA"
+
+# --- Telegram Alert Channels ---
+TELEGRAM_BOT_TOKEN="8719045454:AAHSafZe5U_JzPGb9AAxeNJPwYSPkkwwddQ"
+TELEGRAM_CHAT_ID="7175892124"
+CRON_SECRET="sierra_blu_dev_secret_2026"
 ```
+
+---
+
+## 🤖 Integrating Antigravity with Claude Code
+
+If you want to use **Claude Code** (Anthropic's terminal-based coding tool) alongside **Antigravity** to manage, code, or deploy this project, they can easily coordinate:
+
+### Step 1: Set up the Workspace
+Ensure both agents target the root path `I:\28-5 Si`.
+
+### Step 2: Accessing Local MCP Servers
+Both Antigravity and Claude Code can leverage MCP (Model Context Protocol) servers to browse files and compile.
+To boot up the Chrome DevTools MCP server for screenshot capture in Claude Code, add this to your global `mcp_config.json`:
+```json
+{
+  "mcpServers": {
+    "chrome-devtools-mcp": {
+      "command": "node",
+      "args": ["C:/Users/sierr/.gemini/antigravity/mcp/chrome-devtools-mcp/index.js"]
+    }
+  }
+}
+```
+
+### Step 3: Cooperative pair-programming
+* Let **Antigravity** do the heavy design-tokens styling, Webpack config fixing, and detailed system architecture reports (via visual screenshots).
+* Let **Claude Code** run continuous tests (`npm run test`), execute terminal Git rebases, and trigger local development commands via fast local command loops.
+* **Pro-tip:** Feed this `README.md` file directly into Claude Code's prompt on startup:
+  ```bash
+  claude --intro "Feed: I:\28-5 Si\README.md"
+  ```
+  This immediately informs the model of your stack, routes, persona rules, and folder mapping!
+
+---
+
+## 🚀 Live Production Deployment
+
+### Frontend Vercel Deploy
+Since the project is fully structured with standard Vercel configurations and `next.config.js` fixes, you can deploy it instantly:
+1. Log in to Vercel and import the GitHub repository **`ahmedfawzy8866/28-5-Si`**.
+2. Select `frontend-vercel` as the root directory of your project.
+3. Paste all environment variables from `.env.local` into Vercel's Environment Variables dashboard.
+4. Click **Deploy**. Vercel will build and serve your luxury site globally!
+
+### Backend Firebase Deploy
+To deploy your backend Cloud Functions and Firestore Security rules, follow these quick steps:
+
+> [!WARNING]
+> **Action Required in Google Cloud/Firebase Console:**
+> * **Storage Initialization:** In your Firebase Console, click on **Storage** -> **Get Started** to initialize your default bucket (`sierra-blu.firebasestorage.app`).
+> * **IAM Role Grant:** In Google Cloud IAM settings, locate service account `941030513456-compute@developer.gserviceaccount.com` and grant it the **Storage Object Viewer** role. (This resolves the Cloud Functions deployment permissions blocker).
+
+Once the console toggles are set, run:
+```powershell
+cd firebase-backend
+firebase deploy
+```
+This will compile and launch your Cloud triggers, ingest endpoints, and security rules.
+
+---
+
+## 💡 Enhancements & Scaling Recommendations
+
+1. **Leaflet Geolocation Mapping:** The `LiveMap.tsx` component is geolocated but uses standard markers. As the platform scales, integrate a custom gold/navy SVG marker pin to fit the brand's editorial layout.
+2. **Scraper Sync Hook:** Hook the WhatsApp webhook API directly to a live Twilio or Telegram dispatcher so that when the scraper bot ingests a client profile, a curated portfolio is compiled and messaged instantly.
