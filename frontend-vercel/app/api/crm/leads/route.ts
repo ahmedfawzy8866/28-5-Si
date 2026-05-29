@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/firebase';
-import { collection, doc, setDoc } from 'firebase/firestore';
+import { adminDb } from '@/lib/server/firebase-admin';
 
 interface InboundLeadPayload {
   client_name: string;
@@ -52,7 +51,7 @@ export async function POST(request: Request) {
       timestamp: new Date().toISOString()
     };
 
-    await setDoc(doc(collection(db, 'Leads'), leadId), leadDocument);
+    await adminDb.collection('Leads').doc(leadId).set(leadDocument);
 
     // Enforce Golden Hour rule: send instantly to Zapier/Calendar if score is equal or above 8
     if (leilaScore >= 8) {

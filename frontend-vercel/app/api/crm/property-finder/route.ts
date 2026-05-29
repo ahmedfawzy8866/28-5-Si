@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/firebase';
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { adminDb } from '@/lib/server/firebase-admin';
 import crypto from 'crypto';
 
 /**
@@ -31,8 +30,8 @@ export async function POST(request: Request) {
       const tokenSignature = `${location}-${buaSpace}-${codeField}-${ownerField}`.toLowerCase().trim();
       const sync_hash = crypto.createHash('sha256').update(tokenSignature).digest('hex');
 
-      const propertyRef = doc(db, 'Properties', sync_hash);
-      const docSnapshot = await getDoc(propertyRef);
+      const propertyRef = adminDb.collection('Properties').doc(sync_hash);
+      const docSnapshot = await propertyRef.get();
 
       // 3. Uniform Sierra Code Engine synthesis
       const compPrefix = location.substring(0, 3).toUpperCase();
@@ -59,19 +58,19 @@ export async function POST(request: Request) {
         last_sync_timestamp: new Date().toISOString()
       };
 
-      if (docSnapshot.exists()) {
+      if (docSnapshot.exists) {
         // Record exists: update dynamic values to capture fresh changes without overwriting metadata
-        await updateDoc(propertyRef, {
+        await propertyRef.update({
           price: propertyPayload.price,
           last_sync_timestamp: propertyPayload.last_sync_timestamp
         });
         executionLogs.push({ sync_hash, status: "UPDATED_REALTIME_PRICE" });
       } else {
         // Record unique: instantiate entities split across relational schemas safely
-        await setDoc(propertyRef, propertyPayload);
+        await propertyRef.set(propertyPayload);
         
-        const ownerRef = doc(db, 'Owners', cleanMobile);
-        await setDoc(ownerRef, {
+        const ownerRef = adminDb.collection('Owners').doc(cleanMobile);
+        await ownerRef.set({
           id: cleanMobile,
           owner_name: ownerField,
           primary_mobile: cleanMobile,
