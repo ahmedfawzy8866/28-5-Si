@@ -191,7 +191,7 @@ export async function sendPortfolioViaWhatsApp(
   phoneNumber: string
 ): Promise<void> {
   const message = `
-👋 *${portfolio.leadName}*, Laila here!
+👋 *${portfolio.leadName}*, Sierra here!
 
 I've curated 3 exclusive properties just for you:
 

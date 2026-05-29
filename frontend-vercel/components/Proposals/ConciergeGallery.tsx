@@ -62,7 +62,7 @@ export default function ConciergeGallery({
         <div className="flex items-center gap-4">
           <span className="text-[10px] text-[#0A1628]/60 font-medium">{currentIndex + 1} of {portfolio.units.length}</span>
           <div className="w-10 h-10 rounded-full border border-[#C9A84C]/20 flex items-center justify-center overflow-hidden bg-[#0A1628]">
-             <span className="text-[10px] text-[#C9A84C] font-bold">L</span>
+             <span className="text-[10px] text-[#C9A84C] font-bold">S</span>
           </div>
         </div>
       </nav>
@@ -230,7 +230,7 @@ export default function ConciergeGallery({
                   {currentUnit.description}
                 </p>
                 <div className="p-4 bg-[#0A1628] text-[#F4F0E8] rounded-sm text-xs italic leading-relaxed border-l-4 border-[#C9A84C]">
-                  "Laila's Insight: {currentUnit.reason}"
+                  "Sierra's Insight: {currentUnit.reason}"
                 </div>
               </div>
 
