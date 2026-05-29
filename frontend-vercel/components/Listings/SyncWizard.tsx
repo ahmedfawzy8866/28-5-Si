@@ -198,36 +198,22 @@ export default function SyncWizard({ onClose, onSuccess }: SyncWizardProps) {
 
   const startMapping = () => {
     const processed = rawData.map((item) => {
-      const mappedItem: any = {
-        title_en: 'Pending identification',
-        title_ar: 'قيد التحديد',
-        compound_name: 'Pending identification',
-        compound_code: 'IMP',
-        area_slug: 'unspecified_sector',
-        price: 0,
-        currency: 'EGP',
-        unit_type: 'apartment',
-        offer_type: 'sale',
-        listing_type: 'primary',
-        status: 'available',
-        bedrooms: readNumber(item, 'beds', 'Bedrooms', 'Rooms'),
-        bathrooms: readNumber(item, 'baths', 'Bathrooms', 'WC'),
-        bua_m2: readNumber(item, 'sqm', 'Area', 'Size', 'Footprint'),
-        furnishing: 'unfurnished',
-        gallery_urls: [],
-        is_featured: false,
-        is_public: true,
-        stale_flag: false,
-        created_by: 'Systems Integrator',
-        normalized_key: `import_${safeUUID().slice(0, 8)}`,
+      const mappedItem = {
+        title: 'Pending identification',
+        location: 'Pending identification',
+        price: 'N/A',
+        type: 'Unclassified',
+        status: 'Available' as const,
+        agent: 'Systems Integrator',
+        listedDays: 0,
+        beds: readNumber(item, 'beds', 'Bedrooms', 'Rooms'),
+        baths: readNumber(item, 'baths', 'Bathrooms', 'WC'),
+        sqm: readNumber(item, 'sqm', 'Area', 'Size', 'Footprint'),
+        area: readString(item, 'Area', 'Region', 'Neighborhood') || 'Unspecified Sector',
       };
 
       REQUIRED_FIELDS.forEach((field) => {
-        const val = readString(item, mappings[field.key]) || '';
-        if (field.key === 'title') mappedItem.title_en = val || 'Pending identification';
-        if (field.key === 'location') mappedItem.compound_name = val || 'Pending identification';
-        if (field.key === 'price') mappedItem.price = Number(val.replace(/[^0-9.-]+/g, '')) || 0;
-        if (field.key === 'type') mappedItem.unit_type = val.toLowerCase().includes('villa') ? 'villa' : 'apartment';
+        mappedItem[field.key] = readString(item, mappings[field.key]) || 'Pending identification';
       });
 
       return mappedItem;
@@ -245,7 +231,7 @@ export default function SyncWizard({ onClose, onSuccess }: SyncWizardProps) {
       mappedData.forEach(item => {
         const newDocRef = doc(collection(db, collectionName));
         const finalData = syncType === 'portfolio' 
-          ? { ...item, id: createListingId(), unit_code: createListingId(), createdAt: serverTimestamp(), created_at: serverTimestamp() }
+          ? { ...item, id: createListingId(), createdAt: serverTimestamp() }
           : { ...item, createdAt: serverTimestamp() };
           
         batch.set(newDocRef, finalData);
@@ -273,17 +259,17 @@ export default function SyncWizard({ onClose, onSuccess }: SyncWizardProps) {
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content glass animate-zoom-in max-w-[720px] w-[95%] border border-[var(--gold)]" onClick={e => e.stopPropagation()}>
-        <div className="modal-header border-b-0 pb-0">
+      <div className="modal-content glass animate-zoom-in" onClick={e => e.stopPropagation()} style={{ maxWidth: '720px', width: '95%', border: '1px solid var(--gold)' }}>
+        <div className="modal-header" style={{ borderBottom: 'none', paddingBottom: 0 }}>
           <div>
-            <h2 className="serif text-[var(--navy)] text-2xl">Strategic Synchronization</h2>
-            <p className="text-[12px] opacity-60">Multi-modal enterprise data ingestion engine</p>
+            <h2 className="serif" style={{ color: 'var(--navy)', fontSize: '24px' }}>Strategic Synchronization</h2>
+            <p style={{ fontSize: '12px', opacity: 0.6 }}>Multi-modal enterprise data ingestion engine</p>
           </div>
           <button className="modal-close" onClick={onClose}>✕</button>
         </div>
 
         <div className="modal-body">
-          <div className="sync-steps mt-5">
+          <div className="sync-steps" style={{ marginTop: '20px' }}>
             {STEP_LABELS.map((step, i) => (
               <div 
                 key={step} 
@@ -295,67 +281,73 @@ export default function SyncWizard({ onClose, onSuccess }: SyncWizardProps) {
             ))}
           </div>
 
-          <div className="wizard-container min-h-[340px] py-5">
+          <div className="wizard-container" style={{ minHeight: '340px', padding: '20px 0' }}>
             {(stage === 'CHOOSE_TYPE' || stage === 'CHOOSE_SOURCE') && stage === 'CHOOSE_TYPE' && (
-              <div className="choice-grid animate-fade-in grid grid-cols-2 gap-5 py-10">
+              <div className="choice-grid animate-fade-in" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', padding: '40px 0' }}>
                 <div 
-                  className="choice-card glass hover-lift p-8 text-center cursor-pointer border border-[var(--border)] rounded-2xl" 
+                  className="choice-card glass hover-lift" 
                   onClick={() => { setSyncType('portfolio'); setStage('CHOOSE_SOURCE'); }}
+                  style={{ padding: '32px', textAlign: 'center', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: '16px' }}
                 >
-                  <div className="text-[40px] mb-4">🏰</div>
-                  <h3 className="serif text-lg text-[var(--navy)]">Signature Portfolio</h3>
-                  <p className="text-[12px] opacity-60">Synchronize high-fidelity listing assets</p>
+                  <div style={{ fontSize: '40px', marginBottom: '16px' }}>🏰</div>
+                  <h3 className="serif" style={{ fontSize: '18px', color: 'var(--navy)' }}>Signature Portfolio</h3>
+                  <p style={{ fontSize: '12px', opacity: 0.6 }}>Synchronize high-fidelity listing assets</p>
                 </div>
                 <div 
-                  className="choice-card glass hover-lift gold-border p-8 text-center cursor-pointer border border-[var(--gold)] rounded-2xl bg-[rgba(212,175,55,0.03)]" 
+                  className="choice-card glass hover-lift gold-border" 
                   onClick={() => { setSyncType('stakeholders'); setStage('CHOOSE_SOURCE'); }}
+                  style={{ padding: '32px', textAlign: 'center', cursor: 'pointer', border: '1px solid var(--gold)', borderRadius: '16px', background: 'rgba(212, 175, 55, 0.03)' }}
                 >
-                  <div className="text-[40px] mb-4">🤝</div>
-                  <h3 className="serif text-lg text-[var(--gold)]">Investment Stakeholders</h3>
-                  <p className="text-[12px] opacity-60">Ingest prospective capital partners and stakeholders</p>
+                  <div style={{ fontSize: '40px', marginBottom: '16px' }}>🤝</div>
+                  <h3 className="serif" style={{ fontSize: '18px', color: 'var(--gold)' }}>Investment Stakeholders</h3>
+                  <p style={{ fontSize: '12px', opacity: 0.6 }}>Ingest prospective capital partners and stakeholders</p>
                 </div>
               </div>
             )}
 
             {stage === 'CHOOSE_SOURCE' && (
-              <div className="choice-grid animate-fade-in grid grid-cols-2 gap-5 py-10">
+              <div className="choice-grid animate-fade-in" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', padding: '40px 0' }}>
                 <div 
-                  className="choice-card glass hover-lift p-8 text-center cursor-pointer border border-[var(--border)] rounded-2xl" 
+                  className="choice-card glass hover-lift" 
                   onClick={() => setStage('UPLOAD')}
+                  style={{ padding: '32px', textAlign: 'center', cursor: 'pointer', border: '1px solid var(--border)', borderRadius: '16px' }}
                 >
-                  <div className="text-[40px] mb-4">📁</div>
-                  <h3 className="serif text-lg text-[var(--navy)]">Legacy Ingest</h3>
-                  <p className="text-[12px] opacity-60">Synchronize via local JSON or CSV protocols</p>
+                  <div style={{ fontSize: '40px', marginBottom: '16px' }}>📁</div>
+                  <h3 className="serif" style={{ fontSize: '18px', color: 'var(--navy)' }}>Legacy Ingest</h3>
+                  <p style={{ fontSize: '12px', opacity: 0.6 }}>Synchronize via local JSON or CSV protocols</p>
                 </div>
                 <div 
-                  className="choice-card glass hover-lift gold-border p-8 text-center cursor-pointer border border-[var(--gold)] rounded-2xl bg-[rgba(212,175,55,0.03)]" 
+                  className="choice-card glass hover-lift gold-border" 
                   onClick={() => setStage('PORTAL')}
+                  style={{ padding: '32px', textAlign: 'center', cursor: 'pointer', border: '1px solid var(--gold)', borderRadius: '16px', background: 'rgba(212, 175, 55, 0.03)' }}
                 >
-                  <div className="text-[40px] mb-4">🌐</div>
-                  <h3 className="serif text-lg text-[var(--gold)]">{syncType === 'portfolio' ? 'Property Finder' : 'Stakeholder Gateway'}</h3>
-                  <p className="text-[12px] opacity-60">Direct enterprise gateway synchronization</p>
+                  <div style={{ fontSize: '40px', marginBottom: '16px' }}>🌐</div>
+                  <h3 className="serif" style={{ fontSize: '18px', color: 'var(--gold)' }}>{syncType === 'portfolio' ? 'Property Finder' : 'Stakeholder Gateway'}</h3>
+                  <p style={{ fontSize: '12px', opacity: 0.6 }}>Direct enterprise gateway synchronization</p>
                 </div>
-                <div className="col-span-2 text-center">
-                  <button className="btn-ghost text-[12px]" onClick={() => setStage('CHOOSE_TYPE')}>Back to Specifications</button>
+                <div style={{ gridColumn: 'span 2', textAlign: 'center' }}>
+                  <button className="btn-ghost" onClick={() => setStage('CHOOSE_TYPE')} style={{ fontSize: '12px' }}>Back to Specifications</button>
                 </div>
               </div>
             )}
 
             {stage === 'PORTAL' && (
-              <div className="portal-sync-zone animate-fade-in text-center py-10 px-5">
-                <div className="mb-8">
-                  <img src="https://www.propertyfinder.ae/blog/wp-content/uploads/2018/12/Logo_Propertyfinder_red.png" alt="Property Finder" className="h-10 mb-3 grayscale brightness-50" />
-                  <p className="text-[13px] opacity-70">Secure enterprise synchronization protocol active</p>
+              <div className="portal-sync-zone animate-fade-in" style={{ textAlign: 'center', padding: '40px 20px' }}>
+                <div style={{ marginBottom: '32px' }}>
+                  <img src="https://www.propertyfinder.ae/blog/wp-content/uploads/2018/12/Logo_Propertyfinder_red.png" alt="Property Finder" style={{ height: '40px', marginBottom: '12px', filter: 'grayscale(1) brightness(0.5)' }} />
+                  <p style={{ fontSize: '13px', opacity: 0.7 }}>Secure enterprise synchronization protocol active</p>
                 </div>
-                <div className="form-group max-w-[400px] mx-auto">
-                  <label className="form-label text-left">Portfolio Reference / Filter Query</label>
+                <div className="form-group" style={{ maxWidth: '400px', margin: '0 auto' }}>
+                  <label className="form-label" style={{ textAlign: 'left' }}>Portfolio Reference / Filter Query</label>
                   <input 
                     type="text" 
-                    className="form-input mb-6" 
+                    className="form-input" 
                     placeholder="Enter reference ID or search criteria..." 
+                    style={{ marginBottom: '24px' }}
                   />
                   <button 
-                    className="btn btn-primary w-full p-3.5"
+                    className="btn btn-primary" 
+                    style={{ width: '100%', padding: '14px' }}
                     onClick={async () => {
                       setStage('SYNCING');
                       try {
@@ -363,49 +355,30 @@ export default function SyncWizard({ onClose, onSuccess }: SyncWizardProps) {
                         const res = await fetch(`/api/property-finder?action=${action}`);
                         const result = await res.json();
                         
-                        // Handle both 'data' (leads) and 'results' (listings) from normalized API
-                        const sourceData = result.data || result.results;
-
-                        if (!sourceData || !Array.isArray(sourceData)) {
+                        if (!result.data || !Array.isArray(result.data)) {
                           throw new Error("Invalid portal data structure");
                         }
 
                         if (syncType === 'portfolio') {
-                          const mappedFromPF = sourceData.map((pf: any) => {
-                            const pfPrice = pf.price?.value || 0;
-                            return {
-                              id: pf.reference_number || `PF-${pf.id}`,
-                              unit_code: pf.reference_number || `PF-${pf.id}`,
-                              title_en: pf.title?.en || 'Untitled Signature Asset',
-                              title_ar: pf.title?.ar || pf.title?.en || 'بدون عنوان',
-                              description_en: pf.description?.en || '',
-                              description_ar: pf.description?.ar || '',
-                              compound_name: pf.location?.name || 'Property Finder Location',
-                              compound_code: 'PF',
-                              area_slug: (pf.location?.name || 'PF').toLowerCase().replace(/\s+/g, '_'),
-                              unit_type: pf.type === 'apartment' ? 'apartment' : 'villa',
-                              offer_type: pf.offering_type === 'rent' ? 'rent' : 'sale',
-                              listing_type: 'primary',
-                              status: pf.status === 'published' ? 'available' : 'draft',
-                              price: pfPrice,
-                              currency: pf.price?.currency || 'AED',
-                              price_egp_normalized: pfPrice,
-                              bedrooms: pf.bedrooms || 0,
-                              bathrooms: pf.bathrooms || 0,
-                              bua_m2: pf.size?.unit === 'sqm' ? pf.size.value : Math.round((pf.size?.value || 0) * 0.092903),
-                              furnishing: 'unfurnished',
-                              gallery_urls: pf.images?.map((img: any) => img.url) || [],
-                              cover_image_url: pf.images?.find((img: any) => img.is_main)?.url || pf.images?.[0]?.url || '',
-                              is_featured: false,
-                              is_public: true,
-                              stale_flag: false,
-                              created_by: 'Property Finder Gateway',
-                              normalized_key: `pf_${pf.id}`,
-                            };
-                          });
+                          const mappedFromPF = result.data.map((pf: any) => ({
+                            id: pf.reference_number || `PF-${pf.id}`,
+                            title: pf.title?.en || 'Untitled Signature Asset',
+                            location: pf.location?.name || 'Dubai, UAE',
+                            area: pf.location?.name || 'Exclusive Sector',
+                            type: pf.type.charAt(0).toUpperCase() + pf.type.slice(1),
+                            status: pf.status === 'published' ? 'Available' : 'Pending',
+                            price: `${pf.price.currency} ${pf.price.value.toLocaleString()}`,
+                            beds: pf.bedrooms,
+                            baths: pf.bathrooms,
+                            sqm: pf.size.unit === 'sqm' ? pf.size.value : Math.round(pf.size.value * 0.092903),
+                            agent: 'Property Finder Gateway',
+                            listedDays: pf.created_at ? Math.floor((Date.now() - new Date(pf.created_at).getTime()) / (1000 * 60 * 60 * 24)) : 0,
+                            imageUrl: pf.images?.find((img: any) => img.is_main)?.url || pf.images?.[0]?.url || '',
+                          }));
+                          setMappedData(mappedFromPF);
                           setMappedData(mappedFromPF);
                         } else {
-                          const mappedLeadsFromPF = sourceData.map((pf: any) => ({
+                          const mappedLeadsFromPF = result.data.map((pf: any) => ({
                             name: pf.customer?.name || 'Anonymous Stakeholder',
                             phone: pf.customer?.phone || 'N/A',
                             email: pf.customer?.email || 'N/A',
@@ -438,29 +411,22 @@ export default function SyncWizard({ onClose, onSuccess }: SyncWizardProps) {
                   >
                     Initiate Portal Ingest
                   </button>
-                  <button className="btn-ghost mt-4 text-[12px]" onClick={() => setStage('CHOOSE_SOURCE')}>Back to Origins</button>
+                  <button className="btn-ghost" onClick={() => setStage('CHOOSE_SOURCE')} style={{ marginTop: '16px', fontSize: '12px' }}>Back to Origins</button>
                 </div>
               </div>
             )}
 
             {stage === 'UPLOAD' && (
-              <div className="upload-zone ripple border-2 border-dashed border-[var(--gold)] rounded-xl py-[60px] px-10 text-center cursor-pointer relative bg-[rgba(200,169,110,0.02)]">
-                <input 
-                  type="file" 
-                  accept=".json,.csv" 
-                  onChange={handleFileUpload} 
-                  className="absolute inset-0 opacity-0 cursor-pointer" 
-                  title="Upload structured protocol file"
-                  aria-label="Upload source file"
-                />
-                <div className="text-[48px] mb-5 sepia-[0.5]">⚜️</div>
-                <h3 className="serif text-[var(--navy)] mb-3">Ingest Dataset</h3>
-                <p className="text-[13px] opacity-70 max-w-[400px] mx-auto">
-                  Deploy Portfolio Asset exports from professional portals as structured JSON or CSV protocols.
+              <div className="upload-zone ripple" style={{ border: '2px dashed var(--gold)', borderRadius: '12px', padding: '60px 40px', textAlign: 'center', cursor: 'pointer', position: 'relative', background: 'rgba(200, 169, 110, 0.02)' }}>
+                <input type="file" accept=".json,.csv" onChange={handleFileUpload} style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer' }} />
+                <div style={{ fontSize: '48px', marginBottom: '20px', filter: 'sepia(0.5)' }}>⚜️</div>
+                <h3 className="serif" style={{ color: 'var(--navy)', marginBottom: '12px' }}>Ingest Dataset</h3>
+                <p style={{ fontSize: '13px', opacity: 0.7, maxWidth: '400px', margin: '0 auto' }}>
+                  Deploy inventory exports from professional portals as structured JSON or CSV protocols.
                 </p>
-                <div className="btn btn-primary mt-6">Select Source File</div>
-                <div className="mt-4">
-                  <button className="btn-ghost text-[12px]" onClick={() => setStage('CHOOSE_SOURCE')}>Back to Origins</button>
+                <div className="btn btn-primary" style={{ marginTop: '24px' }}>Select Source File</div>
+                <div style={{ marginTop: '16px' }}>
+                  <button className="btn-ghost" onClick={() => setStage('CHOOSE_SOURCE')} style={{ fontSize: '12px' }}>Back to Origins</button>
                 </div>
               </div>
             )}
@@ -468,27 +434,26 @@ export default function SyncWizard({ onClose, onSuccess }: SyncWizardProps) {
 
             {stage === 'MAPPING' && (
               <div className="mapping-engine animate-fade-in">
-                <div className="mb-5 p-4 bg-[var(--surface-2)] rounded-lg border border-[var(--border)] flex justify-between items-center">
+                <div style={{ marginBottom: '20px', padding: '16px', background: 'var(--surface-2)', borderRadius: '8px', border: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <strong className="text-[12px] opacity-50 uppercase">Active Dataset:</strong> 
-                    <div className="text-sm font-semibold">{fileName}</div>
+                    <strong style={{ fontSize: '12px', opacity: 0.5, textTransform: 'uppercase' }}>Active Dataset:</strong> 
+                    <div style={{ fontSize: '14px', fontWeight: 600 }}>{fileName}</div>
                   </div>
                   <div className="badge badge-navy">{rawData.length} Entries Detected</div>
                 </div>
-                <div className="mapping-grid grid gap-4">
+                <div className="mapping-grid" style={{ display: 'grid', gap: '16px' }}>
                   {REQUIRED_FIELDS.map(field => (
-                    <div key={field.key} className="flex items-center justify-between gap-5 p-3 rounded-lg border border-[var(--border)]">
-                      <div className="flex-1">
-                        <div className="font-bold text-sm text-[var(--navy)]">{field.label}</div>
-                        <div className="text-[11px] opacity-50">Target Parameter</div>
+                    <div key={field.key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '20px', padding: '12px', borderRadius: '8px', border: '1px solid var(--border)' }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--navy)' }}>{field.label}</div>
+                        <div style={{ fontSize: '11px', opacity: 0.5 }}>Target Parameter</div>
                       </div>
-                      <div className="source-select flex-[1.5]">
+                      <div className="source-select" style={{ flex: 1.5 }}>
                         <select 
-                          className={`form-select w-full border ${mappings[field.key] ? 'border-[var(--gold)]' : 'border-[var(--border)]'}`}
+                          className="form-select" 
                           value={mappings[field.key] || ''} 
                           onChange={e => setMappings({ ...mappings, [field.key]: e.target.value })}
-                          title={`Map ${field.label} to source field`}
-                          aria-label={`Select source field for ${field.label}`}
+                          style={{ width: '100%', borderColor: mappings[field.key] ? 'var(--gold)' : 'var(--border)' }}
                         >
                           <option value="">-- Connect Source Parameter --</option>
                           {Object.keys(rawData[0] || {}).map(sk => <option key={sk} value={sk}>{sk}</option>)}
@@ -497,7 +462,7 @@ export default function SyncWizard({ onClose, onSuccess }: SyncWizardProps) {
                     </div>
                   ))}
                 </div>
-                <button className="btn btn-primary mt-[30px] w-full p-3.5" onClick={startMapping} disabled={Object.keys(mappings).length < 4}>
+                <button className="btn btn-primary" onClick={startMapping} style={{ marginTop: '30px', width: '100%', padding: '14px' }} disabled={Object.keys(mappings).length < 4}>
                   Validated Data Structure →
                 </button>
               </div>
@@ -505,11 +470,11 @@ export default function SyncWizard({ onClose, onSuccess }: SyncWizardProps) {
 
             {stage === 'PREVIEW' && (
               <div className="sync-preview animate-fade-in">
-                <div className="text-[13px] mb-4 flex justify-between items-center">
-                   <span className="font-semibold">Verification Phase: {mappedData.length} records staged</span>
+                <div style={{ fontSize: '13px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                   <span style={{ fontWeight: 600 }}>Verification Phase: {mappedData.length} records staged</span>
                    <button className="btn-ghost btn-sm" onClick={() => setStage('MAPPING')}>Modify Alignment</button>
                 </div>
-                <div className="table-wrap max-h-[300px] overflow-y-auto border border-[var(--border)] rounded-lg">
+                <div className="table-wrap" style={{ maxHeight: '300px', overflowY: 'auto', border: '1px solid var(--border)', borderRadius: '8px' }}>
                   <table>
                     <thead>
                       <tr>
@@ -522,48 +487,48 @@ export default function SyncWizard({ onClose, onSuccess }: SyncWizardProps) {
                     <tbody>
                       {mappedData.slice(0, 10).map((row, i) => (
                         <tr key={i}>
-                          <td className="font-medium">{syncType === 'portfolio' ? row.title_en : row.name}</td>
-                          <td className="text-[var(--gold)] font-bold">{syncType === 'portfolio' ? `${row.currency} ${Number(row.price).toLocaleString()}` : row.originChannel}</td>
-                          <td>{syncType === 'portfolio' ? row.compound_name : row.phone}</td>
-                          <td className="text-center"><span className="text-[var(--success)]">Ready</span></td>
+                          <td style={{ fontWeight: 500 }}>{syncType === 'portfolio' ? row.title : row.name}</td>
+                          <td style={{ color: 'var(--gold)', fontWeight: 700 }}>{syncType === 'portfolio' ? row.price : row.originChannel}</td>
+                          <td>{syncType === 'portfolio' ? row.location : row.phone}</td>
+                          <td style={{ textAlign: 'center' }}><span style={{ color: 'var(--success)' }}>Ready</span></td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
-                {mappedData.length > 10 && <div className="text-center p-3 text-[11px] opacity-50 tracking-[1px]">+ {mappedData.length - 10} ADDITIONAL ASSETS DETECTED</div>}
-                <button className="btn btn-gold mt-6 w-full p-3.5" onClick={handleSync}>
+                {mappedData.length > 10 && <div style={{ textAlign: 'center', padding: '12px', fontSize: '11px', opacity: 0.5, letterSpacing: '1px' }}>+ {mappedData.length - 10} ADDITIONAL ASSETS DETECTED</div>}
+                <button className="btn btn-gold" onClick={handleSync} style={{ marginTop: '24px', width: '100%', padding: '14px' }}>
                   Execute Global Portfolio Integration
                 </button>
               </div>
             )}
 
             {stage === 'SYNCING' && (
-              <div className="text-center py-20 px-5">
-                <div className="pulse-shimmer text-[64px] mb-6">🕊️</div>
-                <h3 className="serif text-2xl text-[var(--navy)]">Integrating Portfolio Assets</h3>
-                <p className="text-sm opacity-60 mt-2">Optimizing data structures and establishing permanent cloud records...</p>
-                <div className="sync-progress mt-10 h-[3px] bg-[var(--border)] rounded-[2px] overflow-hidden max-w-[300px] mx-auto">
-                    <div className="sync-progress-bar active h-full w-full bg-[var(--gold)]"></div>
+              <div style={{ textAlign: 'center', padding: '80px 20px' }}>
+                <div className="pulse-shimmer" style={{ fontSize: '64px', marginBottom: '24px' }}>🕊️</div>
+                <h3 className="serif" style={{ fontSize: '24px', color: 'var(--navy)' }}>Integrating Portfolio Assets</h3>
+                <p style={{ fontSize: '14px', opacity: 0.6, marginTop: '8px' }}>Optimizing data structures and establishing permanent cloud records...</p>
+                <div className="sync-progress" style={{ marginTop: '40px', height: '3px', background: 'var(--border)', borderRadius: '2px', overflow: 'hidden', maxWidth: '300px', margin: '40px auto 0' }}>
+                    <div className="sync-progress-bar active" style={{ height: '100%', width: '100%', background: 'var(--gold)' }}></div>
                 </div>
               </div>
             )}
 
             {stage === 'COMPLETE' && (
-              <div className="text-center py-20 px-5">
-                <div className="text-[64px] mb-6">👑</div>
-                <h3 className="serif gold-text text-[28px]">Integration Successful</h3>
-                <p className="text-sm opacity-60 mt-2">
+              <div style={{ textAlign: 'center', padding: '80px 20px' }}>
+                <div style={{ fontSize: '64px', marginBottom: '24px' }}>👑</div>
+                <h3 className="serif gold-text" style={{ fontSize: '28px' }}>Integration Successful</h3>
+                <p style={{ fontSize: '14px', opacity: 0.6, marginTop: '8px' }}>
                   The {syncType === 'portfolio' ? 'Signature Portfolio' : 'Strategic Pipeline'} has been expanded with {mappedData.length} premium records.
                 </p>
-                <button className="btn btn-primary mt-8 min-w-[160px]" onClick={onClose}>Dashboard Access</button>
+                <button className="btn btn-primary" onClick={onClose} style={{ marginTop: '32px', minWidth: '160px' }}>Dashboard Access</button>
               </div>
             )}
           </div>
         </div>
 
-        <div className="modal-footer justify-center border-t-0 bg-[rgba(0,0,0,0.02)] p-4">
-          <div className="opacity-50 text-[11px] tracking-[1px] font-semibold">SIERRA BLU REALTY OPERATIONAL INTELLIGENCE</div>
+        <div className="modal-footer" style={{ justifyContent: 'center', borderTop: 'none', background: 'rgba(0,0,0,0.02)', padding: '16px' }}>
+          <div style={{ opacity: 0.5, fontSize: '11px', letterSpacing: '1px', fontWeight: 600 }}>SIERRA BLU REALTY OPERATIONAL INTELLIGENCE</div>
         </div>
       </div>
 

@@ -7,21 +7,8 @@ import { v4 as uuidv4 } from 'uuid';
  * Manages institutional asset storage with high-integrity pathing.
  */
 export class StorageService {
-  private static bucket: ReturnType<ReturnType<typeof getStorage>['bucket']> | null = null;
-
-  private static getBucket() {
-    if (this.bucket) {
-      return this.bucket;
-    }
-
-    const bucketName = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || adminApp.options.storageBucket;
-    if (!bucketName) {
-      throw new Error('Firebase storage bucket is not configured.');
-    }
-
-    this.bucket = getStorage(adminApp).bucket(bucketName);
-    return this.bucket;
-  }
+  private static storage = getStorage(adminApp);
+  private static bucket = this.storage.bucket(process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET);
 
   /**
    * Uploads base64 media to Firebase Storage.
@@ -36,9 +23,7 @@ export class StorageService {
     const extension = mimeType.split('/')[1] || 'jpg';
     const filename = `${uuidv4()}.${extension}`;
     const filePath = `properties/${docId}/${filename}`;
-    
-    const bucket = this.getBucket();
-    const file = bucket.file(filePath);
+    const file = this.bucket.file(filePath);
 
     const buffer = Buffer.from(base64Data, 'base64');
 
@@ -55,6 +40,7 @@ export class StorageService {
     });
 
     // Return the public URL
-    return `https://storage.googleapis.com/${bucket.name}/${filePath}`;
+    // Note: In production, you might want to use signed URLs or Firebase's download tokens
+    return `https://storage.googleapis.com/${this.bucket.name}/${filePath}`;
   }
 }

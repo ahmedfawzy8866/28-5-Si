@@ -3,9 +3,8 @@
  * Enables real-time backend interaction via Telegram.
  */
 
-import { db } from '../firebase';
-import { doc, getDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
-import { COLLECTIONS, type Unit, type Lead, type Proposal } from '@/lib/models/schema';
+import { adminDb } from '../server/firebase-admin';
+import { COLLECTIONS, type Unit, type Lead, type Proposal } from '../models/schema';
 import { generateLegalSummary, assessLegalRisk } from './legal-brain';
 import { formatPercent, formatEGP } from '../financial-engine';
 
@@ -20,7 +19,7 @@ const DEFAULT_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
  */
 export async function sendTelegramMessage(text: string, chatId?: string) {
   if (!BOT_TOKEN) return console.warn("[Telegram] Token not found in env.");
-  
+
   const targetId = chatId || DEFAULT_CHAT_ID;
   if (!targetId) return console.warn("[Telegram] No chat ID specified.");
 
@@ -71,10 +70,10 @@ async function cmdMaintenance(chatId: string) {
 
 async function cmdScore(unitId: string, chatId: string) {
   if (!unitId) return sendTelegramMessage("Please provide a Unit ID. Usage: /score [id]", chatId);
-  
-  const unitSnap = await getDoc(doc(db, COLLECTIONS.units, unitId));
-  if (!unitSnap.exists()) return sendTelegramMessage("Signature Asset not found.", chatId);
-  
+
+  const unitSnap = await adminDb.collection(COLLECTIONS.units).doc(unitId).get();
+  if (!unitSnap.exists) return sendTelegramMessage("Signature Asset not found.", chatId);
+
   const unit = unitSnap.data() as Unit;
   const legal = assessLegalRisk(unit);
   const legalSummary = generateLegalSummary(legal, 'en');
@@ -91,17 +90,9 @@ async function cmdScore(unitId: string, chatId: string) {
 
 async function cmdMatches(unitId: string, chatId: string) {
   if (!unitId) return sendTelegramMessage("Please provide a Unit ID. Usage: /matches [id]", chatId);
-  
-  // Logic to find leads who have this unit in their topMatches
-  const leadsQuery = query(
-    collection(db, COLLECTIONS.stakeholders),
-    where('aiProfiling.topMatches', 'array-contains-any', [{ unitId: unitId }]) 
-    // Note: array-contains-any with object is tricky in Firestore, 
-    // usually we search by unitId list.
-  );
-  
-  // Alternative: Manual filter for demo/small-scale
-  const allLeadsSnap = await getDocs(collection(db, COLLECTIONS.stakeholders));
+
+  // Manual filter for demo/small-scale
+  const allLeadsSnap = await adminDb.collection(COLLECTIONS.stakeholders).get();
   const matchedLeads = allLeadsSnap.docs
     .map(d => ({ id: d.id, ...d.data() } as Lead))
     .filter(l => l.aiProfiling?.topMatches?.some(m => m.unitId === unitId));
@@ -122,18 +113,18 @@ async function cmdMatches(unitId: string, chatId: string) {
 async function cmdApprove(leadId: string, chatId: string) {
   if (!leadId) return sendTelegramMessage("Please provide a Stakeholder ID. Usage: /approve [id]", chatId);
 
-  const leadRef = doc(db, COLLECTIONS.stakeholders, leadId);
-  const leadSnap = await getDoc(leadRef);
-  if (!leadSnap.exists()) return sendTelegramMessage("Stakeholder not found.", chatId);
+  const leadRef = adminDb.collection(COLLECTIONS.stakeholders).doc(leadId);
+  const leadSnap = await leadRef.get();
+  if (!leadSnap.exists) return sendTelegramMessage("Stakeholder not found.", chatId);
 
   // Resume the Orchestration Pipeline
-  await sendTelegramMessage(`🔄 <b>Resuming Pipeline for ${leadSnap.data().name}...</b>`, chatId);
-  
+  await sendTelegramMessage(`🔄 <b>Resuming Pipeline for ${leadSnap.data()!.name}...</b>`, chatId);
+
   // Set status back to active before running pipeline
-  await updateDoc(leadRef, {
+  await leadRef.update({
     'orchestrationState.status': 'completed' // or 'active'? S8 logic will update it.
   });
-  
+
   await OrchestratorService.runPipeline(leadId, 'stakeholders');
 
   await sendTelegramMessage(`✅ <b>Approved.</b> Concierge Gallery generated and deployed to Stakeholder. Deployment status: <code>active</code>.`);

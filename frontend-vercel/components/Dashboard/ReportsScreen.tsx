@@ -28,13 +28,13 @@ interface ReportsSnapshot {
 const initialState: ReportsSnapshot = {
   loading: true,
   metrics: [
-    { label: 'Transaction Conversion Analytics', value: '--', trend: 'Waiting for live pipeline data', color: 'var(--success)' },
-    { label: 'Lifecycle Velocity', value: '--', trend: 'Waiting for live pipeline data', color: 'var(--blue)' },
+    { label: 'Transaction Conversion Analytics', value: '--', trend: 'Waiting for live CRM data', color: 'var(--success)' },
+    { label: 'Lifecycle Velocity', value: '--', trend: 'Waiting for live CRM data', color: 'var(--blue)' },
     { label: 'Asset Liquidity Index', value: '--', trend: 'Waiting for live inventory data', color: 'var(--gold)' },
     { label: 'Market Dominance Benchmarking', value: '--', trend: 'Waiting for portal sync data', color: 'var(--success)' },
   ],
   trendData: [],
-  insight: 'Live analytics will appear when portfolio assets, investment stakeholders, and sales data finish loading.',
+  insight: 'Live analytics will appear when listings, leads, and sales data finish loading.',
   topAreas: [],
 };
 
@@ -120,7 +120,7 @@ const buildReportsSnapshot = (listings: Unit[], leads: Array<Lead & Record<strin
   const insight = portalCoverage < 40
     ? 'Property Finder coverage is still low compared with available inventory. Publishing more active units will strengthen channel visibility and unify lead attribution.'
     : conversionRate < 10
-      ? 'Stakeholder volume is healthy, but closing momentum is soft. Focus the Strategic Pipeline on structuring-stage stakeholders and faster follow-up cycles.'
+      ? 'Lead volume is healthy, but closing momentum is soft. Focus the CRM on structuring-stage stakeholders and faster follow-up cycles.'
       : `The pipeline is healthy, with ${closedLeads.length} converted stakeholders and EGP ${(grossSales / 1000000).toFixed(1)}M in recorded sales.`;
 
   return {
@@ -245,7 +245,7 @@ export default function ReportsScreen() {
           <div className="card-body" style={{ padding: '40px 30px', position: 'relative', zIndex: 1 }}>
             <h2 className="serif" style={{ color: 'var(--gold)', fontSize: '24px', marginBottom: '16px' }}>Cross-Platform Readiness</h2>
             <p style={{ opacity: 0.8, fontSize: '14px', lineHeight: '1.6', marginBottom: '24px' }}>
-              Property Finder performance is now tied directly to live Sierra Blu inventory and Strategic Pipeline records, so the report reflects what is really active in the system.
+              Property Finder performance is now tied directly to live Sierra Blu inventory and CRM records, so the report reflects what is really active in the system.
             </p>
             <div style={{ display: 'grid', gap: '12px', marginBottom: '30px' }}>
               {(reportState.topAreas.length ? reportState.topAreas : [{ label: 'No inventory yet', count: 0 }]).map((item) => (

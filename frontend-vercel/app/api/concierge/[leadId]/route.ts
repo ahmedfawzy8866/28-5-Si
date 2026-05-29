@@ -1,5 +1,5 @@
-import { db } from '@/lib/firebase';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { adminDb } from '@/lib/server/firebase-admin';
+import { COLLECTIONS } from '@/lib/models/schema';
 import { NextRequest, NextResponse } from 'next/server';
 
 export const GET = async (
@@ -8,7 +8,7 @@ export const GET = async (
 ) => {
   try {
     const { leadId } = await params;
-    
+
     if (!leadId) {
       return NextResponse.json(
         { error: 'Lead ID is required' },
@@ -17,11 +17,9 @@ export const GET = async (
     }
 
     // Query Firestore for the concierge portfolio
-    const q = query(
-      collection(db, 'concierge_selections'),
-      where('leadId', '==', leadId)
-    );
-    const snapshot = await getDocs(q);
+    const snapshot = await adminDb.collection(COLLECTIONS.conciergeSelections)
+      .where('leadId', '==', leadId)
+      .get();
 
     if (snapshot.empty) {
       return NextResponse.json(

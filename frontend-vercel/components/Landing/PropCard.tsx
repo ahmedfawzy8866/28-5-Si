@@ -14,122 +14,162 @@ interface PropCardProps {
   badge: string;
   badgeColor: string;
   img: string;
-  videoUrl?: string;
   dealDelay?: number;
   dealt?: boolean;
   isAr?: boolean;
 }
 
-const ICON_ATTRS = {
+const SPEC_FONT: React.CSSProperties = {
+  fontFamily: "'DM Mono', monospace",
+  fontSize: 13,
+  fontWeight: 400,
+  color: 'var(--on-surface-variant)',
+};
+
+const ICON: React.SVGAttributes<SVGSVGElement> = {
   width: 16,
   height: 16,
   viewBox: '0 0 24 24',
   fill: 'none',
-  stroke: 'currentColor',
+  stroke: 'var(--on-surface-variant)',
   strokeWidth: 1.5,
   strokeLinecap: 'round' as const,
   strokeLinejoin: 'round' as const,
 };
 
-function Spec({ icon, children, isAr }: { icon: React.ReactNode; children: React.ReactNode; isAr?: boolean }) {
+function Spec({ icon, children, end, isAr }: { icon: React.ReactNode; children: React.ReactNode; end?: boolean; isAr?: boolean }) {
   return (
-    <div className={`flex items-center gap-1.5 text-[12px] font-medium tracking-tight text-on-surface-variant ${isAr ? 'flex-row-reverse' : ''}`}>
-      <span className="text-secondary/60">{icon}</span>
-      <span>{children}</span>
+    <div
+      className="flex items-center gap-1.5"
+      style={end ? { marginLeft: isAr ? 0 : 'auto', marginRight: isAr ? 'auto' : 0 } : undefined}
+    >
+      {icon}
+      <span style={SPEC_FONT}>{children}</span>
     </div>
   );
 }
 
-export default function PropCard({ id, title, location, price, beds, baths, sqft, badge, badgeColor, img, videoUrl, dealDelay = 0, dealt = false, isAr = false }: PropCardProps) {
+export default function PropCard({ id, title, location, price, beds, baths, sqft, badge, badgeColor, img, dealDelay = 0, dealt = false, isAr = false }: PropCardProps) {
   const [hov, setHov] = useState(false);
+  const align = isAr ? 'right' : 'left' as const;
 
   return (
     <Link
-        href={`/listings/${id}`}
-      className={`deal-card${dealt ? ' dealt' : ''} block group no-underline h-full`}
-      style={{ animationDelay: `${dealDelay}s` }}
+      href={`/listings/${id}`}
+      className={`deal-card${dealt ? ' dealt' : ''} block`}
+      style={{ animationDelay: `${dealDelay}s`, textDecoration: 'none' }}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
     >
-      <div className="lux-card card-lift rounded-2xl overflow-hidden border border-outline-variant bg-surface-container-lowest h-full flex flex-col shadow-ambient">
-        {/* Image wrapper */}
-        <div className="relative h-[260px] overflow-hidden bg-primary">
+      <div
+        className="rounded-2xl overflow-hidden cursor-pointer transition-all duration-300"
+        style={{
+          background: 'var(--surface-container-high)',
+          border: `1px solid ${hov ? 'rgba(233,193,118,0.35)' : 'var(--outline-variant)'}`,
+          boxShadow: hov
+            ? '0 20px 48px rgba(0,0,0,0.35), 0 0 24px rgba(233,193,118,0.10)'
+            : '0 4px 20px rgba(0,0,0,0.12)',
+          transform: hov ? 'translateY(-5px)' : 'none',
+        }}
+      >
+        {/* Image */}
+        <div className="relative h-[230px] overflow-hidden" style={{ background: '#0A1E35' }}>
           <img
             src={img}
             alt={title}
-            className="w-full h-full object-cover transition-transform duration-1000 cubic-bezier(0.16,1,0.3,1) group-hover:scale-110"
+            className="w-full h-full object-cover transition-transform duration-500"
+            style={{ transform: hov ? 'scale(1.05)' : 'none' }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/20 to-transparent opacity-60" />
-          
-          {/* Badge */}
           <div
-            className={`absolute top-4 ${isAr ? 'right-4' : 'left-4'} lux-glass !bg-secondary/90 !text-on-secondary px-3 py-1 rounded-full text-[10px] font-bold tracking-[0.15em] uppercase shadow-xl border-none`}
+            className="absolute inset-0"
+            style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.45) 0%, transparent 50%)' }}
+          />
+          <span
+            className="absolute top-3.5 text-white uppercase"
+            style={{
+              [isAr ? 'right' : 'left']: 14,
+              background: badgeColor,
+              fontFamily: "'Jost', sans-serif",
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: '.06em',
+              padding: '5px 14px',
+              borderRadius: 5,
+            }}
           >
             {badge}
-          </div>
-
-          {/* Video Indicator */}
-          {videoUrl && (
-            <div className={`absolute bottom-4 ${isAr ? 'left-4' : 'right-4'} flex items-center gap-2 lux-glass !bg-black/40 px-3 py-1.5 rounded-full text-[9px] font-bold tracking-widest text-white uppercase backdrop-blur-sm border border-white/10`}>
-              <div className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
-              {isAr ? 'عرض سينمائي' : 'Cinematic View'}
-            </div>
-          )}
-
-          {/* Play Icon Overlay */}
-          {videoUrl && (
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-primary/10">
-              <div className="w-12 h-12 rounded-full lux-glass flex items-center justify-center text-white shadow-2xl scale-75 group-hover:scale-100 transition-transform duration-500">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-              </div>
-            </div>
-          )}
+          </span>
         </div>
 
         {/* Content */}
-        <div className={`p-6 flex flex-col flex-grow ${isAr ? 'text-right items-end' : 'text-left items-start'}`}>
-          {/* Location / Compound */}
-          <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-secondary mb-3 font-body">
+        <div style={{ padding: '20px 24px 22px' }}>
+          {/* Compound */}
+          <div style={{
+            fontSize: 12,
+            fontWeight: 600,
+            letterSpacing: '.12em',
+            textTransform: 'uppercase',
+            color: '#E9C176',
+            marginBottom: 6,
+            fontFamily: "'Jost', sans-serif",
+            textAlign: align,
+          }}>
             {location.split('·')[0]?.trim()}
           </div>
 
           {/* Title */}
-          <h3 className="font-serif text-2xl font-medium text-on-surface mb-4 leading-tight line-clamp-2 h-[3.5rem] group-hover:text-secondary transition-colors duration-300">
+          <div style={{
+            fontFamily: "'Cormorant Garamond', serif",
+            fontSize: 24,
+            fontWeight: 600,
+            color: 'var(--on-surface)',
+            lineHeight: 1.15,
+            marginBottom: 12,
+            textAlign: align,
+          }}>
             {title}
-          </h3>
+          </div>
 
           {/* Price */}
-          <div className="lux-gold-text text-xl font-semibold mb-6 tracking-tight font-mono">
+          <div style={{
+            fontFamily: "'DM Mono', monospace",
+            fontSize: 22,
+            fontWeight: 500,
+            color: '#E9C176',
+            letterSpacing: '-.02em',
+            marginBottom: 18,
+            textAlign: align,
+          }}>
             {price}
           </div>
 
           {/* Divider */}
-          <div className="w-full h-[1px] bg-outline-variant/30 mb-6" />
+          <div style={{ height: 1, background: 'var(--outline-variant)', marginBottom: 16 }} />
 
           {/* Specs */}
-          <div className={`w-full flex items-center justify-between gap-4 ${isAr ? 'flex-row-reverse' : ''}`}>
-            <Spec isAr={isAr} icon={
-              <svg {...ICON_ATTRS}>
+          <div className="flex items-center" style={{ gap: 22, flexDirection: isAr ? 'row-reverse' : 'row' }}>
+            <Spec icon={
+              <svg {...ICON}>
                 <path d="M3 7v11a2 2 0 002 2h14a2 2 0 002-2V7" />
                 <path d="M21 10H3" />
                 <path d="M7 7V4a1 1 0 011-1h3v4" />
                 <path d="M17 7V4a1 1 0 00-1-1h-3v4" />
               </svg>
             }>
-              {beds} <span className="opacity-60">{isAr ? 'غرف' : 'Beds'}</span>
+              {beds} {isAr ? 'غرف' : 'Beds'}
             </Spec>
 
-            <Spec isAr={isAr} icon={
-              <svg {...ICON_ATTRS}>
+            <Spec icon={
+              <svg {...ICON}>
                 <path d="M4 12h16a1 1 0 011 1v3a2 2 0 01-2 2H5a2 2 0 01-2-2v-3a1 1 0 011-1z" />
                 <path d="M6 12V5a2 2 0 012-2h8a2 2 0 012 2v7" />
               </svg>
             }>
-              {baths} <span className="opacity-60">{isAr ? 'حمامات' : 'Baths'}</span>
+              {baths} {isAr ? 'حمام' : 'Baths'}
             </Spec>
 
-            <Spec isAr={isAr} icon={
-              <svg {...ICON_ATTRS}>
+            <Spec end isAr={isAr} icon={
+              <svg {...ICON}>
                 <rect x="3" y="3" width="18" height="18" rx="2" />
                 <path d="M3 9h18" />
                 <path d="M9 3v18" />

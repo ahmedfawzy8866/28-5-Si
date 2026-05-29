@@ -8,20 +8,8 @@ const WEBHOOK_SECRET = process.env.PF_WEBHOOK_SECRET || '';
 
 function verifySignature(payload: string, signature: string): boolean {
   if (!WEBHOOK_SECRET || !signature) return !WEBHOOK_SECRET;
-  try {
-    const expected = crypto.createHmac('sha256', WEBHOOK_SECRET).update(payload).digest('hex');
-    const signatureBuffer = Buffer.from(signature);
-    const expectedBuffer = Buffer.from(expected);
-    
-    if (signatureBuffer.length !== expectedBuffer.length) {
-      return false;
-    }
-    
-    return crypto.timingSafeEqual(signatureBuffer, expectedBuffer);
-  } catch (err) {
-    console.error('[PF Webhook] Signature verification error:', err);
-    return false;
-  }
+  const expected = crypto.createHmac('sha256', WEBHOOK_SECRET).update(payload).digest('hex');
+  return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
 }
 
 export async function POST(request: NextRequest) {
@@ -35,13 +23,16 @@ export async function POST(request: NextRequest) {
   try {
     const event = JSON.parse(rawBody);
     const eventType = event.type || event.eventId;
-    const eventId = event.id || event.eventId;
 
     switch (eventType) {
       case 'lead.created':
       case 'lead.updated':
       case 'lead.assigned': {
         const lead = event.data || event.payload;
+        const existing = await adminDb.collection(COLLECTIONS.stakeholders)
+          .where('pfLeadId', '==', lead.id)
+          .get();
+
         const payload = {
           name: lead.sender?.name || lead.name || 'PF Lead',
           phone: lead.sender?.phone || lead.phone || '',
@@ -54,10 +45,6 @@ export async function POST(request: NextRequest) {
           pfListingReferenceNumber: lead.listing?.reference || '',
           updatedAt: Timestamp.now(),
         };
-
-        const existing = await adminDb.collection(COLLECTIONS.stakeholders)
-          .where('pfLeadId', '==', lead.id)
-          .get();
 
         if (existing.empty) {
           await adminDb.collection(COLLECTIONS.stakeholders).add({
@@ -76,44 +63,19 @@ export async function POST(request: NextRequest) {
       case 'listing.action': {
         const listing = event.data || event.payload;
         const ref = listing.reference || String(listing.id);
-        const actionType = listing.action?.type || 'unknown';
-        const actionStatus = listing.action?.status || 'pending';
-        
-        // Log the action for administrative review
-        await adminDb.collection('pf_actions').add({
-          eventId,
-          eventType,
-          listingReference: ref,
-          actionType,
-          actionStatus,
-          payload: listing,
-          timestamp: Timestamp.now(),
-        });
-
         const units = await adminDb.collection(COLLECTIONS.units)
           .where('pfReferenceNumber', '==', ref)
           .get();
 
         if (!units.empty) {
-          const updateData: any = {
+          await units.docs[0].ref.update({
             'automation.isPublishedToPF': eventType === 'listing.published',
             pfStatus: eventType === 'listing.published' ? 'published' : 'unpublished',
-            pfLastAction: actionType,
-            pfActionStatus: actionStatus,
             updatedAt: Timestamp.now(),
-          };
-
-          // Handle specific compliance rejections
-          if (eventType === 'listing.action' && actionType.includes('required')) {
-            updateData.pfComplianceStatus = 'needs_action';
-            updateData.pfRejectionReason = listing.action?.reason || 'Compliance action required';
-          }
-
-          await units.docs[0].ref.update(updateData);
+          });
         }
         break;
       }
-
 
       default:
         console.log(`[PF Webhook] Unhandled event: ${eventType}`);

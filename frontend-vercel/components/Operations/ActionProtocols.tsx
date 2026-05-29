@@ -165,7 +165,7 @@ export default function ActionProtocols() {
                   <span className="text-[10px] font-bold text-white/90 uppercase tracking-widest">Options Packaging</span>
                   <span className="text-[9px] text-secondary">PENDING</span>
                 </div>
-                <div className="text-xs text-secondary mb-3">Construct curated "Options Packages" (3-5 high-fidelity units) for investment stakeholders.</div>
+                <div className="text-xs text-secondary mb-3">Construct curated "Options Packages" (3-5 high-fidelity units) for investor leads.</div>
                 <button className="btn btn-gold btn-xs w-full py-1.5 opacity-80 hover:opacity-100">Initialize Packaging</button>
               </div>
 

@@ -4,8 +4,6 @@ import React, { useEffect, useState } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, query, orderBy, limit, getDocs } from 'firebase/firestore';
 import { Search, LayoutGrid, List, Phone, Mail, Clock } from 'lucide-react';
-import { COLLECTIONS } from '@/lib/models/schema';
-
 
 interface Lead {
   id: string;
@@ -23,7 +21,7 @@ interface Lead {
 }
 
 const PIPELINE_COLUMNS = [
-  { key: 'new', label: 'Inbound Stakeholders', stages: ['inbound', 'qualify'], color: '#3B82F6' },
+  { key: 'new', label: 'New Leads', stages: ['inbound', 'qualify'], color: '#3B82F6' },
   { key: 'engaged', label: 'Engaged', stages: ['engage', 'proposal', 'consultation'], color: '#C9A84C' },
   { key: 'viewing', label: 'Viewing', stages: ['viewing'], color: '#8B5CF6' },
   { key: 'negotiation', label: 'Negotiation', stages: ['negotiate', 'reserve', 'negotiation'], color: '#F59E0B' },
@@ -60,7 +58,7 @@ export default function AdminDealsPage() {
   useEffect(() => {
     async function load() {
       try {
-        const q = query(collection(db, COLLECTIONS.investmentStakeholders), orderBy('updatedAt', 'desc'), limit(200));
+        const q = query(collection(db, 'leads'), orderBy('updatedAt', 'desc'), limit(200));
         const snap = await getDocs(q);
         setLeads(snap.docs.map(d => ({ id: d.id, ...d.data() } as Lead)));
       } catch (err) {
@@ -84,9 +82,9 @@ export default function AdminDealsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-2xl font-bold text-[#071422] tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>
-            Strategic Pipeline
+            Deal Pipeline
           </h1>
-          <p className="text-[#3a5570] text-sm mt-0.5">{filtered.length} stakeholders in pipeline</p>
+          <p className="text-[#3a5570] text-sm mt-0.5">{filtered.length} leads in pipeline</p>
         </div>
         <div className="flex items-center gap-2">
           <button onClick={() => setView('board')} className={`p-2 rounded-lg transition-colors ${view === 'board' ? 'bg-[#031632] text-white' : 'bg-white text-[#3a5570] hover:bg-[#f3f4f5]'}`}>
@@ -174,7 +172,7 @@ export default function AdminDealsPage() {
                     </div>
                   ))}
                   {colLeads.length === 0 && (
-                    <div className="text-center py-8 text-[#3a5570]/30 text-xs">No stakeholders</div>
+                    <div className="text-center py-8 text-[#3a5570]/30 text-xs">No leads</div>
                   )}
                 </div>
               </div>
@@ -214,9 +212,9 @@ export default function AdminDealsPage() {
           </div>
           {filtered.length === 0 && (
             <div className="p-12 text-center">
-              <p className="text-[#3a5570]/40 text-sm">No stakeholders found.</p>
+              <p className="text-[#3a5570]/40 text-sm">No leads found.</p>
               <p className="text-[9px] text-[#3a5570]/30 mt-2 uppercase tracking-widest">
-                Stakeholders will appear once synced from Property Finder or received via webhook.
+                Leads will appear once synced from Property Finder or received via webhook.
               </p>
             </div>
           )}

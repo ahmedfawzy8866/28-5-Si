@@ -1,8 +1,8 @@
 import { sendPortfolioViaWhatsApp } from '@/lib/services/portfolio-engine';
-import { NextRequest, NextResponse } from 'next/server';
 import { adminDb } from '@/lib/server/firebase-admin';
-import { FieldValue } from 'firebase-admin/firestore';
+import { Timestamp } from 'firebase-admin/firestore';
 import { COLLECTIONS } from '@/lib/models/schema';
+import { NextRequest, NextResponse } from 'next/server';
 
 interface SendPortfolioRequest {
   leadId: string;
@@ -22,7 +22,7 @@ export const POST = async (req: NextRequest) => {
     }
 
     // Fetch lead to get phone number if not provided
-    const leadSnap = await adminDb.collection(COLLECTIONS.stakeholders).doc(leadId).get();
+    const leadSnap = await adminDb.collection('stakeholders').doc(leadId).get();
     if (!leadSnap.exists) {
       return NextResponse.json(
         { error: 'Lead not found' },
@@ -30,13 +30,7 @@ export const POST = async (req: NextRequest) => {
       );
     }
 
-    const lead = leadSnap.data();
-    if (!lead) {
-      return NextResponse.json(
-        { error: 'Lead not found' },
-        { status: 404 }
-      );
-    }
+    const lead = leadSnap.data()!;
     const phone = phoneNumber || lead.phone || lead.whatsapp;
 
     if (!phone) {
@@ -46,8 +40,9 @@ export const POST = async (req: NextRequest) => {
       );
     }
 
-    // Fetch the concierge portfolio ID from the lead record
-    const portfolioId = lead.conciergePortfolioId;
+    // Fetch the concierge portfolio
+    const portfolioSnap = await adminDb.collection('stakeholders').doc(leadId).get();
+    const portfolioId = portfolioSnap.data()?.conciergePortfolioId;
 
     if (!portfolioId) {
       return NextResponse.json(
@@ -56,23 +51,23 @@ export const POST = async (req: NextRequest) => {
       );
     }
 
-    const portfolioSnap = await adminDb.collection(COLLECTIONS.conciergeSelections).doc(portfolioId).get();
-    if (!portfolioSnap.exists) {
+    const portfolioSnap2 = await adminDb.collection(COLLECTIONS.conciergeSelections).doc(portfolioId).get();
+    if (!portfolioSnap2.exists) {
       return NextResponse.json(
         { error: 'Portfolio data not found' },
         { status: 404 }
       );
     }
 
-    const portfolio = { id: portfolioSnap.id, ...portfolioSnap.data() } as any;
+    const portfolio = { id: portfolioSnap2.id, ...portfolioSnap2.data() } as any;
 
     // Send via WhatsApp
     await sendPortfolioViaWhatsApp(leadId, portfolio, phone);
 
     // Update lead record
-    await adminDb.collection(COLLECTIONS.stakeholders).doc(leadId).update({
-      conciergePortfolioSentAt: FieldValue.serverTimestamp(),
-      conciergePortfolioSentVia: 'whatsapp',
+    await adminDb.collection('stakeholders').doc(leadId).update({
+      'conciergePortfolioSentAt': Timestamp.now(),
+      'conciergePortfolioSentVia': 'whatsapp',
     });
 
     return NextResponse.json({

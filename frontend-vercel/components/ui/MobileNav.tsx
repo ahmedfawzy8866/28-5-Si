@@ -22,10 +22,10 @@ interface MobileNavProps {
 
 const TABS: { id: Screen; label: string; icon: React.ReactNode }[] = [
   { id: 'dashboard', label: 'Home', icon: <LayoutDashboard size={22} /> },
-  { id: 'listings', label: 'Portfolio Assets', icon: <Building2 size={22} /> },
+  { id: 'listings', label: 'Listings', icon: <Building2 size={22} /> },
   { id: 'map', label: 'Map', icon: <MapPin size={22} /> },
-  { id: 'crm', label: 'Strategic Pipeline', icon: <Users size={22} /> },
-  { id: 'reports', label: 'Intelligence', icon: <BarChart3 size={22} /> },
+  { id: 'crm', label: 'CRM', icon: <Users size={22} /> },
+  { id: 'reports', label: 'Reports', icon: <BarChart3 size={22} /> },
 ];
 
 export default function MobileNav({ activeScreen, onNavigate }: MobileNavProps) {

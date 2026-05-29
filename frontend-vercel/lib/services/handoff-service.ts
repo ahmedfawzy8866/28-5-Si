@@ -3,9 +3,9 @@
  * Generates the Executive Intelligence Summary for human closers.
  */
 
-import { db } from '../firebase';
-import { doc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
-import { COLLECTIONS, Lead, Unit } from '@/lib/models/schema';
+import { adminDb } from '../server/firebase-admin';
+import { Timestamp } from 'firebase-admin/firestore';
+import { COLLECTIONS, Lead, Unit } from '../models/schema';
 import { GoogleAIService } from '../server/google-ai';
 
 export interface HandoffSummary {
@@ -25,17 +25,17 @@ export interface HandoffSummary {
  * Generates a high-fidelity context summary for the human closer.
  */
 export async function generateCloserHandoff(leadId: string): Promise<HandoffSummary> {
-  const leadSnap = await getDoc(doc(db, COLLECTIONS.stakeholders, leadId));
-  if (!leadSnap.exists()) throw new Error('Lead not found');
+  const leadSnap = await adminDb.collection(COLLECTIONS.stakeholders).doc(leadId).get();
+  if (!leadSnap.exists) throw new Error('Lead not found');
   const lead = { id: leadSnap.id, ...leadSnap.data() } as Lead;
 
   // 1. Analyze Interaction History (Stage 8 Feedback)
   const interestedUnits = lead.interactionHistory?.filter(i => i.action === 'interested') || [];
-  
+
   const highInterestAssets: HandoffSummary['highInterestAssets'] = [];
   for (const interaction of interestedUnits) {
-    const unitSnap = await getDoc(doc(db, COLLECTIONS.units, interaction.unitId));
-    if (unitSnap.exists()) {
+    const unitSnap = await adminDb.collection(COLLECTIONS.units).doc(interaction.unitId).get();
+    if (unitSnap.exists) {
       const unit = unitSnap.data() as Unit;
       const match = lead.aiProfiling?.topMatches?.find(m => m.unitId === interaction.unitId);
       highInterestAssets.push({
@@ -60,11 +60,11 @@ export async function generateCloserHandoff(leadId: string): Promise<HandoffSumm
   };
 
   // 4. Update Orchestration State
-  await updateDoc(doc(db, COLLECTIONS.stakeholders, leadId), {
+  await adminDb.collection(COLLECTIONS.stakeholders).doc(leadId).update({
     'orchestrationState.stage': 'S9',
     'orchestrationState.status': 'completed',
     'intelligence.handoffSummary': handoff,
-    updatedAt: serverTimestamp()
+    updatedAt: Timestamp.now()
   });
 
   return handoff;
@@ -82,8 +82,8 @@ INSTRUCTIONS: Focus on the stakeholder's 'Psychological Profile', 'Neural Memory
 PERSONA ALIGNMENT: Align the intelligence with "Sierra's" Editorial Luxury standards.`;
 
   const promptContent = `
-    Stakeholder: ${lead.name}. 
-    Assets of Interest: ${assets.map(a => a.code).join(', ')}. 
+    Stakeholder: ${lead.name}.
+    Assets of Interest: ${assets.map(a => a.code).join(', ')}.
     Profile: ${JSON.stringify(lead.intelligence?.profile)}.
     Neural Memory (Negative Signals): ${JSON.stringify(lead.intelligence?.memory?.negativeSignals || [])}.
     Cognitive Matrix: ${JSON.stringify(lead.intelligence?.matrix || {})}.

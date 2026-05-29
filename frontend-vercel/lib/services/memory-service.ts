@@ -1,35 +1,26 @@
-import { db } from '../firebase';
-import { 
-  collection, 
-  doc, 
-  getDoc, 
-  setDoc, 
-  updateDoc, 
-  arrayUnion, 
-  serverTimestamp, 
-  increment 
-} from 'firebase/firestore';
-import { COLLECTIONS } from '@/lib/models/schema';
+import { adminDb } from '../server/firebase-admin';
+import { Timestamp, FieldValue } from 'firebase-admin/firestore';
+import { COLLECTIONS } from '../models/schema';
 
 /**
  * SIERRA BLU NEURAL MEMORY HUB
  * Purpose: Global learning across all deals and lead rejections.
  */
 export class MemoryService {
-  
+
   /**
    * Records a "Negative Signal" (Objection) and updates global intelligence.
    */
   static async recordRejection(leadId: string, unitId: string, reason: string) {
     // 1. Update Lead's private memory
-    const leadRef = doc(db, COLLECTIONS.stakeholders, leadId);
-    await updateDoc(leadRef, {
-      'intelligence.objections': arrayUnion({
+    const leadRef = adminDb.collection(COLLECTIONS.stakeholders).doc(leadId);
+    await leadRef.update({
+      'intelligence.objections': FieldValue.arrayUnion({
         unitId,
         reason,
         timestamp: new Date()
       }),
-      'intelligence.memory.negativeSignals': arrayUnion({
+      'intelligence.memory.negativeSignals': FieldValue.arrayUnion({
         category: this.categorizeReason(reason),
         description: reason,
         importance: 0.8
@@ -37,12 +28,12 @@ export class MemoryService {
     });
 
     // 2. Update Global Intelligence Patterns
-    const globalRef = doc(db, COLLECTIONS.intelligence, 'global_patterns');
+    const globalRef = adminDb.collection(COLLECTIONS.intelligence).doc('global_patterns');
     const category = this.categorizeReason(reason);
-    
-    await setDoc(globalRef, {
-      [`rejectionStats.${category}`]: increment(1),
-      lastTrendUpdate: serverTimestamp()
+
+    await globalRef.set({
+      [`rejectionStats.${category}`]: FieldValue.increment(1),
+      lastTrendUpdate: Timestamp.now()
     }, { merge: true });
   }
 
@@ -50,9 +41,9 @@ export class MemoryService {
    * Fetches global trends to inform AI prompts.
    */
   static async getGlobalTrends() {
-    const globalRef = doc(db, COLLECTIONS.intelligence, 'global_patterns');
-    const snap = await getDoc(globalRef);
-    return snap.exists() ? snap.data() : null;
+    const globalRef = adminDb.collection(COLLECTIONS.intelligence).doc('global_patterns');
+    const snap = await globalRef.get();
+    return snap.exists ? snap.data() : null;
   }
 
   private static categorizeReason(reason: string): string {

@@ -4,8 +4,9 @@
  */
 
 import { GoogleAIService } from '../server/google-ai';
-import { db } from '../firebase';
-import { doc, updateDoc, serverTimestamp, getDoc } from 'firebase/firestore';
+import { adminDb } from '../server/firebase-admin';
+import { Timestamp } from 'firebase-admin/firestore';
+import { COLLECTIONS } from '../models/schema';
 
 export interface ExtractedProfile {
   nationality?: string;
@@ -54,7 +55,7 @@ export async function extractProfileFromChat(history: string): Promise<Extracted
     const content = data.choices[0].message.content;
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error("Could not parse profile data");
-    
+
     const profile = JSON.parse(jsonMatch[0]) as ExtractedProfile;
 
     // Calculate Sierra's 1-10 Qualification Score
@@ -78,7 +79,7 @@ export async function extractProfileFromChat(history: string): Promise<Extracted
  */
 export function calculateSierraScore(profile: Partial<ExtractedProfile>): number {
   let score = 0;
-  
+
   // 1. Budget Threshold (Max 5 pts)
   // Logic: > 10M EGP (5 pts), > 5M EGP (3 pts), else (1 pt)
   if (profile.budget && profile.budget >= 10000000) score += 5;
@@ -101,10 +102,10 @@ export function calculateSierraScore(profile: Partial<ExtractedProfile>): number
   const priorityCompounds = [
     'Mivida', 'Villette', 'Cairo Festival', 'Marakez', 'Sodic', 'Palm Hills', 'Mountain View', 'ZED'
   ];
-  const isPriorityLocation = profile.location && priorityCompounds.some(c => 
+  const isPriorityLocation = profile.location && priorityCompounds.some(c =>
     profile.location?.toLowerCase().includes(c.toLowerCase())
   );
-  
+
   if (isPriorityLocation) {
     score += 2;
   }
@@ -126,7 +127,7 @@ export function getNextInterviewQuestion(profile: Partial<ExtractedProfile>): st
   if (!profile.budget) return "Understood. What is the maximum monthly budget range you wish to stay within for this selection?";
   if (!profile.moveInDate) return "Strategic Timing: What is your target move-in date? (Immediate or a specific upcoming month?)";
   if (!profile.nationality) return "Final Detail: For registration in our stakeholder vault, could you please confirm your nationality and total household size?";
-  
+
   return "<b>Excellent. Intelligence Capture Complete.</b>\n\nI have registered your requirements into the <b>Matchmaker Engine (S7)</b>. I am now synthesizing your <b>Cinematic Portfolio Proposal</b>. You will receive a unique link to our selection vault shortly.";
 }
 
@@ -138,17 +139,17 @@ export async function extractFeedbackAndSentiment(transcript: string) {
   const prompt = `
     Analyze this real estate interaction and extract specific stakeholder feedback.
     Identify any "Negative Signals" (things they specifically dislike) and general objections.
-    
+
     Fields to extract (JSON):
     - signals: Array of { category: "price"|"location"|"finishing"|"layout"|"view", description: string, importance: 0-1 }
     - objections: Array of { reason: string, category: string, sentiment: "positive"|"neutral"|"aggressive"|"desperate" }
     - matrix: { lossAversion: 0-1, premiumTolerance: 0-1 }
-    
+
     Transcript:
     """
     ${transcript}
     """
-    
+
     Return ONLY JSON.
   `;
 
@@ -178,14 +179,9 @@ export async function extractFeedbackAndSentiment(transcript: string) {
  */
 export async function conductPrecisionInterview(leadId: string, transcript: string) {
   const profile = await extractProfileFromChat(transcript);
-  
-  // Dynamic import to avoid client/server conflicts in shared libs
-  const { db } = await import('../firebase');
-  const { doc, updateDoc, serverTimestamp } = await import('firebase/firestore');
-  
-  const { COLLECTIONS } = await import('../models/schema');
-  const leadRef = doc(db, COLLECTIONS.stakeholders, leadId);
-  await updateDoc(leadRef, {
+
+  const leadRef = adminDb.collection(COLLECTIONS.stakeholders).doc(leadId);
+  await leadRef.update({
     'intelligence.profile': {
       nationality: profile.nationality,
       familySize: profile.familySize,
@@ -198,7 +194,7 @@ export async function conductPrecisionInterview(leadId: string, transcript: stri
     'aiProfiling.isQualified': profile.isQualified,
     'orchestrationState.stage': profile.score && profile.score >= 8 ? 'S8' : 'S7',
     'orchestrationState.status': 'completed',
-    updatedAt: serverTimestamp()
+    updatedAt: Timestamp.now()
   });
 
   // If high quality lead, trigger Concierge Page (S8)

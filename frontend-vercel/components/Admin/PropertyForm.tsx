@@ -1,14 +1,18 @@
 "use client";
-import React, { useState, useEffect, useId } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Property, 
   generateUnitCode, 
   generateNormalizedKey, 
-  COMPOUND_CODES 
+  COMPOUND_CODES, 
+  FurnishingStatus, 
+  OfferType, 
+  ListingType, 
+  PropertyStatus, 
+  Currency 
 } from '../../lib/firebase/inventory';
-import { X, Save, Home, MapPin, DollarSign, Ruler, Images, Flag } from 'lucide-react';
+import { X, Save, Plus, Trash2, MapPin, DollarSign, Home, Layout, Ruler, Images, Flag } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import styles from './PropertyForm.module.css';
 
 interface PropertyFormProps {
   property?: Property;
@@ -17,7 +21,6 @@ interface PropertyFormProps {
 }
 
 export default function PropertyForm({ property, onSave, onClose }: PropertyFormProps) {
-  const formId = useId();
   const [activeTab, setActiveTab] = useState(0);
   const [formData, setFormData] = useState<Partial<Property>>(property || {
     status: 'draft',
@@ -73,131 +76,120 @@ export default function PropertyForm({ property, onSave, onClose }: PropertyForm
   };
 
   const tabs = [
-    { id: 0, label: 'Vital Identity', icon: <Home size={16} /> },
-    { id: 1, label: 'Strategic Location', icon: <MapPin size={16} /> },
-    { id: 2, label: 'Specifications', icon: <Ruler size={16} /> },
-    { id: 3, label: 'Valuation', icon: <DollarSign size={16} /> },
-    { id: 4, label: 'Visual Media', icon: <Images size={16} /> },
-    { id: 5, label: 'Strategic Flags', icon: <Flag size={16} /> }
+    { id: 0, label: 'Basic Info', icon: <Home size={16} /> },
+    { id: 1, label: 'Location', icon: <MapPin size={16} /> },
+    { id: 2, label: 'Specs', icon: <Ruler size={16} /> },
+    { id: 3, label: 'Pricing', icon: <DollarSign size={16} /> },
+    { id: 4, label: 'Media', icon: <Images size={16} /> },
+    { id: 5, label: 'Flags', icon: <Flag size={16} /> }
   ];
 
   return (
-    <div className={styles.modalOverlay}>
+    <div className="modal-overlay" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
       <motion.div 
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        className={styles.formContainer}
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="form-container"
+        style={{ 
+          width: '900px', 
+          maxWidth: '95vw', 
+          height: '80vh', 
+          background: 'white', 
+          borderRadius: '24px', 
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+          boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)'
+        }}
       >
         {/* Header */}
-        <div className={styles.header}>
-          <div className={styles.headerTitle}>
-            <h2>{property ? 'Refine Portfolio Asset' : 'Incorporate New Portfolio Asset'}</h2>
-            <div className={styles.unitCode}>IDENTIFIER: {formData.unit_code}</div>
+        <div style={{ padding: '24px', background: 'var(--navy)', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 600 }}>{property ? 'Modify Asset' : 'Incorporate New Asset'}</h2>
+            <div style={{ color: 'var(--gold)', fontSize: '12px', fontFamily: 'monospace', marginTop: '4px' }}>CODE: {formData.unit_code}</div>
           </div>
-          <button 
-            onClick={onClose} 
-            className={styles.closeButton}
-            title="Close Protocol" 
-            aria-label="Close"
-          >
+          <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', padding: '8px', borderRadius: '50%', cursor: 'pointer' }}>
             <X size={20} />
           </button>
         </div>
 
         {/* Tab Sidebar & Content */}
-        <div className={styles.mainArea}>
+        <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
           {/* Tabs Navigation */}
-          <div className={styles.sidebar} role="tablist">
-            {tabs.map(tab => {
-              const isSelected = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`${styles.tabButton} ${isSelected ? styles.active : ''}`}
-                  aria-selected={isSelected ? 'true' : 'false'}
-                  role="tab"
-                >
-                  <span className={styles.tabIcon}>{tab.icon}</span>
-                  {tab.label}
-                </button>
-              );
-            })}
+          <div style={{ width: '200px', background: '#F8FAFC', borderRight: '1px solid #E2E8F0', padding: '12px' }}>
+            {tabs.map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '12px 16px',
+                  borderRadius: '12px',
+                  border: 'none',
+                  background: activeTab === tab.id ? 'white' : 'transparent',
+                  color: activeTab === tab.id ? 'var(--navy)' : '#64748B',
+                  boxShadow: activeTab === tab.id ? '0 4px 6px -1px rgba(0,0,0,0.1)' : 'none',
+                  cursor: 'pointer',
+                  fontWeight: activeTab === tab.id ? 600 : 500,
+                  transition: 'all 0.2s',
+                  marginBottom: '4px'
+                }}
+              >
+                <span style={{ color: activeTab === tab.id ? 'var(--gold)' : 'inherit' }}>{tab.icon}</span>
+                {tab.label}
+              </button>
+            ))}
           </div>
 
           {/* Tab Content */}
-          <div className={styles.contentArea}>
+          <div style={{ flex: 1, padding: '32px', overflowY: 'auto' }}>
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeTab}
-                initial={{ opacity: 0, x: 10 }}
+                initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -10 }}
+                exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.2 }}
               >
                 {activeTab === 0 && (
-                  <div className={styles.inputGrid}>
-                    <div className={styles.row2}>
-                      <div className={styles.inputGroup}>
-                        <label htmlFor={`${formId}-title-en`} className={styles.inputLabel}>Nomenclature (English)</label>
-                        <input 
-                          id={`${formId}-title-en`}
-                          className={styles.inputField}
-                          value={formData.title_en || ''} 
-                          onChange={e => handleChange('title_en', e.target.value)} 
-                          placeholder="e.g. Modern Apartment with Lake View" 
-                        />
+                  <div style={{ display: 'grid', gap: '24px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                      <div className="input-group">
+                        <label>Title (English)</label>
+                        <input value={formData.title_en || ''} onChange={e => handleChange('title_en', e.target.value)} placeholder="e.g. Modern Apartment with Lake View" />
                       </div>
-                      <div className={styles.inputGroup} dir="rtl">
-                        <label htmlFor={`${formId}-title-ar`} className={styles.inputLabel}>التسمية (العربية)</label>
-                        <input 
-                          id={`${formId}-title-ar`}
-                          className={`${styles.inputField} ${styles.inputFieldAr}`}
-                          value={formData.title_ar || ''} 
-                          onChange={e => handleChange('title_ar', e.target.value)} 
-                          placeholder="مثلاً: شقة مودرن بفيو بحيرة" 
-                        />
+                      <div className="input-group" dir="rtl">
+                        <label>العنوان (العربية)</label>
+                        <input value={formData.title_ar || ''} onChange={e => handleChange('title_ar', e.target.value)} placeholder="مثلاً: شقة مودرن بفيو بحيرة" style={{ fontFamily: 'Cairo, sans-serif' }} />
                       </div>
                     </div>
-                    <div className={styles.row3}>
-                      <div className={styles.inputGroup}>
-                        <label htmlFor={`${formId}-offer-type`} className={styles.inputLabel}>Offer Type</label>
-                        <select 
-                          id={`${formId}-offer-type`}
-                          className={styles.selectField}
-                          value={formData.offer_type} 
-                          onChange={e => handleChange('offer_type', e.target.value)}
-                        >
-                          <option value="sale">Acquisition (Sale)</option>
-                          <option value="rent">Lease (Rent)</option>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
+                      <div className="input-group">
+                        <label>Offer Type</label>
+                        <select value={formData.offer_type} onChange={e => handleChange('offer_type', e.target.value)}>
+                          <option value="sale">Sale</option>
+                          <option value="rent">Rent</option>
                         </select>
                       </div>
-                      <div className={styles.inputGroup}>
-                        <label htmlFor={`${formId}-listing-type`} className={styles.inputLabel}>Asset Classification</label>
-                        <select 
-                          id={`${formId}-listing-type`}
-                          className={styles.selectField}
-                          value={formData.listing_type} 
-                          onChange={e => handleChange('listing_type', e.target.value)}
-                        >
-                          <option value="resale">Secondary Market</option>
-                          <option value="primary">Primary Market</option>
-                          <option value="landlord_direct">Strategic Direct</option>
-                          <option value="developer_inventory">Developer Portfolio</option>
+                      <div className="input-group">
+                        <label>Listing Type</label>
+                        <select value={formData.listing_type} onChange={e => handleChange('listing_type', e.target.value)}>
+                          <option value="resale">Resale</option>
+                          <option value="primary">Primary</option>
+                          <option value="landlord_direct">Direct from Owner</option>
+                          <option value="developer_inventory">Developer Inventory</option>
                         </select>
                       </div>
-                      <div className={styles.inputGroup}>
-                        <label htmlFor={`${formId}-status`} className={styles.inputLabel}>Market Status</label>
-                        <select 
-                          id={`${formId}-status`}
-                          className={styles.selectField}
-                          value={formData.status} 
-                          onChange={e => handleChange('status', e.target.value)}
-                        >
-                          <option value="draft">Pending Verification</option>
-                          <option value="available">Market Active</option>
-                          <option value="reserved">Under Negotiation</option>
-                          <option value="sold">Strategic Exit (Sold)</option>
+                      <div className="input-group">
+                        <label>Status</label>
+                        <select value={formData.status} onChange={e => handleChange('status', e.target.value)}>
+                          <option value="draft">Draft</option>
+                          <option value="available">Available</option>
+                          <option value="reserved">Reserved</option>
+                          <option value="sold">Sold</option>
                         </select>
                       </div>
                     </div>
@@ -205,100 +197,56 @@ export default function PropertyForm({ property, onSave, onClose }: PropertyForm
                 )}
 
                 {activeTab === 1 && (
-                  <div className={styles.inputGrid}>
-                    <div className={styles.row2}>
-                      <div className={styles.inputGroup}>
-                        <label htmlFor={`${formId}-compound`} className={styles.inputLabel}>Strategic Development</label>
-                        <input 
-                          id={`${formId}-compound`}
-                          className={styles.inputField}
-                          value={formData.compound_name || ''} 
-                          onChange={e => handleChange('compound_name', e.target.value)} 
-                          placeholder="e.g. Mivida" 
-                        />
+                  <div style={{ display: 'grid', gap: '24px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                      <div className="input-group">
+                        <label>Compound Name</label>
+                        <input value={formData.compound_name || ''} onChange={e => handleChange('compound_name', e.target.value)} placeholder="e.g. Mivida" />
                       </div>
-                      <div className={styles.inputGroup}>
-                        <label htmlFor={`${formId}-area`} className={styles.inputLabel}>Geographic Sector</label>
-                        <select 
-                          id={`${formId}-area`}
-                          className={styles.selectField}
-                          value={formData.area_slug} 
-                          onChange={e => handleChange('area_slug', e.target.value)}
-                        >
+                      <div className="input-group">
+                        <label>Area Slug</label>
+                        <select value={formData.area_slug} onChange={e => handleChange('area_slug', e.target.value)}>
                           <option value="new_cairo">New Cairo</option>
                           <option value="fifth_settlement">Fifth Settlement</option>
                           <option value="sheikh_zayed">Sheikh Zayed</option>
                         </select>
                       </div>
                     </div>
-                    <div className={styles.inputGroup}>
-                      <label htmlFor={`${formId}-address`} className={styles.inputLabel}>Precise Location Data</label>
-                      <textarea 
-                        id={`${formId}-address`}
-                        className={styles.textareaField}
-                        value={formData.address_text || ''} 
-                        onChange={e => handleChange('address_text', e.target.value)} 
-                      />
+                    <div className="input-group">
+                      <label>Address Text</label>
+                      <textarea value={formData.address_text || ''} onChange={e => handleChange('address_text', e.target.value)} style={{ minHeight: '100px' }} />
                     </div>
                   </div>
                 )}
 
                 {activeTab === 2 && (
-                  <div className={styles.inputGrid}>
-                    <div className={styles.row3}>
-                      <div className={styles.inputGroup}>
-                        <label htmlFor={`${formId}-bedrooms`} className={styles.inputLabel}>Sleeping Quarters</label>
-                        <input 
-                          id={`${formId}-bedrooms`}
-                          type="number" 
-                          className={styles.inputField}
-                          value={formData.bedrooms || 0} 
-                          onChange={e => handleChange('bedrooms', parseInt(e.target.value))} 
-                        />
+                  <div style={{ display: 'grid', gap: '24px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
+                      <div className="input-group">
+                        <label>Bedrooms</label>
+                        <input type="number" value={formData.bedrooms || 0} onChange={e => handleChange('bedrooms', parseInt(e.target.value))} />
                       </div>
-                      <div className={styles.inputGroup}>
-                        <label htmlFor={`${formId}-bathrooms`} className={styles.inputLabel}>Restorative Spaces</label>
-                        <input 
-                          id={`${formId}-bathrooms`}
-                          type="number" 
-                          className={styles.inputField}
-                          value={formData.bathrooms || 0} 
-                          onChange={e => handleChange('bathrooms', parseInt(e.target.value))} 
-                        />
+                      <div className="input-group">
+                        <label>Bathrooms</label>
+                        <input type="number" value={formData.bathrooms || 0} onChange={e => handleChange('bathrooms', parseInt(e.target.value))} />
                       </div>
-                      <div className={styles.inputGroup}>
-                        <label htmlFor={`${formId}-bua`} className={styles.inputLabel}>Total Area (SQM)</label>
-                        <input 
-                          id={`${formId}-bua`}
-                          type="number" 
-                          className={styles.inputField}
-                          value={formData.bua_m2 || 0} 
-                          onChange={e => handleChange('bua_m2', parseInt(e.target.value))} 
-                        />
+                      <div className="input-group">
+                        <label>BUA (sqm)</label>
+                        <input type="number" value={formData.bua_m2 || 0} onChange={e => handleChange('bua_m2', parseInt(e.target.value))} />
                       </div>
                     </div>
-                    <div className={styles.row2}>
-                      <div className={styles.inputGroup}>
-                        <label htmlFor={`${formId}-furnishing`} className={styles.inputLabel}>Furnishing Status</label>
-                        <select 
-                          id={`${formId}-furnishing`}
-                          className={styles.selectField}
-                          value={formData.furnishing} 
-                          onChange={e => handleChange('furnishing', e.target.value)}
-                        >
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                      <div className="input-group">
+                        <label>Furnishing</label>
+                        <select value={formData.furnishing} onChange={e => handleChange('furnishing', e.target.value)}>
                           <option value="unfurnished">Unfurnished</option>
                           <option value="semi-furnished">Semi-Furnished</option>
                           <option value="furnished">Fully Furnished</option>
                         </select>
                       </div>
-                      <div className={styles.inputGroup}>
-                        <label htmlFor={`${formId}-finishing`} className={styles.inputLabel}>Finishing Standard</label>
-                        <select 
-                          id={`${formId}-finishing`}
-                          className={styles.selectField}
-                          value={formData.finishing} 
-                          onChange={e => handleChange('finishing', e.target.value)}
-                        >
+                      <div className="input-group">
+                        <label>Finishing</label>
+                        <select value={formData.finishing} onChange={e => handleChange('finishing', e.target.value)}>
                           <option value="core">Core & Shell</option>
                           <option value="semi">Semi Finished</option>
                           <option value="fully">Fully Finished</option>
@@ -310,107 +258,74 @@ export default function PropertyForm({ property, onSave, onClose }: PropertyForm
                 )}
 
                 {activeTab === 3 && (
-                  <div className={styles.inputGrid}>
-                    <div className={styles.row2}>
-                      <div className={styles.inputGroup}>
-                        <label htmlFor={`${formId}-price`} className={styles.inputLabel}>Asset Valuation</label>
-                        <input 
-                          id={`${formId}-price`}
-                          type="number" 
-                          className={`${styles.inputField} ${styles.priceInput}`}
-                          value={formData.price || 0} 
-                          onChange={e => handleChange('price', parseFloat(e.target.value))} 
-                        />
+                  <div style={{ display: 'grid', gap: '24px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '16px' }}>
+                      <div className="input-group">
+                        <label>Price</label>
+                        <input type="number" value={formData.price || 0} onChange={e => handleChange('price', parseFloat(e.target.value))} style={{ fontSize: '24px', fontWeight: 600 }} />
                       </div>
-                      <div className={styles.inputGroup}>
-                        <label htmlFor={`${formId}-currency`} className={styles.inputLabel}>Capital Currency</label>
-                        <select 
-                          id={`${formId}-currency`}
-                          className={styles.selectField}
-                          value={formData.currency} 
-                          onChange={e => handleChange('currency', e.target.value)}
-                        >
+                      <div className="input-group">
+                        <label>Currency</label>
+                        <select value={formData.currency} onChange={e => handleChange('currency', e.target.value)}>
                           <option value="EGP">EGP</option>
                           <option value="USD">USD</option>
                         </select>
                       </div>
                     </div>
-                    <div className={styles.row2}>
-                      <div className={styles.inputGroup}>
-                        <label htmlFor={`${formId}-payment-type`} className={styles.inputLabel}>Capital Transfer Mode</label>
-                        <select 
-                          id={`${formId}-payment-type`}
-                          className={styles.selectField}
-                          value={formData.payment_type} 
-                          onChange={e => handleChange('payment_type', e.target.value)}
-                        >
-                          <option value="cash">Lump Sum (Cash)</option>
-                          <option value="installment">Deferred Structure</option>
-                          <option value="both">Hybrid Allocation</option>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                      <div className="input-group">
+                        <label>Payment Type</label>
+                        <select value={formData.payment_type} onChange={e => handleChange('payment_type', e.target.value)}>
+                          <option value="cash">Cash</option>
+                          <option value="installment">Installment</option>
+                          <option value="both">Both</option>
                         </select>
                       </div>
-                      <div className={styles.inputGroup}>
-                        <label htmlFor={`${formId}-installments`} className={styles.inputLabel}>Strategic Horizon (Years)</label>
-                        <input 
-                          id={`${formId}-installments`}
-                          type="number" 
-                          className={styles.inputField}
-                          value={formData.installment_years || 0} 
-                          onChange={e => handleChange('installment_years', parseInt(e.target.value))} 
-                        />
+                      <div className="input-group">
+                        <label>Installment Years</label>
+                        <input type="number" value={formData.installment_years || 0} onChange={e => handleChange('installment_years', parseInt(e.target.value))} />
                       </div>
                     </div>
                   </div>
                 )}
 
                 {activeTab === 4 && (
-                  <div className={styles.inputGrid}>
-                    <div className={styles.inputGroup}>
-                      <label htmlFor={`${formId}-cover-url`} className={styles.inputLabel}>Prime Visual Reference (URL)</label>
-                      <input 
-                        id={`${formId}-cover-url`}
-                        className={styles.inputField}
-                        value={formData.cover_image_url || ''} 
-                        onChange={e => handleChange('cover_image_url', e.target.value)} 
-                        placeholder="https://..." 
-                      />
+                  <div style={{ display: 'grid', gap: '24px' }}>
+                    <div className="input-group">
+                      <label>Cover Image URL</label>
+                      <input value={formData.cover_image_url || ''} onChange={e => handleChange('cover_image_url', e.target.value)} placeholder="https://..." />
                     </div>
                     {formData.cover_image_url && (
-                      <div className={styles.previewImage}>
-                        <img src={formData.cover_image_url} alt="Cover Preview" />
+                      <div style={{ width: '100%', height: '200px', borderRadius: '12px', background: '#f0f0f0', overflow: 'hidden' }}>
+                        <img src={formData.cover_image_url} alt="Cover Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       </div>
                     )}
-                    <div className={styles.inputGroup}>
-                      <label htmlFor={`${formId}-gallery`} className={styles.inputLabel}>Supplementary Portfolio Gallery (CSV URLs)</label>
+                    <div className="input-group">
+                      <label>Gallery (comma separated URLs)</label>
                       <textarea 
-                        id={`${formId}-gallery`}
-                        className={`${styles.textareaField} ${styles.galleryTextArea}`}
                         value={formData.gallery_urls?.join(', ') || ''} 
                         onChange={e => handleChange('gallery_urls', e.target.value.split(',').map(s => s.trim()))} 
+                        style={{ minHeight: '80px' }}
                       />
                     </div>
                   </div>
                 )}
 
                 {activeTab === 5 && (
-                  <div className={styles.inputGrid}>
-                    <div className={styles.flagCard}>
-                      <div className={styles.flagInfo}>
-                        <div className={styles.flagTitle}>Featured Portfolio Asset</div>
-                        <div className={styles.flagDesc}>Highlight within the elite collection and prioritize in search results</div>
+                  <div style={{ display: 'grid', gap: '16px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', background: '#F8FAFC', borderRadius: '12px' }}>
+                      <div>
+                        <div style={{ fontWeight: 600 }}>Featured Asset</div>
+                        <div style={{ fontSize: '12px', color: '#64748B' }}>Show prominent high-conversion badge and priority list placement</div>
                       </div>
-                      <button type="button" className="twk-toggle" data-on={formData.is_featured ? '1' : '0'}
-                        role="switch" aria-checked={formData.is_featured ? 'true' : 'false'}
-                        onClick={() => handleChange('is_featured', !formData.is_featured)} aria-label="Mark as Featured" title="Mark as Featured"><i /></button>
+                      <input type="checkbox" checked={formData.is_featured} onChange={e => handleChange('is_featured', e.target.checked)} style={{ width: '20px', height: '20px' }} />
                     </div>
-                    <div className={styles.flagCard}>
-                      <div className={styles.flagInfo}>
-                        <div className={styles.flagTitle}>Market Visibility</div>
-                        <div className={styles.flagDesc}>Synchronize to public interfaces; if disabled, asset remains in strategic dark mode</div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', background: '#F8FAFC', borderRadius: '12px' }}>
+                      <div>
+                        <div style={{ fontWeight: 600 }}>Public Visibility</div>
+                        <div style={{ fontSize: '12px', color: '#64748B' }}>If disabled, this asset is only visible to internal strategic personnel</div>
                       </div>
-                      <button type="button" className="twk-toggle" data-on={formData.is_public ? '1' : '0'}
-                        role="switch" aria-checked={formData.is_public ? 'true' : 'false'}
-                        onClick={() => handleChange('is_public', !formData.is_public)} aria-label="Public Visibility" title="Public Visibility"><i /></button>
+                      <input type="checkbox" checked={formData.is_public} onChange={e => handleChange('is_public', e.target.checked)} style={{ width: '20px', height: '20px' }} />
                     </div>
                   </div>
                 )}
@@ -420,28 +335,70 @@ export default function PropertyForm({ property, onSave, onClose }: PropertyForm
         </div>
 
         {/* Footer */}
-        <div className={styles.footer}>
+        <div style={{ padding: '24px', borderTop: '1px solid #E2E8F0', display: 'flex', justifyContent: 'flex-end', gap: '12px', background: '#F8FAFC' }}>
           <button 
             onClick={onClose}
-            className={styles.discardBtn}
+            style={{ 
+              padding: '12px 24px', 
+              borderRadius: '12px', 
+              border: '1px solid #E2E8F0', 
+              background: 'white', 
+              fontWeight: 600, 
+              cursor: 'pointer' 
+            }}
           >
             Discard
           </button>
           <button 
             onClick={handleSave}
             disabled={saving}
-            className={styles.saveBtn}
+            style={{ 
+              padding: '12px 32px', 
+              borderRadius: '12px', 
+              border: 'none', 
+              background: 'var(--navy)', 
+              color: 'white', 
+              fontWeight: 600, 
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              transition: 'opacity 0.2s'
+            }}
           >
-            {saving ? 'Synchronizing Pipeline...' : (
+            {saving ? 'Synchronizing...' : (
               <>
                 <Save size={18} color="var(--gold)" />
-                Finalize Asset Integration
+                Finalize Asset
               </>
             )}
           </button>
         </div>
       </motion.div>
+
+      <style>{`
+        .input-group {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+        .input-group label {
+          font-size: 13px;
+          font-weight: 600;
+          color: #475569;
+        }
+        .input-group input, .input-group select, .input-group textarea {
+          padding: 12px 16px;
+          border-radius: 12px;
+          border: 1px solid #E2E8F0;
+          font-size: 15px;
+          transition: border-color 0.2s;
+        }
+        .input-group input:focus, .input-group select:focus, .input-group textarea:focus {
+          outline: none;
+          border-color: var(--gold);
+        }
+      `}</style>
     </div>
   );
 }
-

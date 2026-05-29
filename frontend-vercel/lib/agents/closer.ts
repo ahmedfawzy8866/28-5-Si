@@ -1,6 +1,6 @@
 import 'server-only'; // gRPC dependency — server only
 import { adminDb } from '../server/firebase-admin';
-import { COLLECTIONS } from '@/lib/models/schema';
+import { COLLECTIONS } from '../models/schema';
 import { instrumentAgent } from '../arize';
 import { OrchestrationStage } from '../services/orchestrator';
 import { initiateFeedbackLoop } from '../services/feedback-engine';

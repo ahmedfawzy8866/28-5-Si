@@ -98,7 +98,7 @@ export default function TeamCRM() {
             </span>
           </div>
           <h1 className="text-4xl font-black text-white tracking-tight leading-tight">
-            Team <span className="luxury-gradient-text">Strategic Pipeline</span>
+            Team <span className="luxury-gradient-text">CRM</span>
           </h1>
           <p className="text-white/40 mt-1 font-medium max-w-md">
             {t('admin.crmDescription')}
@@ -116,11 +116,7 @@ export default function TeamCRM() {
               className="bg-white/[0.03] border border-white/5 rounded-2xl py-3 ps-12 pe-6 text-sm text-white focus:outline-none focus:border-gold/30 focus:bg-white/[0.05] transition-all w-[300px]"
             />
           </div>
-          <button 
-            className="p-3 rounded-2xl bg-white/[0.03] border border-white/5 text-white/50 hover:text-white transition-colors"
-            aria-label="Filter Advisors"
-            title="Filter"
-          >
+          <button className="p-3 rounded-2xl bg-white/[0.03] border border-white/5 text-white/50 hover:text-white transition-colors">
             <Filter size={20} />
           </button>
           <button 
@@ -180,11 +176,7 @@ export default function TeamCRM() {
                    }`}>
                      {t(`admin.${member.status}`) || member.status}
                    </div>
-                   <button 
-                     className="p-2 text-white/10 hover:text-white transition-colors"
-                     aria-label="More options"
-                     title="More"
-                   >
+                   <button className="p-2 text-white/10 hover:text-white transition-colors">
                      <MoreVertical size={20} />
                    </button>
                 </div>
@@ -233,7 +225,7 @@ export default function TeamCRM() {
                   {t('admin.connect')}
                 </button>
                 <button className="flex-1 bg-gold/10 hover:bg-gold/20 text-gold py-3 rounded-xl transition-all font-bold text-[10px] uppercase tracking-widest">
-                  {t('admin.intelligenceTab')}
+                  {t('admin.intelligence')}
                 </button>
               </div>
 

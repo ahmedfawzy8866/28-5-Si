@@ -29,13 +29,13 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import KPIProgressBar from '../UI/KPIProgressBar';
 
-export default function StakeholderFlow() {
+export default function LeadsFlow() {
   const { user } = useAuth();
   const { t, locale, dir } = useI18n();
-  const [stakeholders, setStakeholders] = useState<any[]>([]);
-  const [activeStakeholder, setActiveStakeholder] = useState<any>(null);
-  const [isAddingStakeholder, setIsAddingStakeholder] = useState(false);
-  const [newStakeholder, setNewStakeholder] = useState({ name: '', phone: '' });
+  const [leads, setLeads] = useState<any[]>([]);
+  const [activeLead, setActiveLead] = useState<any>(null);
+  const [isAddingLead, setIsAddingLead] = useState(false);
+  const [newLead, setNewLead] = useState({ name: '', phone: '' });
   const [loading, setLoading] = useState(true);
 
   const workflowSteps = useMemo(() => [
@@ -53,11 +53,11 @@ export default function StakeholderFlow() {
     const q = query(leadsRef, orderBy('updatedAt', 'desc'));
     
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const stakeholdersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setStakeholders(stakeholdersData);
+      const leadsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setLeads(leadsData);
       setLoading(false);
     }, (error) => {
-      console.error("Stakeholders sync error:", error);
+      console.error("Leads sync error:", error);
       setLoading(false);
     });
     
@@ -65,28 +65,28 @@ export default function StakeholderFlow() {
   }, [user]);
 
   // --- ACTIONS ---
-  const updateStakeholderStatus = async (stakeholderId: string, newStatus: string) => {
+  const updateLeadStatus = async (leadId: string, newStatus: string) => {
     if (!user) return;
-    const stakeholderDoc = doc(db, 'leads', stakeholderId);
+    const leadDoc = doc(db, 'leads', leadId);
     try {
-      await updateDoc(stakeholderDoc, { 
+      await updateDoc(leadDoc, { 
         status: newStatus, 
         updatedAt: serverTimestamp() 
       });
-      if (activeStakeholder && activeStakeholder.id === stakeholderId) {
-        setActiveStakeholder({ ...activeStakeholder, status: newStatus });
+      if (activeLead && activeLead.id === leadId) {
+        setActiveLead({ ...activeLead, status: newStatus });
       }
     } catch (err) { console.error(err); }
   };
 
-  const handleAddStakeholder = async (e: React.FormEvent) => {
+  const handleAddLead = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !newStakeholder.name || !newStakeholder.phone) return;
+    if (!user || !newLead.name || !newLead.phone) return;
     try {
       const leadsRef = collection(db, 'leads');
       await addDoc(leadsRef, {
-        name: newStakeholder.name,
-        phone: newStakeholder.phone,
+        name: newLead.name,
+        phone: newLead.phone,
         status: 'intake',
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
@@ -94,8 +94,8 @@ export default function StakeholderFlow() {
         assignedTo: user.uid,
         phase: 'acquisition' // Compatible with ClientsScreen
       });
-      setNewStakeholder({ name: '', phone: '' });
-      setIsAddingStakeholder(false);
+      setNewLead({ name: '', phone: '' });
+      setIsAddingLead(false);
     } catch (err) { console.error(err); }
   };
 
@@ -120,12 +120,12 @@ export default function StakeholderFlow() {
   return (
     <div className="leads-flow-container animate-fade-in-up" dir={dir}>
       {/* Header Area */}
-      <div className="page-header flex justify-between items-end mb-[32px]">
+      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
         <div>
-          <h1 className="serif gold-underline text-[32px]">{t('flow.title')}</h1>
-          <div className="page-sub opacity-70">{t('flow.subtitle')}</div>
+          <h1 className="serif gold-underline" style={{ fontSize: '32px' }}>{t('flow.title')}</h1>
+          <div className="page-sub" style={{ opacity: 0.7 }}>{t('flow.subtitle')}</div>
         </div>
-        <button className="btn btn-gold shadow-gold" onClick={() => setIsAddingStakeholder(true)}>
+        <button className="btn btn-gold shadow-gold" onClick={() => setIsAddingLead(true)}>
           <Plus size={18} className="me-2"/> {t('flow.addLead')}
         </button>
       </div>
@@ -133,7 +133,7 @@ export default function StakeholderFlow() {
       <div className="flow-layout">
         {/* Pipeline Column */}
         <div className="pipeline-sidebar">
-          <div className="kpi-section mb-[24px]">
+          <div className="kpi-section" style={{ marginBottom: '24px' }}>
             <KPIProgressBar 
               label={t('flow.callsTarget') || 'Strategic Calls'} 
               current={8} 
@@ -152,26 +152,26 @@ export default function StakeholderFlow() {
 
           <h2 className="sidebar-section-title">{t('flow.listTitle')}</h2>
           <div className="leads-list">
-            {stakeholders.length === 0 ? (
+            {leads.length === 0 ? (
               <div className="p-8 text-center opacity-30 italic text-sm">{t('flow.noProspects')}</div>
             ) : (
-              stakeholders.map(stakeholder => (
+              leads.map(lead => (
                 <motion.div 
-                   layoutId={stakeholder.id}
-                  key={stakeholder.id} 
-                  onClick={() => setActiveStakeholder(stakeholder)}
-                  className={`stakeholder-card-luxury glass-panel ${activeStakeholder?.id === stakeholder.id ? 'active' : ''}`}
+                  layoutId={lead.id}
+                  key={lead.id} 
+                  onClick={() => setActiveLead(lead)}
+                  className={`lead-card-luxury glass-panel ${activeLead?.id === lead.id ? 'active' : ''}`}
                 >
                   <div className="lead-card-header">
                     <div className="lead-avatar">
-                      {stakeholder.name?.[0] || 'U'}
+                      {lead.name?.[0] || 'U'}
                     </div>
                     <div className="lead-info">
-                      <div className="lead-name">{stakeholder.name || 'Unknown'}</div>
-                      <div className="lead-phone"><Phone size={12}/> {stakeholder.phone}</div>
+                      <div className="lead-name">{lead.name || 'Unknown'}</div>
+                      <div className="lead-phone"><Phone size={12}/> {lead.phone}</div>
                     </div>
-                    <div className={`badge ${getStatusStyle(stakeholder.status)} text-[9px] ml-auto`}>
-                      {t(`flow.stages.${stakeholder.status}`)}
+                    <div className={`badge ${getStatusStyle(lead.status)}`} style={{ fontSize: '9px', marginLeft: 'auto' }}>
+                      {t(`flow.stages.${lead.status}`)}
                     </div>
                   </div>
                 </motion.div>
@@ -183,9 +183,9 @@ export default function StakeholderFlow() {
         {/* Engine Column */}
         <div className="engine-content">
           <AnimatePresence mode="wait">
-            {activeStakeholder ? (
+            {activeLead ? (
               <motion.div 
-                key={activeStakeholder.id}
+                key={activeLead.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
@@ -198,24 +198,22 @@ export default function StakeholderFlow() {
                     </div>
                     <div>
                       <h2 className="serif text-2xl text-gold">{t('flow.engine')}</h2>
-                      <p className="text-secondary text-sm uppercase tracking-widest">{activeStakeholder.name}</p>
+                      <p className="text-secondary text-sm uppercase tracking-widest">{activeLead.name}</p>
                     </div>
                   </div>
-                  <button onClick={() => setActiveStakeholder(null)} className="btn-ghost p-2 rounded-full" title="Close" aria-label="Close"><X size={20}/></button>
+                  <button onClick={() => setActiveLead(null)} className="btn-ghost p-2 rounded-full"><X size={20}/></button>
                 </div>
 
                 {/* Stepper */}
                 <div className="stepper-horizontal">
                   {workflowSteps.map((step, idx) => {
-                    const isActive = step.id === activeStakeholder.status;
-                    const isPast = workflowSteps.findIndex(s => s.id === activeStakeholder.status) > idx;
+                    const isActive = step.id === activeLead.status;
+                    const isPast = workflowSteps.findIndex(s => s.id === activeLead.status) > idx;
                     return (
                       <div key={step.id} className="step-item">
                         <button 
-                          onClick={() => updateStakeholderStatus(activeStakeholder.id, step.id)}
+                          onClick={() => updateLeadStatus(activeLead.id, step.id)}
                           className={`step-bubble ${isActive ? 'active' : isPast ? 'completed' : ''}`}
-                          title={step.label}
-                          aria-label={step.label}
                         >
                           {isPast ? <CheckCircle size={18}/> : step.icon}
                         </button>
@@ -231,10 +229,10 @@ export default function StakeholderFlow() {
                   <div className="script-box cinematic-glow">
                     <div className="script-header">
                       <MessageSquare size={14} className="text-gold"/>
-                      <span>{t(`flow.scripts.${activeStakeholder.status}.title`)}</span>
+                      <span>{t(`flow.scripts.${activeLead.status}.title`)}</span>
                     </div>
                     <div className="script-text">
-                      {t(`flow.scripts.${activeStakeholder.status}.text`).replace('{name}', activeStakeholder.name)}
+                      {t(`flow.scripts.${activeLead.status}.text`).replace('{name}', activeLead.name)}
                     </div>
                   </div>
 
@@ -245,7 +243,7 @@ export default function StakeholderFlow() {
                       <span>{t('flow.engine')} Tasks</span>
                     </div>
                     <div className="tasks-grid">
-                      {(t(`flow.scripts.${activeStakeholder.status}.tasks`) as unknown as string[]).map((task, i) => (
+                      {(t(`flow.scripts.${activeLead.status}.tasks`) as unknown as string[]).map((task, i) => (
                         <div key={i} className="task-item">
                           <div className="task-number">{i+1}</div>
                           <div className="task-label">{task}</div>
@@ -254,7 +252,7 @@ export default function StakeholderFlow() {
                     </div>
                   </div>
 
-                  <a href={`tel:${activeStakeholder.phone}`} className="btn btn-primary w-full py-4 justify-center text-lg mt-4 rounded-[16px]">
+                  <a href={`tel:${activeLead.phone}`} className="btn btn-primary w-full py-4 justify-center text-lg mt-4" style={{ borderRadius: '16px' }}>
                     <Phone size={20} className="me-3"/> {t('flow.callProspect')}
                   </a>
                 </div>
@@ -272,18 +270,18 @@ export default function StakeholderFlow() {
         </div>
       </div>
 
-      {/* Add Stakeholder Modal */}
-      {isAddingStakeholder && (
+      {/* Add Lead Modal */}
+      {isAddingLead && (
         <div className="modal-overlay reveal">
-          <div className="modal-content glass-panel max-w-[480px] p-[40px]">
+          <div className="modal-content glass-panel" style={{ maxWidth: '480px', padding: '40px' }}>
             <h2 className="serif text-3xl text-gold mb-8">{t('flow.newProspect')}</h2>
-            <form onSubmit={handleAddStakeholder} className="space-y-6">
+            <form onSubmit={handleAddLead} className="space-y-6">
               <div className="form-group">
                 <label className="form-label">{t('crm.leadName')}</label>
                 <input 
                   autoFocus required type="text" 
-                  value={newStakeholder.name} 
-                  onChange={(e) => setNewStakeholder({...newStakeholder, name: e.target.value})} 
+                  value={newLead.name} 
+                  onChange={(e) => setNewLead({...newLead, name: e.target.value})} 
                   className="form-input" 
                   placeholder="e.g. John Doe"
                 />
@@ -292,8 +290,8 @@ export default function StakeholderFlow() {
                 <label className="form-label">{t('crm.phone')}</label>
                 <input 
                   required type="tel" 
-                  value={newStakeholder.phone} 
-                  onChange={(e) => setNewStakeholder({...newStakeholder, phone: e.target.value})} 
+                  value={newLead.phone} 
+                  onChange={(e) => setNewLead({...newLead, phone: e.target.value})} 
                   className="form-input" 
                   dir="ltr"
                   placeholder="01xxxxxxxxx"
@@ -301,7 +299,7 @@ export default function StakeholderFlow() {
               </div>
               <div className="flex gap-4 pt-6">
                 <button type="submit" className="btn btn-gold flex-1 justify-center py-4">{t('flow.saveProspect')}</button>
-                <button type="button" onClick={() => setIsAddingStakeholder(false)} className="btn btn-ghost px-6">{t('common.cancel')}</button>
+                <button type="button" onClick={() => setIsAddingLead(false)} className="btn btn-ghost px-6">{t('common.cancel')}</button>
               </div>
             </form>
           </div>

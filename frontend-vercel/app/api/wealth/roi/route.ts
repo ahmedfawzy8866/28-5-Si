@@ -5,7 +5,6 @@
 
 import { NextResponse } from 'next/server';
 import { adminDb } from '@/lib/server/firebase-admin';
-import { FieldValue } from 'firebase-admin/firestore';
 import { COLLECTIONS, Proposal, Unit } from '@/lib/models/schema';
 import { analyzeAssetFinancials } from '@/lib/services/roi-service';
 
@@ -33,7 +32,7 @@ export async function POST(req: Request) {
       if (unitSnap.exists) {
         const unit = { id: unitSnap.id, ...unitSnap.data() } as Unit;
         const financials = await analyzeAssetFinancials(unit);
-        
+
         updatedUnits.push({
           ...unitItem,
           financialAnalysis: {
@@ -60,12 +59,12 @@ export async function POST(req: Request) {
     await adminDb.collection(COLLECTIONS.proposals).doc(proposalId).update({
       units: updatedUnits,
       financialAnalysis,
-      updatedAt: FieldValue.serverTimestamp(),
+      updatedAt: new Date(),
     });
 
-    return NextResponse.json({ 
-      success: true, 
-      financialAnalysis 
+    return NextResponse.json({
+      success: true,
+      financialAnalysis
     });
 
   } catch (error: any) {

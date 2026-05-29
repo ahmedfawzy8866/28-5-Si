@@ -13,7 +13,6 @@ export default function PropertyDetailPage() {
   const [loading, setLoading] = useState(true);
   const [contactOpen, setContactOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const isAr = dir === 'rtl';
 
   useEffect(() => {
     setMounted(true);
@@ -52,35 +51,11 @@ export default function PropertyDetailPage() {
 
       {/* ══ HERO ══ */}
       <section className="relative h-[65vh] pt-20 overflow-hidden bg-surface-container-high">
-        {property.videoUrl ? (
-          <video 
-            src={property.videoUrl}
-            autoPlay
-            muted
-            loop
-            playsInline
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <img 
-            src={property.featuredImage || (property.propertyType === 'villa' ? '/villa.png' : '/penthouse.png')} 
-            className="w-full h-full object-cover"
-            alt=""
-          />
-        )}
-        
-        {/* Cinematic Overlay for Video */}
-        {property.videoUrl && (
-          <div className="absolute top-24 right-8 z-10">
-            <div className="lux-glass !bg-secondary/20 border-secondary/30 px-4 py-2 rounded-lg flex items-center gap-3 backdrop-blur-md">
-              <div className="w-2 h-2 rounded-full bg-secondary animate-ping" />
-              <span className="text-[10px] font-bold tracking-[0.2em] text-secondary uppercase">
-                {isAr ? 'عرض حي' : 'Live Cinematic Tour'}
-              </span>
-            </div>
-          </div>
-        )}
-
+        <img 
+          src={property.propertyType === 'villa' ? '/villa.png' : '/penthouse.png'} 
+          className="w-full h-full object-cover"
+          alt=""
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/20 to-transparent" />
         <div className="absolute bottom-16 left-8 md:left-16 right-8">
           <span className="label-sm text-secondary mb-4 block">{property.compound} · {property.location}</span>

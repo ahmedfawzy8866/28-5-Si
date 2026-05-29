@@ -4,7 +4,7 @@
  * This service maps technical property data to legal risk frameworks.
  */
 
-import { Unit } from '@/lib/models/schema';
+import { Unit } from '../models/schema';
 
 export type LegalRiskLevel = 'low' | 'medium' | 'high';
 

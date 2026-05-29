@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       pfId: result.id,
-      pfReference: (result as any).reference || String(result.id),
+      pfReference: result.reference || String(result.id),
     });
   } catch (error: any) {
     console.error('[PUBLISH_TO_PF]', error.message);

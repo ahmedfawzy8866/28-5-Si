@@ -1,11 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { pfClient } from '@/lib/property-finder-client';
-import { PFIntegrationService } from '@/lib/services/PFIntegrationService';
-import { verifyRequest, unauthorizedResponse } from '@/lib/server/auth-guard';
-
-/**
- * PROPERTY FINDER INTEGRATION GATEWAY (SERVER-SIDE)
- */
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -13,135 +7,104 @@ export async function GET(request: NextRequest) {
 
   try {
     switch (action) {
-      case 'search-listings':
-        const filters = Object.fromEntries(searchParams.entries());
-        delete filters.action;
-        const result = await pfClient.searchPortfolioAssets(filters);
+      case 'search-listings': {
+        const params = Object.fromEntries(searchParams.entries());
+        delete params.action;
+        const result = await pfClient.searchListings(params);
         return NextResponse.json(result);
-
-      case 'search-locations':
-        const query = searchParams.get('q') || '';
-        const locations = await pfClient.searchLocations(query);
+      }
+      case 'search-locations': {
+        const q = searchParams.get('q') || '';
+        const locations = await pfClient.searchLocations(q);
         return NextResponse.json(locations);
-
-      case 'search-stakeholders':
-        const stakeholderFilters = Object.fromEntries(searchParams.entries());
-        delete stakeholderFilters.action;
-        const stakeholders = await pfClient.fetchInvestmentStakeholderRegistry(stakeholderFilters);
-        return NextResponse.json(stakeholders);
-
-      case 'get-amenities':
-        const amenities = await pfClient.getAmenities();
-        return NextResponse.json(amenities);
-
-      case 'credit-balance':
-        // Credit-balance endpoint is not yet implemented in the Property Finder API.
-        return NextResponse.json(
-          { error: 'Credit balance check is not available for this account tier.' },
-          { status: 501 }
-        );
-
+      }
+      case 'fetch-leads': {
+        const params = Object.fromEntries(searchParams.entries());
+        delete params.action;
+        const leads = await pfClient.fetchLeads(params);
+        return NextResponse.json(leads);
+      }
+      case 'users': {
+        const params = Object.fromEntries(searchParams.entries());
+        delete params.action;
+        const users = await pfClient.getUsers(params);
+        return NextResponse.json(users);
+      }
+      case 'credit-balance': {
+        const balance = await pfClient.getCreditBalance();
+        return NextResponse.json(balance);
+      }
+      case 'webhooks': {
+        const hooks = await pfClient.listWebhooks();
+        return NextResponse.json(hooks);
+      }
       default:
-        return NextResponse.json({ error: 'Unsupported integration protocol' }, { status: 400 });
+        return NextResponse.json({ error: 'Unknown action. Use: search-listings, search-locations, fetch-leads, users, credit-balance, webhooks' }, { status: 400 });
     }
   } catch (error: any) {
-    console.error('[GATEWAY_ERROR] Property Finder API Proxy:', error);
-    return NextResponse.json({ 
-      error: 'Integration synchronization interrupted', 
-      details: 'Check secure credentials in the environmental vault or consult system logs for telemetry details.'
-    }, { status: 500 });
+    console.error('[PF API GET]', error.message);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
-  const auth = await verifyRequest(request);
-  if (!auth.authenticated) return unauthorizedResponse();
-
   try {
     const body = await request.json();
     const action = new URL(request.url).searchParams.get('action');
 
-    if (action === 'sync-leads') {
-      const summary = await PFIntegrationService.syncIncomingLeads();
-      return NextResponse.json({
-        success: true,
-        summary,
-        message: `Imported ${summary.created} new leads and refreshed ${summary.updated} existing records.`,
-      });
-    }
-
-    if (action === 'sync-listings') {
-      const summary = await PFIntegrationService.syncIncomingListings();
-      return NextResponse.json({
-        success: true,
-        summary,
-        message: `Imported ${summary.imported} new listings and refreshed ${summary.updated} existing records.`,
-      });
-    }
-
-    if (action === 'publish-unit') {
-      if (!body?.unitId || typeof body.unitId !== 'string') {
-        return NextResponse.json({ error: 'unitId is required' }, { status: 400 });
+    switch (action) {
+      case 'create-listing': {
+        const result = await pfClient.createListing(body);
+        return NextResponse.json(result, { status: 201 });
       }
-
-      const result = await PFIntegrationService.publishListing(body.unitId);
-      return NextResponse.json({ success: true, result });
+      case 'publish': {
+        if (!body.id) return NextResponse.json({ error: 'id required' }, { status: 400 });
+        await pfClient.publishListing(body.id);
+        return NextResponse.json({ success: true, message: `Listing ${body.id} publish requested` });
+      }
+      case 'unpublish': {
+        if (!body.id) return NextResponse.json({ error: 'id required' }, { status: 400 });
+        await pfClient.unpublishListing(body.id);
+        return NextResponse.json({ success: true, message: `Listing ${body.id} unpublished` });
+      }
+      case 'subscribe-webhook': {
+        if (!body.eventId || !body.url) return NextResponse.json({ error: 'eventId and url required' }, { status: 400 });
+        const result = await pfClient.subscribeWebhook(body.eventId, body.url, body.secret);
+        return NextResponse.json(result, { status: 201 });
+      }
+      default:
+        return NextResponse.json({ error: 'Unknown action. Use: create-listing, publish, unpublish, subscribe-webhook' }, { status: 400 });
     }
-
-    if (action === 'create-listing') {
-      const result = await pfClient.createPortfolioAsset(body);
-      return NextResponse.json(result);
-    }
-
-    return NextResponse.json({ error: 'Unsupported write protocol' }, { status: 400 });
   } catch (error: any) {
-    console.error('[WRITE_ERROR] Property Finder API Proxy:', error);
-    return NextResponse.json({ 
-      error: 'Data persistence protocol interrupted', 
-      details: 'Ensure the payload adheres to the enterprise-grade schema requirements.'
-    }, { status: 500 });
+    console.error('[PF API POST]', error.message);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
 export async function PUT(request: NextRequest) {
-  const auth = await verifyRequest(request);
-  if (!auth.authenticated) return unauthorizedResponse();
-
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
+    if (!id) return NextResponse.json({ error: 'id required as query param' }, { status: 400 });
+
     const body = await request.json();
-
-    if (!id) return NextResponse.json({ error: 'Reference ID missing' }, { status: 400 });
-
-    const result = await pfClient.updatePortfolioAsset(id, body);
+    const result = await pfClient.updateListing(parseInt(id), body);
     return NextResponse.json(result);
   } catch (error: any) {
-    console.error('[UPDATE_ERROR] Property Finder API Proxy:', error);
-    return NextResponse.json({ 
-      error: 'Update protocol failed', 
-      details: 'Asset reference ID may be invalid or unauthorized.'
-    }, { status: 500 });
+    console.error('[PF API PUT]', error.message);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
 export async function DELETE(request: NextRequest) {
-  const auth = await verifyRequest(request);
-  if (!auth.authenticated) return unauthorizedResponse();
-
   try {
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id');
+    const id = new URL(request.url).searchParams.get('id');
+    if (!id) return NextResponse.json({ error: 'id required as query param' }, { status: 400 });
 
-    if (!id) return NextResponse.json({ error: 'Reference ID missing' }, { status: 400 });
-
-    await pfClient.deletePortfolioAsset(id);
-    return NextResponse.json({ success: true, message: 'Portfolio asset successfully de-listed' });
+    await pfClient.deleteListing(parseInt(id));
+    return NextResponse.json({ success: true });
   } catch (error: any) {
-    console.error('[DELETE_ERROR] Property Finder API Proxy:', error);
-    return NextResponse.json({ 
-      error: 'Asset de-listing failed', 
-      details: 'Resource may have already been purged or is locked by a concurrent operation.'
-    }, { status: 500 });
+    console.error('[PF API DELETE]', error.message);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

@@ -226,8 +226,8 @@ export default function TeamScreen({ onNavigate }: { onNavigate?: (screen: any) 
               </div>
               
               <div className="spec-group">
-                <label htmlFor="partner-color-theme">Color Theme</label>
-                <select id="partner-color-theme" aria-label="Color Theme" value={partnerDraft.color} onChange={e => setPartnerDraft(p => ({ ...p, color: e.target.value }))} className="form-select">
+                <label>Color Theme</label>
+                <select value={partnerDraft.color} onChange={e => setPartnerDraft(p => ({ ...p, color: e.target.value }))} className="form-select">
                   <option value="var(--blue)">Sierra Blue</option>
                   <option value="var(--gold)">Sierra Gold</option>
                   <option value="var(--navy)">Sierra Navy</option>

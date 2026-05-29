@@ -1,7 +1,7 @@
 "use client";
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { User, onAuthStateChanged, signOut } from 'firebase/auth';
-import { auth, isFirebaseClientConfigured } from './firebase';
+import { auth } from './firebase';
 
 interface AuthContextType {
   user: User | null;
@@ -41,13 +41,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const handleSignOut = React.useCallback(async () => {
-    if (!isFirebaseClientConfigured) {
-      setUser(null);
-      setRole(null);
-      setIsGuest(false);
-      return;
-    }
-
     try {
       await signOut(auth);
       setUser(null);
@@ -61,7 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const scheduleAutoSignOut = React.useCallback(() => {
     clearTimer();
 
-    if (!isGuest && (!isFirebaseClientConfigured || !auth.currentUser)) {
+    if (!auth.currentUser && !isGuest) {
       return;
     }
 
@@ -71,12 +64,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [isGuest, handleSignOut, clearTimer]);
 
   useEffect(() => {
-    if (!isFirebaseClientConfigured) {
-      setLoading(false);
-      clearTimer();
-      return;
-    }
-
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
@@ -152,3 +139,4 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 }
 
 export const useAuth = () => useContext(AuthContext);
+

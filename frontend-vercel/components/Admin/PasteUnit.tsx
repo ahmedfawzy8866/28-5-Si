@@ -39,48 +39,66 @@ export default function PasteUnit({ onSave, onClose }: PasteUnitProps) {
   }
 
   return (
-    <div className="modal-overlay flex items-center justify-center z-[1000]">
+    <div className="modal-overlay" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="paste-container w-[600px] bg-white rounded-3xl p-8 shadow-2xl relative"
+        className="paste-container"
+        style={{ 
+          width: '600px', 
+          background: 'white', 
+          borderRadius: '24px', 
+          padding: '32px',
+          boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)',
+          position: 'relative'
+        }}
       >
-        <button onClick={onClose} className="absolute top-6 right-6 bg-transparent border-none text-slate-400 cursor-pointer" title="Close Modal" aria-label="Close">
+        <button onClick={onClose} style={{ position: 'absolute', top: '24px', right: '24px', background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer' }}>
           <X size={20} />
         </button>
 
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-2.5 rounded-xl bg-[var(--navy)] text-[var(--gold)]">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+          <div style={{ padding: '10px', borderRadius: '12px', background: 'var(--navy)', color: 'var(--gold)' }}>
             <Sparkles size={24} />
           </div>
           <div>
-            <h2 className="m-0 text-lg font-semibold">Intelligence Hub: Text Import</h2>
-            <p className="m-0 text-[13px] text-slate-500">Paste raw property details to auto-parse asset attributes</p>
+            <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 600 }}>Intelligence Hub: Text Import</h2>
+            <p style={{ margin: 0, fontSize: '13px', color: '#64748B' }}>Paste raw property details to auto-parse asset attributes</p>
           </div>
         </div>
 
-        <div className="mb-6">
-          <label className="text-[13px] font-semibold text-slate-600 block mb-2">Raw Intelligence Input</label>
-          <div className="relative">
+        <div style={{ marginBottom: '24px' }}>
+          <label style={{ fontSize: '13px', fontWeight: 600, color: '#475569', display: 'block', marginBottom: '8px' }}>Raw Intelligence Input</label>
+          <div style={{ position: 'relative' }}>
             <textarea 
               value={rawText}
               onChange={e => setRawText(e.target.value)}
               placeholder="Paste WhatsApp listing or property description here..."
-              className="w-full h-[240px] p-5 rounded-2xl border border-slate-200 text-[15px] leading-relaxed outline-none resize-none"
+              style={{ 
+                width: '100%', 
+                height: '240px', 
+                padding: '20px', 
+                borderRadius: '16px', 
+                border: '1px solid #E2E8F0',
+                fontSize: '15px',
+                lineHeight: '1.6',
+                outline: 'none',
+                resize: 'none'
+              }}
             />
             {!rawText && (
-              <div className="absolute bottom-5 right-5 text-slate-300">
+              <div style={{ position: 'absolute', bottom: '20px', right: '20px', color: '#CBD5E1' }}>
                 <Clipboard size={48} opacity={0.2} />
               </div>
             )}
           </div>
         </div>
 
-        <div className="mb-6">
-          <p className="text-[11px] uppercase tracking-[1px] text-slate-400 mb-2">Sample Patterns Supported</p>
-          <div className="flex flex-col gap-1">
+        <div style={{ marginBottom: '24px' }}>
+          <p style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', color: '#94A3B8', marginBottom: '8px' }}>Sample Patterns Supported</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             {examples.map((ex, i) => (
-              <div key={i} onClick={() => setRawText(ex)} className="text-xs text-slate-500 cursor-pointer py-1 px-2 rounded border border-dashed border-slate-200 overflow-hidden text-ellipsis whitespace-nowrap">
+              <div key={i} onClick={() => setRawText(ex)} style={{ fontSize: '12px', color: '#64748B', cursor: 'pointer', padding: '4px 8px', borderRadius: '4px', border: '1px dashed #E2E8F0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 "{ex}"
               </div>
             ))}
@@ -90,7 +108,21 @@ export default function PasteUnit({ onSave, onClose }: PasteUnitProps) {
         <button 
           onClick={handleParse}
           disabled={!rawText.trim()}
-          className={`w-full p-4 rounded-xl border-none bg-[var(--navy)] text-white font-semibold cursor-pointer flex items-center justify-center gap-2.5 ${rawText.trim() ? 'opacity-100' : 'opacity-50'}`}
+          style={{ 
+            width: '100%', 
+            padding: '16px', 
+            borderRadius: '12px', 
+            border: 'none', 
+            background: 'var(--navy)', 
+            color: 'white', 
+            fontWeight: 600, 
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '10px',
+            opacity: rawText.trim() ? 1 : 0.5
+          }}
         >
           <CheckCircle2 size={18} color="var(--gold)" />
           Parse & Reconstruct Asset

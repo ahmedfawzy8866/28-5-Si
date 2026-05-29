@@ -5,8 +5,8 @@
  */
 
 import { adminDb } from '../server/firebase-admin';
-import { FieldValue } from 'firebase-admin/firestore';
-import { COLLECTIONS, type Lead, type Unit } from '@/lib/models/schema';
+import { Timestamp } from 'firebase-admin/firestore';
+import { COLLECTIONS, type Lead, type Unit } from '../models/schema';
 import { GoogleAIService } from '../server/google-ai';
 import { TelegramAlertService } from './telegram-alert-service';
 import { MemoryService } from './memory-service';
@@ -32,7 +32,7 @@ export async function runMatchingForLead(leadId: string): Promise<MatchResult[]>
     .where('status', '==', 'available')
     .limit(20)
     .get();
-  
+
   const candidateUnits = unitsSnap.docs.map(d => ({ id: d.id, ...d.data() } as Unit));
 
   if (candidateUnits.length === 0) return [];
@@ -44,7 +44,7 @@ export async function runMatchingForLead(leadId: string): Promise<MatchResult[]>
   // 4. Update Lead with new matches
   await adminDb.collection(COLLECTIONS.stakeholders).doc(leadId).update({
     'aiProfiling.topMatches': matches,
-    'aiProfiling.lastMatchRunAt': FieldValue.serverTimestamp(),
+    'aiProfiling.lastMatchRunAt': Timestamp.now(),
   });
 
   // 5. VIP Alerting (Stage 7 Logic)
@@ -80,7 +80,7 @@ export async function runMatchingForUnit(unitId: string): Promise<void> {
     .where('orchestrationState.status', '!=', 'archived')
     .limit(50)
     .get();
-  
+
   const candidates = leadsSnap.docs.map(d => ({ id: d.id, ...d.data() } as Lead));
 
   for (const lead of candidates) {
@@ -88,10 +88,10 @@ export async function runMatchingForUnit(unitId: string): Promise<void> {
     if (matches.length > 0 && matches[0].matchScore > 70) {
       const currentMatches = lead.aiProfiling?.topMatches || [];
       const updatedMatches = [matches[0], ...currentMatches.filter(m => m.unitId !== unitId)].slice(0, 5);
-      
+
       await adminDb.collection(COLLECTIONS.stakeholders).doc(lead.id!).update({
         'aiProfiling.topMatches': updatedMatches,
-        'aiProfiling.lastMatchRunAt': FieldValue.serverTimestamp(),
+        'aiProfiling.lastMatchRunAt': Timestamp.now(),
       });
     }
   }
@@ -123,7 +123,7 @@ Scoring Metrics (V10.0):
 Institutional Knowledge (Global Neural Memory):
 {{GLOBAL_TRENDS}}
 
-Output: Return ONLY a JSON array of objects: 
+Output: Return ONLY a JSON array of objects:
 [{"unitId": "...", "matchScore": 0-100, "matchReason": "Detailed executive summary focusing on ROI potential, Capital Appreciation, and why this asset fits the stakeholder's strategic portfolio."}]`;
 
   const userPayload = {
@@ -134,7 +134,7 @@ Output: Return ONLY a JSON array of objects:
       preferredType: lead.preferredPropertyType,
       locations: lead.preferredLocations,
       strategicNotes: lead.notes,
-      
+
       // Neural Memory Layer V9.0
       neuralMemory: {
         negativeSignals: lead.intelligence?.memory?.negativeSignals || [],
@@ -186,11 +186,11 @@ Output: Return ONLY a JSON array of objects:
 function fallbackScoring(lead: Lead, units: Unit[]): MatchResult[] {
   return units.map(u => {
     let score = 50; // Base score
-    
+
     if (lead.preferredPropertyType === u.propertyType) score += 20;
     if (lead.budgetMax && u.price <= lead.budgetMax) score += 15;
     if (lead.preferredLocations?.includes(u.compound || u.location || '')) score += 15;
-    
+
     return {
       unitId: u.id!,
       matchScore: Math.min(score, 100),

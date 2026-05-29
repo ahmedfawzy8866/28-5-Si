@@ -30,6 +30,9 @@ export default function AdminSyncPage() {
   const [credits, setCredits] = useState<any>(null);
   const [loadingCredits, setLoadingCredits] = useState(false);
 
+  useEffect(() => {
+    loadActivities();
+  }, []);
 
   async function loadActivities() {
     try {
@@ -44,10 +47,6 @@ export default function AdminSyncPage() {
       console.error('Failed to load activities:', err);
     }
   }
-
-  useEffect(() => {
-    loadActivities();
-  }, []);
 
   async function getAuthHeaders(): Promise<HeadersInit> {
     const token = await auth.currentUser?.getIdToken();
@@ -98,8 +97,7 @@ export default function AdminSyncPage() {
       loading: syncingListings,
       result: listingsResult,
       action: () => runSync('sync-listings', setSyncingListings, setListingsResult),
-      colorClass: 'text-[#3B82F6]',
-      bgClass: 'bg-[#3B82F6]/10',
+      color: '#3B82F6',
     },
     {
       title: 'Sync Leads',
@@ -108,8 +106,7 @@ export default function AdminSyncPage() {
       loading: syncingLeads,
       result: leadsResult,
       action: () => runSync('sync-leads', setSyncingLeads, setLeadsResult),
-      colorClass: 'text-[#10B981]',
-      bgClass: 'bg-[#10B981]/10',
+      color: '#10B981',
     },
     {
       title: 'Full Sync',
@@ -118,16 +115,15 @@ export default function AdminSyncPage() {
       loading: syncingFull,
       result: fullResult,
       action: () => runSync('run-sync', setSyncingFull, setFullResult),
-      colorClass: 'text-[#C9A84C]',
-      bgClass: 'bg-[#C9A84C]/10',
+      color: '#C9A84C',
     },
   ];
 
   return (
-    <div className="font-[var(--font-body)]">
+    <div style={{ fontFamily: 'var(--font-body)' }}>
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-[#071422] tracking-tight font-[var(--font-display)]">
+        <h1 className="text-2xl font-bold text-[#071422] tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>
           Sync Center
         </h1>
         <p className="text-[#3a5570] text-sm mt-0.5">Property Finder integration management</p>
@@ -135,12 +131,12 @@ export default function AdminSyncPage() {
 
       {/* ══ Quick Actions ══ */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-        {actions.map(({ title, desc, icon: Icon, loading, result, action, colorClass, bgClass }) => (
+        {actions.map(({ title, desc, icon: Icon, loading, result, action, color }) => (
           <div key={title}
             className="bg-white rounded-2xl p-6 shadow-[0_2px_16px_-4px_rgba(3,22,50,0.06)] hover:shadow-[0_8px_32px_-4px_rgba(3,22,50,0.1)] transition-shadow">
             <div className="flex items-start gap-3 mb-4">
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${bgClass}`}>
-                <Icon size={18} className={colorClass} />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${color}14` }}>
+                <Icon size={18} style={{ color }} />
               </div>
               <div className="flex-1">
                 <h3 className="font-bold text-sm text-[#071422]">{title}</h3>
@@ -215,7 +211,7 @@ export default function AdminSyncPage() {
       {/* ══ Sync Activity Log ══ */}
       <div className="bg-white rounded-2xl shadow-[0_2px_16px_-4px_rgba(3,22,50,0.06)] overflow-hidden">
         <div className="px-8 py-6 border-b border-[#f3f4f5] flex items-center justify-between">
-          <h2 className="font-bold text-[#071422] font-[var(--font-display)]">
+          <h2 className="font-bold text-[#071422]" style={{ fontFamily: 'var(--font-display)' }}>
             Sync Activity Log
           </h2>
           <span className="text-[9px] text-[#3a5570]/50 uppercase tracking-widest font-mono">

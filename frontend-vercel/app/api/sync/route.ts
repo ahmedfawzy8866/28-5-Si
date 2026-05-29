@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { syncBatch, getPendingDedupeItems, resolveDedupeItem } from '@/lib/services/sync-engine';
 import { PFIntegrationService } from '@/lib/services/PFIntegrationService';
-import { pfClient } from '../../../lib/property-finder-client';
+import { pfClient } from '@/lib/property-finder-client';
 import { verifyRequest, unauthorizedResponse } from '@/lib/server/auth-guard';
 import { adminDb } from '@/lib/server/firebase-admin';
-import { COLLECTIONS } from '@/lib/models/schema';
 
 /**
  * SYNC MANAGEMENT API
- * Handles Property Finder ↔ Firestore sync operations and Strategic Pipeline (dedup) management.
+ * Handles PF ↔ Firestore sync operations and dedup queue management.
  */
 
 async function isAdmin(uid: string): Promise<boolean> {
@@ -68,42 +67,29 @@ export async function POST(request: NextRequest) {
     switch (action) {
       case 'run-sync': {
         const filters = body.filters || {};
-        const pfResult = await pfClient.searchPortfolioAssets(filters);
+        const pfResult = await pfClient.searchListings(filters);
+        const listings = pfResult.data || [];
+        const syncResult = await syncBatch(listings as unknown as Record<string, unknown>[]);
         
-        // Sync Portfolio Assets (formerly listings)
-        const portfolioAssets = pfResult.data || [];
-        const syncResult = await syncBatch(portfolioAssets as unknown as Record<string, unknown>[]);
-        
-        // Also sync Investment Stakeholders (formerly leads) automatically
-        const stakeholdersResult = await PFIntegrationService.syncIncomingLeads();
-        
-        return NextResponse.json({ 
-          portfolioAssets: syncResult, 
-          investmentStakeholders: stakeholdersResult 
-        });
-      }
+        // Also sync leads + listings automatically as part of full run
+        const leadsResult = await PFIntegrationService.syncIncomingLeads();
+        const pfListingsResult = await PFIntegrationService.syncIncomingListings();
 
-      case 'sync-listings': {
-        const listingsResult = await PFIntegrationService.syncIncomingListings();
         return NextResponse.json({
-          success: true,
-          ...listingsResult,
-          message: `Imported ${listingsResult.imported} new listings and refreshed ${listingsResult.updated} existing records.`,
+          listings: syncResult,
+          leads: leadsResult,
+          pfListings: pfListingsResult,
         });
       }
 
       case 'sync-leads': {
         const leadsResult = await PFIntegrationService.syncIncomingLeads();
-        return NextResponse.json({
-          success: true,
-          ...leadsResult,
-          message: `Imported ${leadsResult.created} new leads and refreshed ${leadsResult.updated} existing records.`,
-        });
+        return NextResponse.json(leadsResult);
       }
 
-      case 'sync-stakeholders': {
-        const stakeholdersResult = await PFIntegrationService.syncIncomingLeads();
-        return NextResponse.json(stakeholdersResult);
+      case 'sync-listings': {
+        const listingsResult = await PFIntegrationService.syncIncomingListings();
+        return NextResponse.json(listingsResult);
       }
 
       case 'resolve': {

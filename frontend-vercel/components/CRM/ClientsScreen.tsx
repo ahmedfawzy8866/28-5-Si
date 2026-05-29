@@ -63,9 +63,9 @@ export default function ClientsScreen() {
 
   return (
     <div className="clients-screen animate-fade-in-up">
-      <div className="page-header mb-[40px]">
-        <h1 className="serif text-3xl mb-2 gold-underline">{t('clients.title')}</h1>
-        <p className="text-secondary text-sm">{t('clients.subtitle')}</p>
+      <div className="page-header" style={{ marginBottom: '40px' }}>
+        <h1 className="serif text-3xl mb-2 gold-underline">{locale === 'ar' ? 'محفظة المستثمرين' : 'Global Stakeholder Portfolio'}</h1>
+        <p className="text-secondary text-sm">Comprehensive record of all active prospects, historical interactions, and asset allocations</p>
       </div>
 
       <div className="action-bar-luxury glass-panel mb-8 p-4 flex items-center justify-between gap-4">
@@ -74,7 +74,7 @@ export default function ClientsScreen() {
           <input 
             type="text" 
             className="w-full ps-12 pe-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:border-gold/50 outline-none transition-all text-sm"
-            placeholder={t('clients.searchPlaceholder')}
+            placeholder={locale === 'ar' ? 'ابحث بالاسم أو الهاتف أو المشروع...' : 'Search by name, phone, or portfolio preference...'}
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
@@ -84,18 +84,17 @@ export default function ClientsScreen() {
           className="bg-navy-dark border border-white/10 rounded-xl px-4 py-3 text-sm outline-none focus:border-gold/50"
           value={filterPhase}
           onChange={e => setFilterPhase(e.target.value)}
-          title="Filter Phase"
         >
-          <option value="all">{t('clients.phases.all')}</option>
-          <option value="acquisition">{t('clients.phases.acquisition')}</option>
-          <option value="consultation">{t('clients.phases.consultation')}</option>
-          <option value="inspection">{t('clients.phases.inspection')}</option>
-          <option value="structuring">{t('clients.phases.structuring')}</option>
-          <option value="settlement">{t('clients.phases.settlement')}</option>
+          <option value="all">{locale === 'ar' ? 'جميع المراحل' : 'All Phases'}</option>
+          <option value="acquisition">{locale === 'ar' ? 'استحواذ' : 'Acquisition'}</option>
+          <option value="consultation">{locale === 'ar' ? 'استشارة' : 'Consultation'}</option>
+          <option value="inspection">{locale === 'ar' ? 'معاينة' : 'Inspection'}</option>
+          <option value="structuring">{locale === 'ar' ? 'هيكلة الصفقة' : 'Structuring'}</option>
+          <option value="settlement">{locale === 'ar' ? 'تمت الصفقة' : 'Settled'}</option>
         </select>
 
         <button className="btn btn-outline btn-sm py-3 px-6 h-auto">
-          {t('clients.exportLedger')}
+          {locale === 'ar' ? 'تصدير التقرير' : 'Export Ledger'}
         </button>
       </div>
 
@@ -103,12 +102,12 @@ export default function ClientsScreen() {
         <table className="w-full text-left border-collapse bg-white/[0.02] backdrop-blur-md">
           <thead>
             <tr className="bg-white/5 uppercase text-[10px] tracking-widest font-bold text-gold/80">
-              <th className="px-6 py-5">{t('clients.table.identity')}</th>
-              <th className="px-6 py-5">{t('clients.table.capital')}</th>
-              <th className="px-6 py-5">{t('clients.table.focus')}</th>
-              <th className="px-6 py-5">{t('clients.table.advisor')}</th>
-              <th className="px-6 py-5">{t('clients.table.phase')}</th>
-              <th className="px-6 py-5">{t('clients.table.date')}</th>
+              <th className="px-6 py-5">{locale === 'ar' ? 'المستثمر' : 'Stakeholder Identity'}</th>
+              <th className="px-6 py-5">{locale === 'ar' ? 'التخصيص المالي' : 'Capital Allocation'}</th>
+              <th className="px-6 py-5">{locale === 'ar' ? 'الأصول المفضلة' : 'Portfolio Focus'}</th>
+              <th className="px-6 py-5">{locale === 'ar' ? 'المستشار المسؤول' : 'Assigned Advisor'}</th>
+              <th className="px-6 py-5">{locale === 'ar' ? 'المرحلة الحالية' : 'Operational Phase'}</th>
+              <th className="px-6 py-5">{locale === 'ar' ? 'تاريخ الدخول' : 'Ingestion Date'}</th>
             </tr>
           </thead>
           <tbody className="text-sm">
@@ -127,24 +126,24 @@ export default function ClientsScreen() {
                 </td>
                 <td className="px-6 py-5 font-mono text-gold/90">{s.capitalAllocation}</td>
                 <td className="px-6 py-5">{s.portfolioPreference}</td>
-                <td className="px-6 py-5 opacity-70 italic">{s.assignedPartnerName || t('clients.table.unassigned')}</td>
+                <td className="px-6 py-5 opacity-70 italic">{s.assignedPartnerName || 'Unassigned'}</td>
                 <td className="px-6 py-5">
                   <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-tighter ${
                     s.phase === 'settlement' ? 'bg-emerald-500/10 text-emerald-500' :
                     s.phase === 'acquisition' ? 'bg-blue-500/10 text-blue-500' : 'bg-gold/10 text-gold'
                   }`}>
-                    {t(`clients.phases.${s.phase}`) || s.phase}
+                    {s.phase}
                   </span>
                 </td>
                 <td className="px-6 py-5 opacity-40 text-xs">
-                  {s.createdAt?.toDate ? s.createdAt.toDate().toLocaleDateString() : t('clients.table.historical')}
+                  {s.createdAt?.toDate ? s.createdAt.toDate().toLocaleDateString() : 'Historical'}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
         {filtered.length === 0 && (
-          <div className="py-20 text-center opacity-30 italic">{t('clients.table.noResults')}</div>
+          <div className="py-20 text-center opacity-30 italic">No stakeholders matching your search criteria were found in the ledger.</div>
         )}
       </div>
 

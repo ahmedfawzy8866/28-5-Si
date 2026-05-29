@@ -11,6 +11,9 @@ export default function InventoryGrid() {
   const [filters, setFilters] = useState<PropertyFilters>({});
   const [searchQuery, setSearchQuery] = useState('');
 
+  useEffect(() => {
+    fetchInventory();
+  }, [filters]);
 
   const fetchInventory = async () => {
     setLoading(true);
@@ -23,10 +26,6 @@ export default function InventoryGrid() {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchInventory();
-  }, [filters]);
 
   const filteredProperties = properties.filter(p => 
     p.compound_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -134,11 +133,7 @@ export default function InventoryGrid() {
                             {p.currency === 'USD' ? '$' : ''}{p.price.toLocaleString()} {p.currency === 'EGP' ? 'EGP' : ''}
                           </span>
                        </div>
-                       <button 
-                         className="w-12 h-12 flex items-center justify-center border border-[#F4F0E8]/10 rounded-full hover:border-[#D4AF37] hover:bg-[#D4AF37] hover:text-[#050B14] transition-all duration-500 group-hover:scale-110"
-                         aria-label="View Asset Details"
-                         title="View Asset Details"
-                       >
+                       <button className="w-12 h-12 flex items-center justify-center border border-[#F4F0E8]/10 rounded-full hover:border-[#D4AF37] hover:bg-[#D4AF37] hover:text-[#050B14] transition-all duration-500 group-hover:scale-110">
                           <ExternalLink className="w-5 h-5" />
                        </button>
                     </div>

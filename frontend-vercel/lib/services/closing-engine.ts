@@ -3,9 +3,9 @@
  * Orchestrates contract synthesis, stakeholder verification, and commission processing.
  */
 
-import { db } from '../firebase';
-import { collection, addDoc, serverTimestamp, doc, updateDoc, Timestamp, getDoc } from 'firebase/firestore';
-import { COLLECTIONS, type Sale, type Lead, type Unit } from '@/lib/models/schema';
+import { adminDb } from '../server/firebase-admin';
+import { Timestamp } from 'firebase-admin/firestore';
+import { COLLECTIONS, type Sale, type Lead, type Unit } from '../models/schema';
 import { sendTelegramMessage } from './telegram-controller';
 import { initiateFeedbackLoop } from './feedback-engine';
 import { GoogleAIService } from '../server/google-ai';
@@ -22,39 +22,39 @@ export async function initiateClosing(
   commissionPercent: number = 2.5
 ): Promise<string> {
   // ─── VALIDATION: Ensure Asset Availability ──────────────────────
-  const unitRef = doc(db, COLLECTIONS.units, unitId);
-  const unitSnap = await getDoc(unitRef);
-  if (unitSnap.exists() && (unitSnap.data() as Unit).status === 'sold') {
+  const unitRef = adminDb.collection(COLLECTIONS.units).doc(unitId);
+  const unitSnap = await unitRef.get();
+  if (unitSnap.exists && (unitSnap.data() as Unit).status === 'sold') {
     throw new Error(`[Strategic Acquisition Error] Asset ${unitId} is already marked as SOLD.`);
   }
 
   const commissionAmount = (salePrice * commissionPercent) / 100;
 
-  const saleData: Partial<Sale> = {
+  const saleData = {
     leadId,
     unitId,
     agentId,
     salePrice,
     commissionPercent,
     commissionAmount,
-    status: 'pending',
-    closingDate: Timestamp.now(), 
-    createdAt: serverTimestamp(),
+    status: 'pending' as const,
+    closingDate: Timestamp.now(),
+    createdAt: Timestamp.now(),
   };
 
-  const docRef = await addDoc(collection(db, COLLECTIONS.sales), saleData);
+  const docRef = await adminDb.collection(COLLECTIONS.sales).add(saleData);
 
   // Generate Contract Preview URL (Simulated)
   const contractUrl = `https://sierrablu.luxury/contracts/preview/${docRef.id}`;
 
-  // Update unit status to 'reserved' 
-  await updateDoc(doc(db, COLLECTIONS.units, unitId), {
+  // Update unit status to 'reserved'
+  await adminDb.collection(COLLECTIONS.units).doc(unitId).update({
     status: 'reserved',
-    updatedAt: serverTimestamp(),
+    updatedAt: Timestamp.now(),
   });
 
   // Update Stakeholder (Lead) State
-  await updateDoc(doc(db, COLLECTIONS.stakeholders, leadId), {
+  await adminDb.collection(COLLECTIONS.stakeholders).doc(leadId).update({
     'orchestrationState.stage': 'S9_ACQUISITION_IN_PROGRESS',
     'intelligence.contractUrl': contractUrl
   });
@@ -68,20 +68,20 @@ export async function initiateClosing(
  * Finalizes the sale, marks unit as sold, and triggers the feedback loop.
  */
 export async function finalizeSale(saleId: string) {
-  const saleRef = doc(db, COLLECTIONS.sales, saleId);
-  const saleSnap = await getDoc(saleRef);
-  if (!saleSnap.exists()) return;
+  const saleRef = adminDb.collection(COLLECTIONS.sales).doc(saleId);
+  const saleSnap = await saleRef.get();
+  if (!saleSnap.exists) return;
   const sale = saleSnap.data() as Sale;
 
-  await updateDoc(saleRef, {
+  await saleRef.update({
     status: 'completed',
-    updatedAt: serverTimestamp(),
+    updatedAt: Timestamp.now(),
   });
 
   // Mark Signature Asset as Sold in Global Registry
-  await updateDoc(doc(db, COLLECTIONS.units, sale.unitId), {
+  await adminDb.collection(COLLECTIONS.units).doc(sale.unitId).update({
     status: 'sold',
-    updatedAt: serverTimestamp(),
+    updatedAt: Timestamp.now(),
   });
 
   // Trigger Stage 10: High-Fidelity Feedback Loop
@@ -95,10 +95,10 @@ export async function finalizeSale(saleId: string) {
  * Uses Sierra persona to affirm the deal value.
  */
 export async function generateContractPreview(leadId: string, unitId: string): Promise<string> {
-  const leadSnap = await getDoc(doc(db, COLLECTIONS.stakeholders, leadId));
-  const unitSnap = await getDoc(doc(db, COLLECTIONS.units, unitId));
-  
-  if (!leadSnap.exists() || !unitSnap.exists()) return "Strategic acquisition context pending.";
+  const leadSnap = await adminDb.collection(COLLECTIONS.stakeholders).doc(leadId).get();
+  const unitSnap = await adminDb.collection(COLLECTIONS.units).doc(unitId).get();
+
+  if (!leadSnap.exists || !unitSnap.exists) return "Strategic acquisition context pending.";
 
   const lead = leadSnap.data() as Lead;
   const unit = unitSnap.data() as Unit;

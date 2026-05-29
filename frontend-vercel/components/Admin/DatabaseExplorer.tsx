@@ -83,8 +83,6 @@ export default function DatabaseExplorer() {
           <button 
             onClick={fetchDocuments}
             className="p-3 rounded-2xl bg-white/[0.03] border border-white/5 text-white/50 hover:text-white transition-colors"
-            title="Refresh Documents"
-            aria-label="Refresh Documents"
           >
             <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
           </button>
@@ -99,8 +97,6 @@ export default function DatabaseExplorer() {
             <button
               key={coll.key}
               onClick={() => setSelectedCollection(coll.key)}
-              title={`Select ${coll.label} collection`}
-              aria-label={`Select ${coll.label} collection`}
               className={`
                 w-full flex items-center justify-between p-4 rounded-2xl transition-all duration-500 group
                 ${selectedCollection === coll.key 
@@ -182,8 +178,6 @@ export default function DatabaseExplorer() {
                         <button 
                           onClick={() => setSelectedDoc(doc)}
                           className="px-4 py-2 rounded-xl bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-navy hover:bg-gold hover:border-gold transition-all"
-                          title="Inspect Document"
-                          aria-label="Inspect Document"
                         >
                           Inspect
                         </button>
@@ -226,8 +220,6 @@ export default function DatabaseExplorer() {
                 <button 
                   onClick={() => setSelectedDoc(null)}
                   className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-white transition-all hover:scale-110 active:scale-95"
-                  title="Close Modal"
-                  aria-label="Close"
                 >
                   <X size={20} />
                 </button>
@@ -243,15 +235,11 @@ export default function DatabaseExplorer() {
                  <button 
                   onClick={() => setSelectedDoc(null)}
                   className="px-8 py-4 rounded-2xl bg-white/5 text-white/40 text-[10px] font-black uppercase tracking-widest hover:text-white transition-colors"
-                  title="Dismiss Modal"
-                  aria-label="Dismiss Modal"
                  >
                    Dismiss
                  </button>
                  <button 
                   className="px-8 py-4 rounded-2xl bg-gold text-navy text-[10px] font-black uppercase tracking-widest shadow-[0_0_20px_rgba(200,169,110,0.3)] flex items-center gap-2"
-                  title="Commit Override"
-                  aria-label="Commit Override"
                  >
                    Commit Override <ArrowRight size={14} />
                  </button>

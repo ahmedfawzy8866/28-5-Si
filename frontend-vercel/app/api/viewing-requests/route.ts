@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/firebase';
-import { collection, addDoc, serverTimestamp, getDocs, query, where } from 'firebase/firestore';
+import { adminDb } from '@/lib/server/firebase-admin';
+import { Timestamp, Query } from 'firebase-admin/firestore';
 
 export async function POST(request: NextRequest) {
   try {
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     const requestDate = new Date(preferredDate);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     if (requestDate < today) {
       return NextResponse.json(
         { error: 'Preferred date must be in the future' },
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Add viewing request to Firestore
-    const docRef = await addDoc(collection(db, 'viewing_requests'), {
+    const docRef = await adminDb.collection('viewing_requests').add({
       propertyCode,
       visitorName,
       visitorEmail,
@@ -56,15 +56,15 @@ export async function POST(request: NextRequest) {
       numberOfPeople: numberOfPeople || 1,
       message: message || '',
       status: 'pending',
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
+      createdAt: Timestamp.now(),
+      updatedAt: Timestamp.now(),
     });
 
     return NextResponse.json(
-      { 
-        success: true, 
+      {
+        success: true,
         requestId: docRef.id,
-        message: 'Viewing request created successfully' 
+        message: 'Viewing request created successfully'
       },
       { status: 201 }
     );
@@ -83,29 +83,25 @@ export async function GET(request: NextRequest) {
     const propertyCode = searchParams.get('propertyCode');
     const status = searchParams.get('status');
 
-    const requestsRef = collection(db, 'viewing_requests');
-    
-    let q;
-    if (propertyCode && status) {
-      q = query(requestsRef, where('propertyCode', '==', propertyCode), where('status', '==', status));
-    } else if (propertyCode) {
-      q = query(requestsRef, where('propertyCode', '==', propertyCode));
-    } else if (status) {
-      q = query(requestsRef, where('status', '==', status));
-    } else {
-      q = requestsRef;
+    let ref: Query = adminDb.collection('viewing_requests');
+
+    if (propertyCode) {
+      ref = ref.where('propertyCode', '==', propertyCode);
+    }
+    if (status) {
+      ref = ref.where('status', '==', status);
     }
 
-    const snapshot = await getDocs(q);
+    const snapshot = await ref.get();
     const requests = snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data(),
     }));
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: true,
       count: requests.length,
-      requests 
+      requests
     }, { status: 200 });
   } catch (error) {
     console.error('Get viewing requests error:', error);

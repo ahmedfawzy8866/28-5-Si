@@ -75,8 +75,6 @@ export default function AddAdvisorModal({ isOpen, onClose }: AddAdvisorModalProp
               <button 
                 onClick={onClose}
                 className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-all"
-                title="Close Modal"
-                aria-label="Close"
               >
                 <X size={20} />
               </button>
@@ -96,7 +94,6 @@ export default function AddAdvisorModal({ isOpen, onClose }: AddAdvisorModalProp
                       onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
                       placeholder="John Doe"
                       className="w-full bg-white/[0.02] border border-white/10 rounded-2xl py-4 ps-12 pe-6 text-white focus:outline-none focus:border-gold/30 focus:bg-white/[0.05] transition-all"
-                      title="Full Name"
                     />
                   </div>
                 </div>
@@ -113,7 +110,6 @@ export default function AddAdvisorModal({ isOpen, onClose }: AddAdvisorModalProp
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       placeholder="john@sierra-blu.com"
                       className="w-full bg-white/[0.02] border border-white/10 rounded-2xl py-4 ps-12 pe-6 text-white focus:outline-none focus:border-gold/30 focus:bg-white/[0.05] transition-all"
-                      title="Email Address"
                     />
                   </div>
                 </div>
@@ -130,7 +126,6 @@ export default function AddAdvisorModal({ isOpen, onClose }: AddAdvisorModalProp
                       onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
                       placeholder="+20 123 456 7890"
                       className="w-full bg-white/[0.02] border border-white/10 rounded-2xl py-4 ps-12 pe-6 text-white focus:outline-none focus:border-gold/30 focus:bg-white/[0.05] transition-all"
-                      title="Phone Number"
                     />
                   </div>
                 </div>
@@ -144,8 +139,6 @@ export default function AddAdvisorModal({ isOpen, onClose }: AddAdvisorModalProp
                       value={formData.role}
                       onChange={(e) => setFormData({ ...formData, role: e.target.value as any })}
                       className="w-full bg-white/[0.02] border border-white/10 rounded-2xl py-4 ps-12 pe-6 text-white appearance-none focus:outline-none focus:border-gold/30 focus:bg-white/[0.05] transition-all"
-                      title="System Role"
-                      aria-label="System Role"
                     >
                       <option value="agent" className="bg-navy">Agent</option>
                       <option value="manager" className="bg-navy">Manager</option>

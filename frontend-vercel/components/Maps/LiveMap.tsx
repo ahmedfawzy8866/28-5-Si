@@ -6,16 +6,22 @@ import 'leaflet/dist/leaflet.css';
 
 interface LiveMapProps {
   mode?: 'dark' | 'light';
-  activeZoneIndex?: number | null;
-  zones?: any[];
 }
 
+const ZONE_COORDS = [
+  { lat: 30.0071, lng: 31.4345, area: 'Fifth Settlement', short: '5th Set.', stat: 'Growth +12.4%', color: '#4ECDC4' },
+  { lat: 30.0972, lng: 31.6314, area: 'Madinaty', short: 'Madinaty', stat: 'High Demand', color: '#E9C176' },
+  { lat: 30.0320, lng: 31.4720, area: 'Mountain View', short: 'MV iCity', stat: '8.2% Yield', color: '#7EA8B4' },
+  { lat: 30.1400, lng: 31.7400, area: 'Mostakbal City', short: 'Mostakbal', stat: 'Off-Market Signals', color: '#C084FC' },
+  { lat: 30.0580, lng: 31.4100, area: 'Hyde Park', short: 'Hyde Pk', stat: 'Premium', color: '#F97316' },
+  { lat: 30.0200, lng: 31.5200, area: 'Mivida', short: 'Mivida', stat: 'Yield 7.5%', color: '#22D3EE' },
+  { lat: 30.0450, lng: 31.4550, area: 'Lake View', short: 'Lake View', stat: 'High ROI', color: '#A78BFA' },
+  { lat: 30.0750, lng: 31.5800, area: 'El Shorouk', short: 'Shorouk', stat: 'Growth +9%', color: '#34D399' },
+];
 
-export default function LiveMap({ mode = 'dark', activeZoneIndex = null, zones = [] }: LiveMapProps) {
+export default function LiveMap({ mode = 'dark' }: LiveMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const leafletInstance = useRef<L.Map | null>(null);
-  const markersRef = useRef<L.Marker[]>([]);
-
 
   useEffect(() => {
     if (!mapRef.current) return;
@@ -39,7 +45,7 @@ export default function LiveMap({ mode = 'dark', activeZoneIndex = null, zones =
       maxZoom: 18,
     }).addTo(map);
 
-    const createZoneMarker = (z: any) => L.divIcon({
+    const createZoneMarker = (z: typeof ZONE_COORDS[0]) => L.divIcon({
       className: 'zone-marker',
       html: `
         <div style="display:flex;flex-direction:column;align-items:center;gap:2px;pointer-events:auto;">
@@ -53,10 +59,8 @@ export default function LiveMap({ mode = 'dark', activeZoneIndex = null, zones =
       iconAnchor: [40, 8],
     });
 
-    markersRef.current = [];
-    zones.forEach((z, i) => {
-      const marker = L.marker(z.coords, { icon: createZoneMarker(z) }).addTo(map);
-      markersRef.current[i] = marker;
+    ZONE_COORDS.forEach((z) => {
+      const marker = L.marker([z.lat, z.lng], { icon: createZoneMarker(z) }).addTo(map);
 
       const popupContent = `
         <div style="font-family:'Jost',sans-serif;padding:6px 4px;text-align:center;">
@@ -82,17 +86,7 @@ export default function LiveMap({ mode = 'dark', activeZoneIndex = null, zones =
         leafletInstance.current = null;
       }
     };
-  }, [mode, zones]);
-
-  useEffect(() => {
-    if (leafletInstance.current && activeZoneIndex !== null && zones[activeZoneIndex]) {
-      const z = zones[activeZoneIndex];
-      leafletInstance.current.flyTo(z.coords, 13, { duration: 1.5 });
-      markersRef.current[activeZoneIndex]?.openPopup();
-    } else if (leafletInstance.current && activeZoneIndex === null) {
-      leafletInstance.current.flyTo([30.055, 31.530], 11, { duration: 1.5 });
-    }
-  }, [activeZoneIndex, zones]);
+  }, [mode]);
 
   return (
     <div className="w-full h-full relative">

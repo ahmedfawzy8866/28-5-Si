@@ -143,7 +143,8 @@ export default function GravityWarp() {
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
       <canvas 
         ref={canvasRef} 
-        className="block blur-[0.5px]"
+        className="block"
+        style={{ filter: 'blur(0.5px)' }}
       />
       {/* Cinematic Fog Layer */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#050B14]/20 to-[#050B14]" />

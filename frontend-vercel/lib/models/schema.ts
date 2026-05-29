@@ -28,11 +28,10 @@ export type PropertyStatus = 'available' | 'reserved' | 'sold' | 'rented' | 'off
 export type PropertyType = 'apartment' | 'villa' | 'townhouse' | 'duplex' | 'penthouse' | 'studio' | 'chalet' | 'commercial' | 'land';
 export type PipelineStage = 'inbound' | 'qualify' | 'engage' | 'proposal' | 'viewing' | 'negotiate' | 'reserve' | 'contract' | 'handover' | 'closed-won';
 export type StakeholderAcquisitionSource = 'property-finder' | 'olx' | 'website' | 'referral' | 'walk-in' | 'social-media' | 'whatsapp' | 'other';
-export type CurrencyCode = 'EGP' | 'USD' | 'AED';
+export type CurrencyCode = 'EGP' | 'USD';
 export type FurnishingCode = 'F' | 'U' | 'K' | 'S';
 export type SierraFeatureCode = 'G' | 'P' | 'R' | 'V';
 export type ListingSentiment = 'positive' | 'neutral' | 'aggressive' | 'desperate';
-export type MarketCode = 'egypt' | 'uae';
 
 export interface IntelligenceObject {
   code?: string;
@@ -80,9 +79,9 @@ export interface IntelligenceObject {
   };
 }
 
-// ─── Portfolio Assets (Inventory) ───────────────────────────────────
+// ─── Units (Listings) ───────────────────────────────────────────────
 
-export interface PortfolioAsset extends BaseDocument {
+export interface Unit extends BaseDocument {
   // Identity
   title: string;
   titleAr?: string;
@@ -94,9 +93,6 @@ export interface PortfolioAsset extends BaseDocument {
   propertyType: PropertyType;
   category: 'residential' | 'commercial';
   status: PropertyStatus;
-  market: MarketCode;
-  currency?: CurrencyCode;
-  ownerType?: 'developer' | 'owner' | 'secondary' | 'internal' | 'broker';
 
   // Location
   projectId?: string;       // FK to projects collection
@@ -150,6 +146,7 @@ export interface PortfolioAsset extends BaseDocument {
   };
 
   // Lifecycle
+  ownerType: 'owner' | 'broker' | 'internal';
   ownerContact?: string;
   dupeCheckHash?: string;
 
@@ -164,7 +161,7 @@ export interface PortfolioAsset extends BaseDocument {
   intelligence?: IntelligenceObject;
 }
 
-export type Unit = PortfolioAsset;
+export interface PortfolioAsset extends Unit {}
 export type Property = PortfolioAsset;
 
 // ─── Projects (Developments) ────────────────────────────────────────
@@ -283,7 +280,6 @@ export interface InvestmentStakeholder extends BaseDocument {
   stage: PipelineStage;
   source: StakeholderAcquisitionSource;
   assignedTo?: string;      // User ID
-  market?: MarketCode;
 
   // Interest
   interestedUnitIds?: string[];
@@ -395,8 +391,7 @@ export interface InvestmentStakeholder extends BaseDocument {
   };
 }
 
-export type Lead = InvestmentStakeholder;
-export type StrategicPipelineItem = InvestmentStakeholder;
+export interface Lead extends InvestmentStakeholder {}
 
 // ─── Sales / Transactions ───────────────────────────────────────────
 
@@ -450,11 +445,7 @@ export interface InboundAssetSignal extends BaseDocument {
     matchingKeywords?: string[];
     features?: SierraFeatureCode[];
     sierraCode?: string;
-    videoUrl?: string;
   };
-
-  videoUrl?: string;
-  mediaUrls?: string[];
 
   intelligence?: IntelligenceObject;
 
@@ -467,7 +458,7 @@ export interface InboundAssetSignal extends BaseDocument {
   portfolioAssetId?: string; 
 }
 
-export type BrokerListing = InboundAssetSignal;
+export interface BrokerListing extends InboundAssetSignal {}
 
 // ─── Vouchers / Incentives ──────────────────────────────────────────
 
@@ -570,14 +561,11 @@ export interface Activity extends BaseDocument {
 // ─── Collection Names (Constants) ───────────────────────────────────
 
 export const COLLECTIONS = {
-  portfolioAssets: 'listings', // Physical collection 'listings' for backward compatibility
-  units: 'listings', // Alias for portfolioAssets
+  units: 'listings',        // keeping backward compat with existing 'listings' collection
   projects: 'projects',
   developers: 'developers',
   mediaAssets: 'mediaAssets',
-  investmentStakeholders: 'leads', // Physical collection 'leads' for backward compatibility
-  stakeholders: 'leads', // Alias for investmentStakeholders
-  strategicPipeline: 'deals', // Physical collection 'deals' for "Cinematic Luxury" branding
+  stakeholders: 'leads',
   sales: 'sales',
   activities: 'activities',
   users: 'users',
@@ -589,11 +577,4 @@ export const COLLECTIONS = {
   viewings: 'viewings',
   intelligence: 'intelligence', // Global Neural Memory
   conciergeSelections: 'concierge_selections', // S8 Curated Portfolios
-} as const;
-
-export type CollectionName = typeof COLLECTIONS[keyof typeof COLLECTIONS];
-
-export const MARKETS = {
-  EGYPT: 'egypt',
-  UAE: 'uae'
 } as const;

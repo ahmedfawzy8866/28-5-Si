@@ -54,24 +54,24 @@ export default function TestimonialsCarousel({ testimonials, isArabic = false }:
           </p>
 
           <div className="flex flex-col items-center">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#C9A84C] to-[#0A1628] flex items-center justify-center text-white font-bold text-xl mb-4 border border-white/10 shadow-xl">
-              {current.avatar ? <img src={current.avatar} alt={current.name} className="w-full h-full rounded-full object-cover" /> : current.name[0]}
-            </div>
-            <h4 className="text-xl font-semibold text-[#C9A84C] tracking-wide">{current.name}</h4>
-            <p className="text-sm uppercase tracking-[0.2em] text-white/40 mt-1">{current.role}</p>
+             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#C9A84C] to-[#0A1628] flex items-center justify-center text-white font-bold text-xl mb-4 border border-white/10 shadow-xl">
+               {current.avatar ? <img src={current.avatar} alt={current.name} className="w-full h-full rounded-full object-cover" /> : current.name[0]}
+             </div>
+             <h4 className="text-xl font-semibold text-[#C9A84C] tracking-wide">{current.name}</h4>
+             <p className="text-sm uppercase tracking-[0.2em] text-white/40 mt-1">{current.role}</p>
           </div>
         </motion.div>
       </AnimatePresence>
 
       {/* Navigation Buttons */}
       <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 flex justify-between pointer-events-none px-2 md:px-0">
-        <button
+        <button 
           onClick={prev}
           className="pointer-events-auto p-4 rounded-full border border-white/10 bg-white/5 hover:bg-[#C9A84C] hover:text-[#0A1628] text-white transition-all duration-300"
         >
           {isArabic ? <ChevronRight size={24} /> : <ChevronLeft size={24} />}
         </button>
-        <button
+        <button 
           onClick={next}
           className="pointer-events-auto p-4 rounded-full border border-white/10 bg-white/5 hover:bg-[#C9A84C] hover:text-[#0A1628] text-white transition-all duration-300"
         >

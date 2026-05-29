@@ -3,7 +3,7 @@
  * Implements the Urban Hub OS Smart Coding System (V2.0).
  */
 
-import { PropertyType, FurnishingCode, SierraFeatureCode } from '@/lib/models/schema';
+import { PropertyType, FurnishingCode, SierraFeatureCode } from '../models/schema';
 
 export interface CodingParams {
   compound: string;

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PFIntegrationService } from '@/lib/services/PFIntegrationService';
-import { db } from '@/lib/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { adminDb } from '@/lib/server/firebase-admin';
+import { Timestamp } from 'firebase-admin/firestore';
 import { COLLECTIONS } from '@/lib/models/schema';
 
 /**
@@ -27,14 +27,14 @@ export async function GET(req: NextRequest) {
 
     // Log sync activity
     if (summary.created > 0 || summary.updated > 0) {
-      await addDoc(collection(db, COLLECTIONS.activities), {
+      await adminDb.collection(COLLECTIONS.activities).add({
         type: 'sync_completed',
         actorId: 'system',
         actorName: 'Sync Gateway',
         description: `Property Finder sync: **${summary.created} new** leads imported, **${summary.updated}** refreshed.`,
         text: `Property Finder sync: **${summary.created} new** leads imported, **${summary.updated}** refreshed.`,
         color: 'var(--blue-light)',
-        createdAt: serverTimestamp(),
+        createdAt: Timestamp.now(),
       });
     }
 

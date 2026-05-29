@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { db, getAnalyticsInstance } from '@/lib/firebase';
 import { logAuditAction } from '@/lib/audit';
 import { 
@@ -19,8 +18,8 @@ import { logEvent } from 'firebase/analytics';
 import { useAuth } from '@/lib/AuthContext';
 import { getDoc } from 'firebase/firestore';
 import { UserProfile, COLLECTIONS } from '@/lib/models/schema';
+import { motion } from 'framer-motion';
 import { cinematicEntrance, cinematicHover } from '@/lib/animations';
-import { useI18n } from '@/lib/I18nContext';
 
 interface InvestmentStakeholder {
   id: string;
@@ -85,12 +84,12 @@ interface PhaseMetadata {
   description: string;
 }
 
-const PHASE_COLORS: Record<PipelinePhase, string> = {
-  acquisition: 'var(--blue)',
-  consultation: 'var(--blue-light)',
-  inspection: 'var(--gold)',
-  structuring: '#10b981',
-  settlement: 'var(--navy)',
+const PHASE_DEFS: Record<PipelinePhase, PhaseMetadata> = {
+  acquisition: { title: 'Strategic Acquisition', color: 'var(--blue)', description: 'High-intent market entries and incoming portfolio inquiries' },
+  consultation: { title: 'Executive Consultation', color: 'var(--blue-light)', description: 'Initial discovery and architectural preference synthesis' },
+  inspection: { title: 'Asset Inspection', color: 'var(--gold)', description: 'Private viewings and physical property experience' },
+  structuring: { title: 'Deal Structuring', color: '#10b981', description: 'Financial reconciliation and contractual architecture' },
+  settlement: { title: 'Portfolio Settlement', color: 'var(--navy)', description: 'Successful asset transition and relationship formalization' },
 };
 
 const PHASE_SEQUENCE: PipelinePhase[] = ['acquisition', 'consultation', 'inspection', 'structuring', 'settlement'];
@@ -146,7 +145,6 @@ function StakeholderCard({ stakeholder, phase, onProgress, onDragStart }: {
   onProgress: (id: string, phase: PipelinePhase) => void;
   onDragStart: (id: string, phase: PipelinePhase) => void;
 }) {
-  const { t } = useI18n();
   const [isGenerating, setIsGenerating] = useState(false);
   const currentDepth = PHASE_SEQUENCE.indexOf(phase);
   const nextPhase = PHASE_SEQUENCE[currentDepth + 1];
@@ -160,7 +158,7 @@ function StakeholderCard({ stakeholder, phase, onProgress, onDragStart }: {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ leadId: stakeholder.id })
       });
-      if (res.ok) alert(t('pipeline.card.proposalSuccess') || 'Strategic Options Package generated and secured.');
+      if (res.ok) alert('Strategic Options Package generated and secured.');
     } catch (err) {
       console.error('Proposal generation failed:', err);
     } finally {
@@ -199,7 +197,7 @@ function StakeholderCard({ stakeholder, phase, onProgress, onDragStart }: {
         {stakeholder.intelligenceScore !== undefined && (
           <div className={`intel-score ${stakeholder.intelligenceScore > 80 ? 'intel-high' : stakeholder.intelligenceScore > 50 ? 'intel-mid' : 'intel-low'}`}>
             <svg width="34" height="34" viewBox="0 0 34 34" className="intel-svg">
-            <circle cx="17" cy="17" r="15" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="94" strokeDashoffset={94 - (94 * (stakeholder.intelligenceScore || 0) / 100)} />
+              <circle cx="17" cy="17" r="15" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="94" strokeDashoffset={94 - (94 * stakeholder.intelligenceScore / 100)} />
             </svg>
             <span className="intel-score-val">{stakeholder.intelligenceScore}</span>
           </div>
@@ -209,11 +207,11 @@ function StakeholderCard({ stakeholder, phase, onProgress, onDragStart }: {
       <div className="stakeholder-card-body-premium">
         <div className="stakeholder-info-grid">
           <div className="info-item">
-            <span className="info-label">{t('pipeline.card.portfolioFocus')}</span>
-            <span className="info-val">{stakeholder.portfolioPreference || t('pipeline.card.generalInventory')}</span>
+            <span className="info-label">Portfolio Focus</span>
+            <span className="info-val">{stakeholder.portfolioPreference || 'General Inventory'}</span>
           </div>
           <div className="info-item">
-            <span className="info-label">{t('pipeline.card.investmentCapacity')}</span>
+            <span className="info-label">Investment Capacity</span>
             <span className="info-val gold-text">{stakeholder.capitalAllocation || 'N/A'}</span>
           </div>
         </div>
@@ -223,7 +221,7 @@ function StakeholderCard({ stakeholder, phase, onProgress, onDragStart }: {
           <div className="neural-matches-mini">
             <div className="neural-header">
               <span className="neural-icon">⚡</span>
-              <span className="neural-title">{t('pipeline.card.neuralMatches')}</span>
+              <span className="neural-title">Neural Matches</span>
             </div>
             <div className="match-list">
               {stakeholder.aiProfiling.topMatches.slice(0, 2).map((match, i) => (
@@ -241,7 +239,7 @@ function StakeholderCard({ stakeholder, phase, onProgress, onDragStart }: {
             <span className="assignment-icon">
                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             </span>
-            <span className="assignment-val">{t('pipeline.card.advisor')}: {stakeholder.assignedPartnerName}</span>
+            <span className="assignment-val">Advisor: {stakeholder.assignedPartnerName}</span>
           </div>
         )}
 
@@ -249,7 +247,7 @@ function StakeholderCard({ stakeholder, phase, onProgress, onDragStart }: {
         {('automation' in stakeholder && (stakeholder.automation as any).viewingRewardActive) && (
           <div className="incentive-badge-mini animate-pulse">
             <Ticket size={10} />
-            <span>{t('pipeline.card.vipReward')}</span>
+            <span>VIP VIEWING REWARD ACTIVE</span>
           </div>
         )}
       </div>
@@ -258,9 +256,9 @@ function StakeholderCard({ stakeholder, phase, onProgress, onDragStart }: {
         <div className="stakeholder-status-row">
           <span className="stakeholder-timer">
             {stakeholder.createdAt?.toDate ? (
-              <>{t('pipeline.card.ingestion')}: {new Date(stakeholder.createdAt.seconds * 1000).toLocaleDateString()}</>
+              <>Ingestion: {new Date(stakeholder.createdAt.seconds * 1000).toLocaleDateString()}</>
             ) : (
-              t('pipeline.card.activeIntel')
+              'Active Operational Intel'
             )}
           </span>
           <div className={`priority-pill priority-${stakeholder.strategicIntensity}`}>
@@ -276,7 +274,7 @@ function StakeholderCard({ stakeholder, phase, onProgress, onDragStart }: {
               disabled={isGenerating}
             >
               <Briefcase size={12} />
-              <span>{isGenerating ? t('pipeline.card.structuring') : t('pipeline.card.proposePackage')}</span>
+              <span>{isGenerating ? 'Structuring...' : 'Propose Package'}</span>
             </button>
           )}
 
@@ -285,7 +283,7 @@ function StakeholderCard({ stakeholder, phase, onProgress, onDragStart }: {
               className="btn-progress-stakeholder"
               onClick={() => onProgress(stakeholder.id, phase)}
             >
-              <span>{t('pipeline.card.advance')}</span>
+              <span>Advance</span>
               <span className="arrow">→</span>
             </button>
           )}
@@ -296,7 +294,6 @@ function StakeholderCard({ stakeholder, phase, onProgress, onDragStart }: {
 }
 
 export default function CRMKanban() {
-  const { t, dir } = useI18n();
   const { user, isGuest } = useAuth();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [pipelineState, setPipelineState] = useState<Record<PipelinePhase, InvestmentStakeholder[]>>({
@@ -574,10 +571,10 @@ export default function CRMKanban() {
       if (!response.ok || result.error) throw new Error(result.error);
 
       const summary = result.summary || { created: 0, updated: 0, skipped: 0 };
-      alert(`${t('pipeline.syncSuccess') || 'Property Finder sync completed.'} Added ${summary.created}, refreshed ${summary.updated}, skipped ${summary.skipped}.`);
+      alert(`Property Finder sync completed. Added ${summary.created}, refreshed ${summary.updated}, skipped ${summary.skipped}.`);
     } catch (err) {
       console.error("PF Sync Error:", err);
-      alert(t('pipeline.syncError') || "Synchronization protocol failed to establish secure link with Property Finder. Check gateway configuration.");
+      alert("Synchronization protocol failed to establish secure link with Property Finder. Check gateway configuration.");
     } finally {
       setSyncingPF(false);
     }
@@ -603,36 +600,36 @@ export default function CRMKanban() {
     return (
       <div className="section-loader">
         <div className="loader-logo sm">SB</div>
-        <div className="loader-text sm">{t('pipeline.loader')}</div>
+        <div className="loader-text sm">Synchronizing Opportunity Pipeline…</div>
       </div>
     );
   }
 
   return (
-    <div className="crm-view animate-fade-in" dir={dir}>
+    <div className="crm-view animate-fade-in">
       <div className="page-header">
         <div className="header-flex">
           <div>
-            <h1>{t('pipeline.title')}</h1>
-            <div className="page-sub">{t('pipeline.subtitle') || `${visibleStakeholders.length} / ${activeInventorySize} Investment Stakeholders`}</div>
+            <h1>Command Intelligence: Strategic Pipeline</h1>
+            <div className="page-sub">Analyzing {visibleStakeholders.length} of {activeInventorySize} active investment stakeholders within the conversion lifecycle</div>
           </div>
           <div className="header-actions">
             <button className="btn btn-outline" onClick={syncLeadsFromPF} disabled={syncingPF}>
-              <span className="icon">🌐</span> {syncingPF ? t('pipeline.syncing') : t('pipeline.syncPF')}
+              <span className="icon">🌐</span> {syncingPF ? 'Syncing...' : 'Sync Property Finder'}
             </button>
             <button className="btn btn-ghost" disabled={matchingLeads} onClick={async () => {
               try {
                 setMatchingLeads(true);
                 const res = await fetch('/api/matching?bulk=true', { method: 'POST' });
-                if (res.ok) alert(t('pipeline.neuralMatchOrchestrated') || 'Neural matching orchestrator initiated.');
+                if (res.ok) alert('Neural matching orchestrator initiated.');
               } finally {
                 setMatchingLeads(false);
               }
             }}>
-              <span className="icon">⚡</span> {matchingLeads ? t('pipeline.matching') : t('pipeline.neuralMatch')}
+              <span className="icon">⚡</span> {matchingLeads ? 'Matching...' : 'Neural Match'}
             </button>
             <button className="btn btn-gold" onClick={() => setShowModal(true)}>
-              <span className="plus">+</span> {t('pipeline.onboardProspect')}
+              <span className="plus">+</span> Onboard Prospect
             </button>
           </div>
         </div>
@@ -644,26 +641,26 @@ export default function CRMKanban() {
           <input
             value={filters.search}
             onChange={(event) => setFilters((prev) => ({ ...prev, search: event.target.value }))}
-            placeholder={t('pipeline.searchPlaceholder')}
+            placeholder="Search by name, phone, advisor, channel, or interest"
           />
         </div>
 
-        <select title="Filter Intensity" value={filters.intensity} onChange={(event) => setFilters((prev) => ({ ...prev, intensity: event.target.value as StakeholderFilters['intensity'] }))}>
-          <option value="all">{t('pipeline.filters.allPriority')}</option>
-          <option value="hot">{t('pipeline.filters.hot')}</option>
-          <option value="warm">{t('pipeline.filters.warm')}</option>
-          <option value="cold">{t('pipeline.filters.cold')}</option>
+        <select value={filters.intensity} onChange={(event) => setFilters((prev) => ({ ...prev, intensity: event.target.value as StakeholderFilters['intensity'] }))}>
+          <option value="all">All priority</option>
+          <option value="hot">Hot only</option>
+          <option value="warm">Warm only</option>
+          <option value="cold">Cold only</option>
         </select>
 
-        <select title="Filter Channel" value={filters.channel} onChange={(event) => setFilters((prev) => ({ ...prev, channel: event.target.value }))}>
-          <option value="all">{t('pipeline.filters.allChannels')}</option>
+        <select value={filters.channel} onChange={(event) => setFilters((prev) => ({ ...prev, channel: event.target.value }))}>
+          <option value="all">All channels</option>
           {Object.keys(CHANNEL_METADATA).map((channel) => (
             <option key={channel} value={channel}>{channel}</option>
           ))}
         </select>
 
-        <select title="Filter Partner" value={filters.partnerId} onChange={(event) => setFilters((prev) => ({ ...prev, partnerId: event.target.value }))}>
-          <option value="all">{t('pipeline.filters.allAdvisors')}</option>
+        <select value={filters.partnerId} onChange={(event) => setFilters((prev) => ({ ...prev, partnerId: event.target.value }))}>
+          <option value="all">All advisors</option>
           {partners.map((partner) => (
             <option key={partner.id} value={partner.id}>{partner.name}</option>
           ))}
@@ -672,31 +669,31 @@ export default function CRMKanban() {
 
       <div className="pipeline-metrics-row">
         <div className="metric-card-glass">
-          <div className="metric-label">{t('pipeline.metrics.visible')}</div>
+          <div className="metric-label">Visible Pipeline</div>
           <div className="metric-value" style={{ color: 'var(--navy)' }}>{visibleStakeholders.length}</div>
-          <div className="metric-trend">{t('pipeline.metrics.visibleSub')}</div>
+          <div className="metric-trend">Filtered operating view</div>
         </div>
         <div className="metric-card-glass">
-          <div className="metric-label">{t('pipeline.metrics.hot')}</div>
+          <div className="metric-label">Hot Prospects</div>
           <div className="metric-value" style={{ color: '#dc2626' }}>{hotStakeholders}</div>
-          <div className="metric-trend">{t('pipeline.metrics.hotSub')}</div>
+          <div className="metric-trend">Immediate follow-up priority</div>
         </div>
         <div className="metric-card-glass">
-          <div className="metric-label">{t('pipeline.metrics.closeReady')}</div>
+          <div className="metric-label">Close Ready</div>
           <div className="metric-value" style={{ color: 'var(--gold)' }}>{closeReady}</div>
-          <div className="metric-trend">{t('pipeline.metrics.closeReadySub')}</div>
+          <div className="metric-trend">Structuring + settlement</div>
         </div>
         <div className="metric-card-glass">
-          <div className="metric-label">{t('pipeline.metrics.value')}</div>
+          <div className="metric-label">Pipeline Value</div>
           <div className="metric-value" style={{ color: 'var(--success)' }}>
             {pipelineValue > 0 ? `${(pipelineValue / 1000000).toFixed(1)}M` : '0'}
           </div>
-          <div className="metric-trend">{t('pipeline.metrics.valueSub')}</div>
+          <div className="metric-trend">Estimated deal volume (EGP)</div>
         </div>
         {PHASE_SEQUENCE.map(phase => (
           <div key={phase} className="metric-card-glass">
-            <div className="metric-label">{t(`pipeline.phases.${phase}.title`)}</div>
-            <div className="metric-value" style={{ color: PHASE_COLORS[phase] }}>
+            <div className="metric-label">{PHASE_DEFS[phase].title}</div>
+            <div className="metric-value" style={{ color: PHASE_DEFS[phase].color }}>
               {visiblePipelineState[phase].length}
             </div>
             <div className="metric-trend">
@@ -716,12 +713,12 @@ export default function CRMKanban() {
               onDragLeave={() => setPhaseTarget(null)}
               onDrop={() => handlePhaseMigration(phase)}
             >
-              <div className="kanban-col-header-premium" style={{ '--accent': PHASE_COLORS[phase] } as React.CSSProperties}>
+              <div className="kanban-col-header-premium" style={{ '--accent': PHASE_DEFS[phase].color } as React.CSSProperties}>
                 <div className="header-top">
-                  <h3 className="col-title">{t(`pipeline.phases.${phase}.title`)}</h3>
-                  <span className="col-badge" style={{ background: PHASE_COLORS[phase] }}>{visiblePipelineState[phase].length}</span>
+                  <h3 className="col-title">{PHASE_DEFS[phase].title}</h3>
+                  <span className="col-badge" style={{ background: PHASE_DEFS[phase].color }}>{visiblePipelineState[phase].length}</span>
                 </div>
-                <p className="col-sub">{t(`pipeline.phases.${phase}.description`)}</p>
+                <p className="col-sub">{PHASE_DEFS[phase].description}</p>
               </div>
 
               <div className="kanban-cards-premium">
@@ -737,7 +734,7 @@ export default function CRMKanban() {
                 {visiblePipelineState[phase].length === 0 && (
                   <div className="empty-reservoir">
                     <div className="empty-icon">⌘</div>
-                    <p>{filters.search || filters.intensity !== 'all' || filters.channel !== 'all' || filters.partnerId !== 'all' ? t('pipeline.card.noMatches') : t('pipeline.card.empty')}</p>
+                    <p>{filters.search || filters.intensity !== 'all' || filters.channel !== 'all' || filters.partnerId !== 'all' ? 'No stakeholders match the active filters' : 'Reserved for future asset assignments'}</p>
                   </div>
                 )}
               </div>
@@ -750,54 +747,54 @@ export default function CRMKanban() {
         <div className="modal-overlay reveal" onClick={() => setShowModal(false)}>
           <div className="modal-content-luxury glass-effect" onClick={e => e.stopPropagation()}>
             <div className="modal-header-luxury">
-              <h2>{t('pipeline.modal.title')}</h2>
-              <p>{t('pipeline.modal.subtitle')}</p>
+              <h2>Prospect Specification</h2>
+              <p>Initialize a new strategic relationship within the portfolio ecosystem</p>
             </div>
             
             <div className="specification-grid">
               <div className="spec-group full">
-                <label>{t('pipeline.modal.identity')}</label>
+                <label>Prospect Identity</label>
                 <input 
                   autoFocus
-                  placeholder={t('pipeline.modal.namePlaceholder')}
+                  placeholder="Full Legal Name"
                   value={stakeholderDraft.name} 
                   onChange={e => setStakeholderDraft(p => ({ ...p, name: e.target.value }))} 
                 />
               </div>
               
               <div className="spec-group">
-                <label>{t('pipeline.modal.contact')}</label>
+                <label>Direct Contact (International)</label>
                 <input 
-                  placeholder={t('pipeline.modal.contactPlaceholder')}
+                  placeholder="+20 1XX XXX XXXX"
                   value={stakeholderDraft.phone} 
                   onChange={e => setStakeholderDraft(p => ({ ...p, phone: e.target.value }))} 
                 />
               </div>
               
               <div className="spec-group">
-                <label>{t('pipeline.modal.interest')}</label>
+                <label>Inventory Profile Interest</label>
                 <input 
-                  placeholder={t('pipeline.modal.interestPlaceholder')}
+                  placeholder="e.g. Waterfront Mansion"
                   value={stakeholderDraft.portfolioPreference} 
                   onChange={e => setStakeholderDraft(p => ({ ...p, portfolioPreference: e.target.value }))} 
                 />
               </div>
               
               <div className="spec-group">
-                <label>{t('pipeline.modal.capital')}</label>
+                <label>Capital Allocation (EGP)</label>
                 <input 
-                  placeholder={t('pipeline.modal.capitalPlaceholder')}
+                  placeholder="e.g. 25M - 40M"
                   value={stakeholderDraft.capitalAllocation} 
                   onChange={e => setStakeholderDraft(p => ({ ...p, capitalAllocation: e.target.value }))} 
                 />
               </div>
 
               <div className="spec-group">
-                <label>{t('pipeline.modal.velocity')}</label>
-                <select title="Select Velocity" value={stakeholderDraft.strategicIntensity} onChange={e => setStakeholderDraft(p => ({ ...p, strategicIntensity: e.target.value as any }))}>
-                  <option value="hot">{t('pipeline.modal.intent.hot')}</option>
-                  <option value="warm">{t('pipeline.modal.intent.warm')}</option>
-                  <option value="cold">{t('pipeline.modal.intent.cold')}</option>
+                <label>Engagement Velocity</label>
+                <select value={stakeholderDraft.strategicIntensity} onChange={e => setStakeholderDraft(p => ({ ...p, strategicIntensity: e.target.value as any }))}>
+                  <option value="hot">Critical Intent / Hot</option>
+                  <option value="warm">Proactive / Warm</option>
+                  <option value="cold">Observational / Cold</option>
                 </select>
               </div>
 
@@ -824,7 +821,7 @@ export default function CRMKanban() {
 
               <div className="spec-group">
                 <label>Assigned Executive Partner</label>
-                <select title="Select Assigned Partner" value={stakeholderDraft.assignedPartnerId} onChange={e => setStakeholderDraft(p => ({ ...p, assignedPartnerId: e.target.value }))}>
+                <select value={stakeholderDraft.assignedPartnerId} onChange={e => setStakeholderDraft(p => ({ ...p, assignedPartnerId: e.target.value }))}>
                   <option value="">Unassigned</option>
                   {partners.map(p => (
                     <option key={p.id} value={p.id}>{p.name}</option>

@@ -3,7 +3,7 @@
  * Implements the proprietary [Location]-[Rooms][Status]-[Price]+[Feature] logic.
  */
 
-import type { CurrencyCode, FurnishingCode, SierraFeatureCode } from '@/lib/models/schema';
+import type { CurrencyCode, FurnishingCode, SierraFeatureCode } from '../models/schema';
 
 export interface PropertyCodeInput {
   locationCode?: string;

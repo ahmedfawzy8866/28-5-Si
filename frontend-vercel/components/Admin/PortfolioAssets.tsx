@@ -103,12 +103,12 @@ export default function PortfolioAssets() {
     }
   };
 
-  const getStatusColorClass = (status: PropertyStatus) => {
+  const getStatusColor = (status: PropertyStatus) => {
     switch (status) {
-      case 'available': return 'bg-[#22C55E] shadow-[0_0_10px_rgba(34,197,94,0.5)]';
-      case 'reserved': return 'bg-[#F59E0B] shadow-[0_0_10px_rgba(245,158,11,0.5)]';
-      case 'sold': return 'bg-[#EF4444] shadow-[0_0_10px_rgba(239,68,68,0.5)]';
-      default: return 'bg-[#64748B] shadow-[0_0_10px_rgba(100,116,139,0.5)]';
+      case 'available': return '#22C55E';
+      case 'reserved': return '#F59E0B';
+      case 'sold': return '#EF4444';
+      default: return '#64748B';
     }
   };
 
@@ -189,8 +189,6 @@ export default function PortfolioAssets() {
             value={filters.status} 
             onChange={e => setFilters({...filters, status: e.target.value as any})}
             className="bg-white/[0.03] border border-white/5 rounded-2xl px-4 py-3 text-sm text-white/70 focus:outline-none focus:border-gold/30"
-            title="Filter by Status"
-            aria-label="Filter by Status"
           >
             <option value="" className="bg-navy">All Statuses</option>
             <option value="available" className="bg-navy">Available Assets</option>
@@ -201,8 +199,6 @@ export default function PortfolioAssets() {
             value={filters.offer_type} 
             onChange={e => setFilters({...filters, offer_type: e.target.value as any})}
             className="bg-white/[0.03] border border-white/5 rounded-2xl px-4 py-3 text-sm text-white/70 focus:outline-none focus:border-gold/30"
-            title="Filter by Offer Type"
-            aria-label="Filter by Offer Type"
           >
             <option value="" className="bg-navy">All Offers</option>
             <option value="sale" className="bg-navy">Resale/Primary</option>
@@ -210,8 +206,8 @@ export default function PortfolioAssets() {
           </select>
         </div>
         <div className="flex items-center gap-2">
-          <button className="p-3 rounded-xl bg-gold text-navy" title="List View" aria-label="List View"><List size={18} /></button>
-          <button className="p-3 rounded-xl bg-white/5 text-white/30 hover:text-white transition-colors" title="Grid View" aria-label="Grid View"><LayoutGrid size={18} /></button>
+          <button className="p-3 rounded-xl bg-gold text-navy"><List size={18} /></button>
+          <button className="p-3 rounded-xl bg-white/5 text-white/30 hover:text-white transition-colors"><LayoutGrid size={18} /></button>
         </div>
       </div>
 
@@ -267,7 +263,7 @@ export default function PortfolioAssets() {
                 </td>
                 <td className="p-6">
                   <div className="flex items-center gap-2">
-                    <div className={`w-2 h-2 rounded-full ${getStatusColorClass(prop.status)}`} />
+                    <div className="w-2 h-2 rounded-full" style={{ background: getStatusColor(prop.status), boxShadow: `0 0 10px ${getStatusColor(prop.status)}80` }} />
                     <span className="text-[10px] font-black text-white/70 uppercase tracking-widest">{prop.status}</span>
                   </div>
                 </td>
@@ -288,8 +284,6 @@ export default function PortfolioAssets() {
                         setIsFormOpen(true);
                       }}
                       className="p-2 rounded-xl bg-white/5 hover:bg-gold hover:text-navy transition-all"
-                      title="Edit Asset"
-                      aria-label="Edit Asset"
                     >
                       <MoreHorizontal size={18} />
                     </button>

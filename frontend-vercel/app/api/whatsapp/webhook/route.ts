@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { adminDb } from '@/lib/server/firebase-admin';
+import { Timestamp } from 'firebase-admin/firestore';
 import { WhatsAppParserService } from '@/lib/services/WhatsAppParserService';
 import { COLLECTIONS, BrokerListing } from '@/lib/models/schema';
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    
+
     // Support various common webhook formats (Ultramsg, Wati, Generic)
     const rawMessage = body.message || body.text || body.data?.message?.text || body.Body || body.content;
     const sender = body.sender || body.from || body.From || body.senderName || 'Unknown';
@@ -39,26 +39,26 @@ export async function POST(req: Request) {
       },
       status: parsedData?.isListing ? 'parsed' : 'new',
       isVerified: false,
-      createdAt: serverTimestamp() as any,
-      updatedAt: serverTimestamp() as any,
+      createdAt: Timestamp.now() as any,
+      updatedAt: Timestamp.now() as any,
     };
 
     // Save to Firestore
-    const docRef = await addDoc(collection(db, COLLECTIONS.brokerListings), listing);
+    const docRef = await adminDb.collection(COLLECTIONS.brokerListings).add(listing);
 
-    return NextResponse.json({ 
-      success: true, 
-      id: docRef.id, 
+    return NextResponse.json({
+      success: true,
+      id: docRef.id,
       isListing: parsedData?.isListing || false,
       orchestration: parsedData?.isListing ? 'Stage 1 Completed' : 'Ignored (Chatter)'
     });
 
   } catch (error: any) {
     console.error('[WhatsApp Webhook Error]:', error);
-    return NextResponse.json({ 
-        success: false, 
+    return NextResponse.json({
+        success: false,
         error: 'Internal Server Error',
-        details: error?.message 
+        details: error?.message
     }, { status: 500 });
   }
 }

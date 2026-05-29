@@ -5,7 +5,7 @@
 
 import { adminDb } from '../server/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
-import { COLLECTIONS } from '@/lib/models/schema';
+import { COLLECTIONS } from '../models/schema';
 
 export interface SkillDefinition {
   name: string;
@@ -110,15 +110,15 @@ class SkillRegistry {
       execute: async () => {
         try {
           const [units, leads, sales] = await Promise.all([
-            adminDb.collection(COLLECTIONS.units).get(),
-            adminDb.collection(COLLECTIONS.stakeholders).get(),
-            adminDb.collection(COLLECTIONS.sales).get()
+            adminDb.collection(COLLECTIONS.units).count().get(),
+            adminDb.collection(COLLECTIONS.stakeholders).count().get(),
+            adminDb.collection(COLLECTIONS.sales).count().get()
           ]);
           return [
             `📊 Sierra Blu Live Stats:`,
-            `🏢 Total Units: ${units.size}`,
-            `👤 Total Leads: ${leads.size}`,
-            `✅ Closed Sales: ${sales.size}`
+            `🏢 Total Units: ${units.data().count}`,
+            `👤 Total Leads: ${leads.data().count}`,
+            `✅ Closed Sales: ${sales.data().count}`
           ].join('\n');
         } catch (err: any) {
           return `Error fetching stats: ${err.message}`;

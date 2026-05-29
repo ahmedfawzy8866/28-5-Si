@@ -318,7 +318,7 @@ export default function AdminDashboard({ greeting, firstName, dateString }: Admi
               <p className="text-white/30 text-sm mt-1">{t('admin.syncHealth')}</p>
             </div>
             <div className="flex gap-2">
-               <button title="View Activity Insights" className="p-3 rounded-xl bg-white/5 border border-white/5 text-white/50 hover:text-white transition-colors">
+               <button className="p-3 rounded-xl bg-white/5 border border-white/5 text-white/50 hover:text-white transition-colors">
                  <ActivityIcon size={18} />
                </button>
             </div>
@@ -399,7 +399,7 @@ export default function AdminDashboard({ greeting, firstName, dateString }: Admi
             </div>
             <h3 className="text-2xl font-black text-white tracking-tight mb-4">Data Orchestration</h3>
             <p className="text-white/40 text-sm leading-relaxed mb-8 max-w-md">
-              Trigger manual synchronization pipelines to ingest the latest luxury real estate portfolio assets and investment stakeholders directly from the Property Finder API gateway.
+              Trigger manual synchronization pipelines to ingest the latest luxury real estate listings and stakeholder leads directly from the Property Finder API gateway.
             </p>
           </div>
           <div className="flex-1 w-full flex flex-col gap-4">

@@ -1,10 +1,13 @@
-import * as admin from 'firebase-admin';
-
 /**
  * SIERRA BLU — FIREBASE ADMIN SERVICE (V12.1 Hardened)
+ * 
+ * IMPORTANT: This file must ONLY be imported in server-side components or API routes.
  */
+import 'server-only';
+import * as admin from 'firebase-admin';
 
 // Proxy returned when Admin SDK is unavailable — prevents hard crashes
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const makeUnavailable = (name: string): any =>
   new Proxy(
     {},
@@ -46,14 +49,8 @@ try {
 
     if (serviceAccount) {
       console.log('🔐 [Firebase] Initializing with service account JSON');
-      let parsedAccount;
-      if (serviceAccount.trim().startsWith('{')) {
-        parsedAccount = JSON.parse(serviceAccount);
-      } else {
-        parsedAccount = JSON.parse(Buffer.from(serviceAccount, 'base64').toString('utf8'));
-      }
       admin.initializeApp({
-        credential: admin.credential.cert(parsedAccount),
+        credential: admin.credential.cert(JSON.parse(serviceAccount)),
         projectId: projectId,
         storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
       });

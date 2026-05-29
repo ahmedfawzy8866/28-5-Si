@@ -161,7 +161,6 @@ export default function LightLandingScreen({ onEnterPortal }: { onEnterPortal: (
 
           <button
             onClick={() => setMobileMenuOpen(true)}
-            aria-label="Open navigation menu"
             className="p-2.5 md:hidden rounded-xl"
             style={{ background: 'var(--surface)', color: 'var(--text)' }}
           >

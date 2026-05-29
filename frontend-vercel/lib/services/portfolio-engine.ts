@@ -2,21 +2,13 @@
  * SIERRA BLU — STAGE 8: PORTFOLIO ENGINE
  * Curates top 3-5 matches into a VIP "Concierge Selection"
  * and generates shareable mobile-first gallery links.
- * 
+ *
  * The "Sierra" persona: Warm, editorial, luxury-focused.
  */
 
-import { db } from '../firebase';
-import {
-  doc,
-  getDoc,
-  addDoc,
-  collection,
-  updateDoc,
-  serverTimestamp,
-  Timestamp,
-} from 'firebase/firestore';
-import { COLLECTIONS, type Lead, type Unit, type Proposal } from '@/lib/models/schema';
+import { adminDb } from '../server/firebase-admin';
+import { Timestamp } from 'firebase-admin/firestore';
+import { COLLECTIONS, type Lead, type Unit, type Proposal } from '../models/schema';
 import { GoogleAIService } from '../server/google-ai';
 import { analyzeAssetFinancials } from './roi-service';
 import { TelegramAlertService } from './telegram-alert-service';
@@ -25,7 +17,7 @@ export interface ConciergeSelection {
   id: string;
   leadId: string;
   leadName: string;
-  createdAt: Timestamp;
+  createdAt: FirebaseFirestore.Timestamp;
   units: ConciergeUnit[];
   personalNote: string; // AI-written message from "Sierra"
   whatsappLink: string;
@@ -51,8 +43,8 @@ export interface ConciergeUnit {
  */
 export async function curateConciergePortfolio(leadId: string): Promise<ConciergeSelection> {
   // 1. Fetch Lead profile
-  const leadSnap = await getDoc(doc(db, COLLECTIONS.stakeholders, leadId));
-  if (!leadSnap.exists()) throw new Error('Lead not found');
+  const leadSnap = await adminDb.collection(COLLECTIONS.stakeholders).doc(leadId).get();
+  if (!leadSnap.exists) throw new Error('Lead not found');
   const lead = { id: leadSnap.id, ...leadSnap.data() } as Lead;
 
   if (!lead.aiProfiling?.topMatches || lead.aiProfiling.topMatches.length === 0) {
@@ -70,8 +62,8 @@ export async function curateConciergePortfolio(leadId: string): Promise<Concierg
   let matchSum = 0;
 
   for (const match of selectedMatches) {
-    const unitSnap = await getDoc(doc(db, COLLECTIONS.units, match.unitId));
-    if (!unitSnap.exists()) continue;
+    const unitSnap = await adminDb.collection(COLLECTIONS.units).doc(match.unitId).get();
+    if (!unitSnap.exists) continue;
 
     const unit = { id: unitSnap.id, ...unitSnap.data() } as Unit;
     const financials = await analyzeAssetFinancials(unit);
@@ -107,14 +99,14 @@ export async function curateConciergePortfolio(leadId: string): Promise<Concierg
   const personalNote = await generateSierraNoteFromTemplate(lead, conciergeUnits);
 
   // 5. Create Concierge Selection document
-  const portfolioRef = await addDoc(collection(db, COLLECTIONS.conciergeSelections), {
+  const portfolioRef = await adminDb.collection(COLLECTIONS.conciergeSelections).add({
     leadId,
     leadName: lead.name,
     units: conciergeUnits,
     personalNote,
     matchingScore: matchSum / conciergeUnits.length,
     estimatedPortfolioROI: totalROI / conciergeUnits.length,
-    createdAt: serverTimestamp(),
+    createdAt: Timestamp.now(),
     status: 'generated',
     whatsappLink: `https://sierra-blu.web.app/concierge/${leadId}?gallery=true`,
   });
@@ -132,10 +124,10 @@ export async function curateConciergePortfolio(leadId: string): Promise<Concierg
   };
 
   // 6. Update Lead record
-  await updateDoc(doc(db, COLLECTIONS.stakeholders, leadId), {
+  await adminDb.collection(COLLECTIONS.stakeholders).doc(leadId).update({
     'stage': 'S8_CONCIERGE_SELECTION',
     'conciergePortfolioId': portfolioRef.id,
-    'lastCuratedAt': serverTimestamp(),
+    'lastCuratedAt': Timestamp.now(),
   });
 
   console.log(`✅ Concierge Portfolio curated for ${lead.name}: ${conciergeUnits.length} units selected`);
@@ -147,7 +139,7 @@ export async function curateConciergePortfolio(leadId: string): Promise<Concierg
  * Generate a luxury property description in Sierra's voice.
  */
 async function generateLuxuryDescription(lead: Lead, unit: Unit): Promise<string> {
-  const prompt = `You are Sierra, a luxury property concierge for Sierra Blu Realty. 
+  const prompt = `You are Sierra, a luxury property concierge for Sierra Blu Realty.
 Generate a 2-3 sentence description of this property for a high-net-worth client.
 The tone should be warm, editorial, and exclusive. Emphasize lifestyle and investment potential.
 
@@ -168,7 +160,7 @@ Write ONLY the description. No extra text.`;
  */
 async function generateSierraNoteFromTemplate(lead: Lead, units: ConciergeUnit[]): Promise<string> {
   const unitTitles = units.map(u => u.title).join(', ');
-  
+
   const prompt = `You are Sierra, the personal concierge at Sierra Blu Realty.
 Write a warm, 3-4 sentence welcome message for a VIP client about their curated portfolio selection.
 
@@ -225,10 +217,10 @@ Ready to explore? Reply "VIEWING" or click the gallery link above! ✨
   // Send via WhatsApp API (integration with WhatsApp service)
   // This is a placeholder for actual WhatsApp integration
   console.log(`📱 Sending WhatsApp to ${phoneNumber}:\n${message}`);
-  
+
   // Update lead status
-  await updateDoc(doc(db, COLLECTIONS.stakeholders, leadId), {
-    'conciergePortfolioSentAt': serverTimestamp(),
+  await adminDb.collection(COLLECTIONS.stakeholders).doc(leadId).update({
+    'conciergePortfolioSentAt': Timestamp.now(),
     'conciergePortfolioSentVia': 'whatsapp',
   });
 }
@@ -241,8 +233,8 @@ export async function trackPortfolioEngagement(
   leadId: string,
   action: 'viewed' | 'unit_clicked' | 'requested_viewing'
 ): Promise<void> {
-  await updateDoc(doc(db, COLLECTIONS.conciergeSelections, portfolioId), {
-    [`engagement.${action}`]: serverTimestamp(),
+  await adminDb.collection(COLLECTIONS.conciergeSelections).doc(portfolioId).update({
+    [`engagement.${action}`]: Timestamp.now(),
   });
 
   console.log(`📊 Engagement tracked: ${action} for portfolio ${portfolioId}`);

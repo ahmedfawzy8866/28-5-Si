@@ -242,7 +242,7 @@ export default function LiveInventoryMap({ isLandingPage = false }: Props) {
                     marginTop: '20px', width: '100%', padding: '14px', 
                     borderRadius: '12px', fontWeight: 800, fontSize: '11px', 
                     letterSpacing: '2px', border: 'none', cursor: 'pointer'
-                  }}>VIEW ALL PORTFOLIO ASSETS</button>
+                  }}>VIEW ALL LISTINGS</button>
                 </div>
               </Popup>
             </Marker>

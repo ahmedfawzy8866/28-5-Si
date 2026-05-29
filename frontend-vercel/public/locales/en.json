@@ -49,23 +49,5 @@
     "justNow": "Just now",
     "minutesAgo": "m ago",
     "hoursAgo": "h ago"
-  },
-  "nav": {
-    "dashboard": "Terminal",
-    "listings": "Portfolio Assets",
-    "flow": "Investment Flow",
-    "crm": "Strategic Pipeline",
-    "clients": "Executive Partners",
-    "reports": "Intelligence Reports",
-    "team": "Advisory Network",
-    "operations": "Action Protocols",
-    "sync": "Nexus Sync",
-    "processing": "Neural Core",
-    "ai": "AI Experiences",
-    "commissions": "Asset Ledger",
-    "admin-dashboard": "Command Central",
-    "team-crm": "Advisory CRM",
-    "database": "Global Registry",
-    "system": "System Hub"
   }
 }

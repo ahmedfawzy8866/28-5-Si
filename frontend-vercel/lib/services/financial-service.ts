@@ -3,7 +3,7 @@
  * Handles detailed valuation, downpayment calculation, and historical trends.
  */
 
-import { type Unit } from '@/lib/models/schema';
+import { type Unit } from '../models/schema';
 
 export interface ValuationReport {
   appraisedValue: number;

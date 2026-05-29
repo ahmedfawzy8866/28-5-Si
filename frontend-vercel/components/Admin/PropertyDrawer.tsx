@@ -15,17 +15,22 @@ export default function PropertyDrawer({ property, onClose, onEdit, onDelete }: 
   if (!property) return null;
 
   const statusColors = {
-    available: 'bg-[#22C55E]',
-    reserved: 'bg-[#F59E0B]',
-    sold: 'bg-[#EF4444]',
-    draft: 'bg-[#64748B]',
-    archived: 'bg-[#94A3B8]'
-  } as Record<string, string>;
+    available: '#22C55E',
+    reserved: '#F59E0B',
+    sold: '#EF4444',
+    draft: '#64748B',
+    archived: '#94A3B8'
+  };
 
   return (
     <AnimatePresence>
       <div 
-        className="drawer-overlay fixed inset-0 bg-black/40 z-[1100] backdrop-blur-[4px] flex justify-end"
+        className="drawer-overlay" 
+        style={{ 
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', 
+          zIndex: 1100, backdropFilter: 'blur(4px)',
+          display: 'flex', justifyContent: 'flex-end'
+        }}
         onClick={onClose}
       >
         <motion.div
@@ -33,63 +38,73 @@ export default function PropertyDrawer({ property, onClose, onEdit, onDelete }: 
           animate={{ x: 0 }}
           exit={{ x: '100%' }}
           transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-          className="w-[500px] max-w-[100vw] bg-white h-full shadow-[-10px_0_30px_rgba(0,0,0,0.1)] flex flex-col overflow-hidden"
+          style={{ 
+            width: '500px', maxWidth: '100vw', background: 'white', 
+            height: '100%', boxShadow: '-10px 0 30px rgba(0,0,0,0.1)',
+            display: 'flex', flexDirection: 'column',
+            overflow: 'hidden'
+          }}
           onClick={e => e.stopPropagation()}
         >
           {/* Top Header / Close */}
-          <div className="absolute top-6 left-6 z-10">
+          <div style={{ position: 'absolute', top: '24px', left: '24px', zIndex: 10 }}>
             <button 
               onClick={onClose}
-              className="p-2.5 rounded-full bg-white border-none shadow-md cursor-pointer"
-              title="Close Drawer"
-              aria-label="Close"
+              style={{ padding: '10px', borderRadius: '50%', background: 'white', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', cursor: 'pointer' }}
             >
               <X size={18} />
             </button>
           </div>
 
           {/* Hero Image */}
-          <div className="h-[300px] bg-[#f0f0f0] relative overflow-hidden">
+          <div style={{ height: '300px', background: '#f0f0f0', position: 'relative', overflow: 'hidden' }}>
             {property.cover_image_url ? (
-              <img src={property.cover_image_url} alt={property.title_en} className="w-full h-full object-cover" />
+              <img src={property.cover_image_url} alt={property.title_en} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-slate-300">
+              <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#CBD5E1' }}>
                 <Globe size={64} />
               </div>
             )}
-            <div className="absolute bottom-6 left-6 bg-[rgba(10,22,40,0.8)] px-4 py-1.5 rounded-lg text-[var(--gold)] font-mono text-sm tracking-[1px] backdrop-blur-lg">
+            <div style={{ 
+              position: 'absolute', bottom: '24px', left: '24px', 
+              background: 'rgba(10, 22, 40, 0.8)', padding: '6px 16px', 
+              borderRadius: '8px', color: 'var(--gold)', fontFamily: 'monospace', 
+              fontSize: '14px', letterSpacing: '1px', backdropFilter: 'blur(8px)'
+            }}>
               {property.unit_code}
             </div>
           </div>
 
           {/* Details Content */}
-          <div className="flex-1 overflow-y-auto p-8">
-            <div className="flex justify-between items-start mb-4">
-              <div 
-                className={`text-white px-3 py-1 rounded-md text-[11px] font-bold uppercase tracking-[0.5px] ${statusColors[property.status] || statusColors.draft}`}
-              >
+          <div style={{ flex: 1, overflowY: 'auto', padding: '32px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+              <div style={{ 
+                background: statusColors[property.status], color: 'white', 
+                padding: '4px 12px', borderRadius: '6px', fontSize: '11px', 
+                fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' 
+              }}>
                 {property.status}
               </div>
-              <div className="flex gap-2">
+              <div style={{ display: 'flex', gap: '8px' }}>
                 {property.is_featured && <Star size={18} color="var(--gold)" fill="var(--gold)" />}
                 {property.is_public ? <Globe size={18} color="#22C55E" /> : <X size={18} color="#EF4444" />}
               </div>
             </div>
 
-            <h1 className="text-2xl font-bold text-[var(--navy)] mb-2">{property.title_en}</h1>
-            <h2 dir="rtl" className="text-xl font-semibold text-slate-600 mb-6 font-[Cairo]">{property.title_ar}</h2>
+            <h1 style={{ fontSize: '24px', fontWeight: 700, color: 'var(--navy)', marginBottom: '8px' }}>{property.title_en}</h1>
+            <h2 dir="rtl" style={{ fontSize: '20px', fontWeight: 600, color: '#475569', marginBottom: '24px', fontFamily: 'Cairo' }}>{property.title_ar}</h2>
 
             {/* Price section */}
-            <div className="bg-slate-50 p-6 rounded-2xl mb-8 flex items-baseline gap-2">
-              <span className="text-[32px] font-bold text-[var(--navy)]">{property.price.toLocaleString()}</span>
-              <span className="text-base font-semibold text-[var(--gold)]">{property.currency}</span>
-              <span className="text-sm text-slate-400 ml-auto">
+            <div style={{ background: '#F8FAFC', padding: '24px', borderRadius: '16px', marginBottom: '32px', display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+              <span style={{ fontSize: '32px', fontWeight: 700, color: 'var(--navy)' }}>{property.price.toLocaleString()}</span>
+              <span style={{ fontSize: '16px', fontWeight: 600, color: 'var(--gold)' }}>{property.currency}</span>
+              <span style={{ fontSize: '14px', color: '#94A3B8', marginLeft: 'auto' }}>
                 {property.offer_type === 'sale' ? 'Total Value' : 'Per Month'}
               </span>
             </div>
 
             {/* Specs Grid */}
-            <div className="grid grid-cols-3 gap-4 mb-8">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '32px' }}>
               <div className="spec-card">
                 <Bed size={20} color="var(--gold)" />
                 <div className="spec-val">{property.bedrooms}</div>
@@ -107,27 +122,27 @@ export default function PropertyDrawer({ property, onClose, onEdit, onDelete }: 
               </div>
             </div>
 
-            <div className="flex items-center gap-2 text-slate-500 mb-8">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748B', marginBottom: '32px' }}>
               <MapPin size={18} color="var(--gold)" />
-              <span className="font-semibold text-[var(--navy)]">{property.compound_name}</span>
+              <span style={{ fontWeight: 600, color: 'var(--navy)' }}>{property.compound_name}</span>
               <span>•</span>
               <span>{property.area_slug.replace('_', ' ').toUpperCase()}</span>
             </div>
 
             {/* Description */}
-            <div className="mb-8">
-              <h3 className="text-sm uppercase tracking-[1px] text-slate-400 mb-3">Asset Description</h3>
-              <p className="text-slate-600 leading-relaxed text-[15px] mb-4">{property.description_en || 'No English description provided.'}</p>
-              <p dir="rtl" className="text-slate-600 leading-relaxed text-[15px] font-[Cairo]">{property.description_ar || 'لا يوجد وصف متاح.'}</p>
+            <div style={{ marginBottom: '32px' }}>
+              <h3 style={{ fontSize: '14px', textTransform: 'uppercase', letterSpacing: '1px', color: '#94A3B8', marginBottom: '12px' }}>Asset Description</h3>
+              <p style={{ color: '#475569', lineHeight: '1.6', fontSize: '15px', marginBottom: '16px' }}>{property.description_en || 'No English description provided.'}</p>
+              <p dir="rtl" style={{ color: '#475569', lineHeight: '1.6', fontSize: '15px', fontFamily: 'Cairo' }}>{property.description_ar || 'لا يوجد وصف متاح.'}</p>
             </div>
 
             {/* Gallery */}
             {property.gallery_urls && property.gallery_urls.length > 0 && (
-              <div className="mb-8">
-                <h3 className="text-sm uppercase tracking-[1px] text-slate-400 mb-3">Visual Portfolio</h3>
-                <div className="grid grid-cols-2 gap-2">
+              <div style={{ marginBottom: '32px' }}>
+                <h3 style={{ fontSize: '14px', textTransform: 'uppercase', letterSpacing: '1px', color: '#94A3B8', marginBottom: '12px' }}>Visual Portfolio</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                   {property.gallery_urls.slice(0, 4).map((url, i) => (
-                    <img key={i} src={url} alt="Gallery" className="w-full h-[100px] object-cover rounded-lg" />
+                    <img key={i} src={url} alt="Gallery" style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: '8px' }} />
                   ))}
                 </div>
               </div>
@@ -135,19 +150,24 @@ export default function PropertyDrawer({ property, onClose, onEdit, onDelete }: 
           </div>
 
           {/* Action Bar */}
-          <div className="p-6 border-t border-slate-200 bg-white flex gap-3">
+          <div style={{ padding: '24px', borderTop: '1px solid #E2E8F0', background: 'white', display: 'flex', gap: '12px' }}>
             <button 
               onClick={() => onEdit(property)}
-              className="flex-1 p-3 rounded-xl border border-[var(--gold)] bg-white text-[var(--navy)] font-semibold cursor-pointer flex items-center justify-center gap-2"
+              style={{ 
+                flex: 1, padding: '12px', borderRadius: '12px', border: '1px solid var(--gold)', 
+                background: 'white', color: 'var(--navy)', fontWeight: 600, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' 
+              }}
             >
               <Edit3 size={18} />
               Modify
             </button>
             <button 
               onClick={() => onDelete(property.id!)}
-              className="p-3 rounded-xl border-none bg-red-50 text-red-500 cursor-pointer"
-              title="Delete Asset"
-              aria-label="Delete"
+              style={{ 
+                padding: '12px', borderRadius: '12px', border: 'none', 
+                background: '#FEF2F2', color: '#EF4444', cursor: 'pointer' 
+              }}
             >
               <Trash2 size={18} />
             </button>

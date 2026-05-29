@@ -205,7 +205,7 @@ export default function BrokerFeed() {
               <div className="flex gap-3 mt-auto pt-2">
                 <button className="flex-1 bg-navy text-white h-12 rounded-2xl text-[11px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-slate-800 transition-all shadow-lg shadow-navy/5 active:scale-95">
                   <ShieldCheck size={14} className="text-gold" />
-                  Convert to Portfolio Asset
+                  Convert to Inventory
                 </button>
                 <button 
                   onClick={() => handleDelete(item.id!)}

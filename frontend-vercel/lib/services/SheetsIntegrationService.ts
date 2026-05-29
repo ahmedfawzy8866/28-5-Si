@@ -1,6 +1,6 @@
 import Papa from 'papaparse';
 import { adminDb } from '../server/firebase-admin';
-import { COLLECTIONS, Unit, PropertyType, PropertyStatus } from '@/lib/models/schema';
+import { COLLECTIONS, Unit, PropertyType, PropertyStatus } from '../models/schema';
 
 export class SheetsIntegrationService {
   /**

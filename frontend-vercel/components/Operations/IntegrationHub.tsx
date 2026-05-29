@@ -166,7 +166,7 @@ export default function IntegrationHub() {
             onClick={() => setActivePortal('pf')}
             icon={<Globe size={20} />}
             label="Property Finder"
-            sublabel="Stakeholder & Portfolio Sync"
+            sublabel="Lead & Inventory Sync"
           />
           <NavItem
             active={activePortal === 'wa'}
@@ -227,7 +227,7 @@ export default function IntegrationHub() {
                 <ShieldCheck className="text-emerald-500" size={32} />
                 <div className="text-sm">
                   <p className="font-bold text-navy">Data Isolation Active</p>
-                  <p className="text-slate-500 italic">Incoming investment stakeholders can now be routed into the Strategic Pipeline through the secure Property Finder sync flow instead of staying in a read-only preview.</p>
+                  <p className="text-slate-500 italic">Incoming leads can now be routed into the CRM through the secure Property Finder sync flow instead of staying in a read-only preview.</p>
                 </div>
               </div>
             </motion.div>
@@ -371,7 +371,6 @@ function ConfigRange({ label, value, onChange }: { label: string; value: number;
         max={100}
         step={5}
         value={value}
-        aria-label={label}
         onChange={(event) => onChange(Number(event.target.value))}
         className="w-full accent-[#C9A24A]"
       />

@@ -3,17 +3,9 @@
  * Orchestrates Strategic Proposals (Options Packages) and Automated Incentives.
  */
 
-import { db } from '../firebase';
-import {
-  collection,
-  doc,
-  getDoc,
-  addDoc,
-  updateDoc,
-  serverTimestamp,
-  Timestamp,
-} from 'firebase/firestore';
-import { COLLECTIONS, type Lead, type Proposal, type Unit, type Voucher } from '@/lib/models/schema';
+import { adminDb } from '../server/firebase-admin';
+import { Timestamp } from 'firebase-admin/firestore';
+import { COLLECTIONS, type Lead, type Proposal, type Unit, type Voucher } from '../models/schema';
 import { GoogleAIService } from '../server/google-ai';
 import { analyzeAssetFinancials } from './roi-service';
 
@@ -22,8 +14,8 @@ import { analyzeAssetFinancials } from './roi-service';
  */
 export async function generateOptionsPackage(leadId: string): Promise<string> {
   // 1. Fetch Lead
-  const leadSnap = await getDoc(doc(db, COLLECTIONS.stakeholders, leadId));
-  if (!leadSnap.exists()) throw new Error('Lead not found');
+  const leadSnap = await adminDb.collection(COLLECTIONS.stakeholders).doc(leadId).get();
+  if (!leadSnap.exists) throw new Error('Lead not found');
   const lead = { id: leadSnap.id, ...leadSnap.data() } as Lead;
 
   if (!lead.aiProfiling?.topMatches || lead.aiProfiling.topMatches.length === 0) {
@@ -36,11 +28,11 @@ export async function generateOptionsPackage(leadId: string): Promise<string> {
   let totalYield = 0;
 
   for (const match of lead.aiProfiling.topMatches) {
-    const unitSnap = await getDoc(doc(db, COLLECTIONS.units, match.unitId));
-    if (unitSnap.exists()) {
+    const unitSnap = await adminDb.collection(COLLECTIONS.units).doc(match.unitId).get();
+    if (unitSnap.exists) {
       const unit = { id: unitSnap.id, ...unitSnap.data() } as Unit;
       const financials = await analyzeAssetFinancials(unit);
-      
+
       unitsData.push({
         id: match.unitId,
         title: unit.title,
@@ -66,7 +58,7 @@ export async function generateOptionsPackage(leadId: string): Promise<string> {
 
   // 4. Create Proposal
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://sierrablu.luxury';
-  
+
   const proposalData: Partial<Proposal> = {
     leadId,
     leadName: lead.name,
@@ -74,8 +66,8 @@ export async function generateOptionsPackage(leadId: string): Promise<string> {
     units: unitsData,
     strategicSummary: summary,
     status: 'draft',
-    createdAt: serverTimestamp() as Timestamp,
-    expiresAt: Timestamp.fromMillis(Date.now() + 14 * 24 * 60 * 60 * 1000), // 14 Days
+    createdAt: Timestamp.now() as any,
+    expiresAt: Timestamp.fromMillis(Date.now() + 14 * 24 * 60 * 60 * 1000) as any, // 14 Days
     financialAnalysis: {
       projectedROI: avgROI,
       annualYield: parseFloat(avgYield),
@@ -83,11 +75,11 @@ export async function generateOptionsPackage(leadId: string): Promise<string> {
     }
   };
 
-  const proposalRef = await addDoc(collection(db, COLLECTIONS.proposals), proposalData);
-  
+  const proposalRef = await adminDb.collection(COLLECTIONS.proposals).add(proposalData);
+
   // 4b. Update with public shareable URL
   const shareableUrl = `${siteUrl}/proposals/${proposalRef.id}`;
-  await updateDoc(proposalRef, { shareableUrl });
+  await proposalRef.update({ shareableUrl });
 
   // 5. Automation Check: Trigger high-fidelity incentives
   const maxScore = Math.max(...unitsData.map(u => u.matchScore));
@@ -103,8 +95,8 @@ export async function generateOptionsPackage(leadId: string): Promise<string> {
  * Generates a curated selection gallery for the stakeholder.
  */
 export async function generateConciergeSelection(leadId: string): Promise<string> {
-  const leadSnap = await getDoc(doc(db, COLLECTIONS.stakeholders, leadId));
-  if (!leadSnap.exists()) throw new Error('Stakeholder profile not found');
+  const leadSnap = await adminDb.collection(COLLECTIONS.stakeholders).doc(leadId).get();
+  if (!leadSnap.exists) throw new Error('Stakeholder profile not found');
   const lead = { id: leadSnap.id, ...leadSnap.data() } as Lead;
 
   // 1. Ensure matches exist (Neural Synthesis / S7)
@@ -114,14 +106,14 @@ export async function generateConciergeSelection(leadId: string): Promise<string
 
   // 2. Generate a unique selection URL
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://sierrablu.luxury';
-  const selectionUrl = `${siteUrl}/concierge/${leadId}`;
+  const selectionUrl = `${siteUrl}/select/${leadId}`;
 
   // 3. Mark selection as deployed
-  await updateDoc(doc(db, COLLECTIONS.stakeholders, leadId), {
+  await adminDb.collection(COLLECTIONS.stakeholders).doc(leadId).update({
     'automation.selectionUrlSent': true,
     'orchestrationState.stage': 'S8',
     'orchestrationState.status': 'completed',
-    updatedAt: serverTimestamp()
+    updatedAt: Timestamp.now()
   });
 
   return selectionUrl;
@@ -165,7 +157,7 @@ Output the response as a single cohesive paragraph.`;
  */
 async function triggerIncentive(leadId: string, proposalId: string) {
   const code = "SB-VIP-" + Math.random().toString(36).substring(2, 7).toUpperCase();
-  
+
   const voucher: Partial<Voucher> = {
     code,
     type: 'viewing-reward',
@@ -173,16 +165,16 @@ async function triggerIncentive(leadId: string, proposalId: string) {
     currency: 'EGP',
     leadId,
     status: 'active',
-    createdAt: serverTimestamp() as Timestamp,
-    expiresAt: Timestamp.fromMillis(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+    createdAt: Timestamp.now() as any,
+    expiresAt: Timestamp.fromMillis(Date.now() + 7 * 24 * 60 * 60 * 1000) as any, // 7 days
     conditions: "Valid for site inspection bookings within 7 days of proposal deployment."
   };
 
-  await addDoc(collection(db, COLLECTIONS.vouchers), voucher);
+  await adminDb.collection(COLLECTIONS.vouchers).add(voucher);
 
   // Log automation in lead
-  await updateDoc(doc(db, COLLECTIONS.stakeholders, leadId), {
+  await adminDb.collection(COLLECTIONS.stakeholders).doc(leadId).update({
     'automation.viewingRewardActive': true,
-    'automation.lastIncentiveAt': serverTimestamp(),
+    'automation.lastIncentiveAt': Timestamp.now(),
   });
 }
