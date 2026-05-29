@@ -2,9 +2,12 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { useI18n } from '@/lib/I18nContext';
+import { useTheme } from 'next-themes';
 import InteractiveCrmMap from '@/components/ui/InteractiveCrmMap';
 import LuxuryVirtualViewport from '@/components/ui/LuxuryVirtualViewport';
 import MobileBottomNav from '@/components/ui/MobileBottomNav';
+import Topbar from '@/components/ui/Topbar';
 
 function PrecisionShieldLogo() {
   return (
@@ -15,7 +18,7 @@ function PrecisionShieldLogo() {
         </linearGradient>
       </defs>
       <path d="M60 2L112 21V79Q112 122 60 138Q8 122 8 79V21Z" fill="url(#gold-grad-metallic)"/>
-      <path d="M60 8L106 25V78Q106 114 60 130Q14 114 14 78V25Z" fill="#071422"/>
+      <path d="M60 8L106 25V78Q106 114 60 130Q14 114 14 78V25Z" fill="currentColor" className="text-background"/>
       <path d="M14 100 Q35 84 58 72 Q80 58 108 46" stroke="url(#gold-grad-metallic)" strokeWidth="7" fill="none" strokeLinecap="round"/>
     </svg>
   );
@@ -46,10 +49,10 @@ function GoldenStardustCanvas() {
 }
 
 export default function SierraJuneMasterConsole() {
-  const [lang, setLang] = useState<'en' | 'ar'>('ar');
+  const { locale } = useI18n();
   const [activeTab, setActiveTab] = useState('explore');
   const [mounted, setMounted] = useState(false);
-  const isAr = lang === 'ar';
+  const isAr = locale === 'ar';
 
   useEffect(() => { setMounted(true); }, []);
 
@@ -63,22 +66,8 @@ export default function SierraJuneMasterConsole() {
   if (!mounted) return null;
 
   return (
-    <div className="min-h-screen bg-[#F4F0E8] text-[#071422] antialiased select-none font-sans overflow-x-hidden pb-16 lg:pb-0" dir={isAr ? 'rtl' : 'ltr'}>
-      <nav className="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-6 py-4 bg-[#F4F0E8]/85 backdrop-blur-xl border-b border-[#071422]/5">
-        <div className="flex items-center gap-3">
-          <PrecisionShieldLogo />
-          <div className="flex flex-col">
-            <span className="font-serif text-lg font-bold tracking-wider text-[#071422] leading-none">{isAr ? 'سييرا AI' : 'SIERRA AI'}</span>
-            <span className="text-[8px] uppercase tracking-[0.32em] font-bold text-gray-400 mt-1">{isAr ? 'المستشار التقني العقاري' : 'PropTech Intelligence'}</span>
-          </div>
-        </div>
-        <button 
-          onClick={() => setLang(l => l === 'en' ? 'ar' : 'en')}
-          className="px-4 py-1.5 bg-white border border-[#071422]/10 rounded-lg text-xs font-bold transition-all hover:bg-[#071422] hover:text-white"
-        >
-          {isAr ? 'ENGLISH' : 'العربية'}
-        </button>
-      </nav>
+    <div className="min-h-screen bg-background text-foreground antialiased select-none font-sans overflow-x-hidden pb-16 lg:pb-0" dir={isAr ? 'rtl' : 'ltr'}>
+      <Topbar onHomeClick={() => {}} onSignOut={() => {}} />
 
       <section 
         ref={heroRef} onMouseMove={(e) => { if (!heroRef.current) return; const r = heroRef.current.getBoundingClientRect(); mX.set(e.clientX - (r.left + r.width / 2)); mY.set(e.clientY - (r.top + r.height / 2)); }} onMouseLeave={() => { mX.set(0); mY.set(0); }}
@@ -87,22 +76,22 @@ export default function SierraJuneMasterConsole() {
         <GoldenStardustCanvas />
         <div className="w-full flex flex-col lg:flex-row items-center justify-between gap-12 relative z-20">
           <div className="w-full lg:w-[55%] flex flex-col justify-center">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-white border border-gray-200 rounded-full w-max mb-5 shadow-sm">
-              <span className="text-[10px] uppercase tracking-widest font-bold text-[#C8961A]">{isAr ? 'إدارة الأصول العقارية بأحدث النظم السحابية' : 'SaaS Engine Platform OS'}</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-surface border border-border rounded-full w-max mb-5 shadow-sm">
+              <span className="text-[10px] uppercase tracking-widest font-bold text-primary">{isAr ? 'إدارة الأصول العقارية بأحدث النظم السحابية' : 'SaaS Engine Platform OS'}</span>
             </div>
-            <h1 className="font-serif text-4xl md:text-6xl lg:text-[4.2rem] leading-[1.08] tracking-tight text-[#071422] font-bold mb-6">
+            <h1 className="font-serif text-4xl md:text-6xl lg:text-[4.2rem] leading-[1.08] tracking-tight text-foreground font-bold mb-6">
               {isAr ? (
                 <>قرارات <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F5E070] via-[#C8961A] to-[#987734] font-normal italic">أقوى.</span><br />مدعومة بمخططات الحقيقة البيانية.</>
               ) : (
                 <>Smarter <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F5E070] via-[#C8961A] to-[#987734] font-normal italic">Decisions.</span><br />Driven by Asset Intelligence.</>
               )}
             </h1>
-            <p className="text-sm text-gray-500 font-light max-w-xl mb-8 leading-relaxed">
+            <p className="text-sm text-foreground/70 font-light max-w-xl mb-8 leading-relaxed">
               {isAr ? 'استكشف محافظ عقارية فاخرة تم التحقق منها وفهرستها عبر خوارزمية تشفيرSHA256 الردعية لتصفية عروض السماسرة وتأمين رحلتك الاستثمارية بالقاهرة الجديدة.' : 'Curated inventory listings directly bound to live transactional records on the Firestore Spark layer. Fully integrated with official Property Finder gateways under absolute styling tokens compliance.'}
             </p>
           </div>
-          <div className="w-full lg:w-[45%] h-[450px] perspective-[1500px]">
-            <motion.div style={{ rotateX, rotateY }} className="relative w-full h-full rounded-[2.5rem] overflow-hidden shadow-2xl border border-white bg-white">
+          <div className="w-full lg:w-[45%] h-[450px] perspective-[1500px] md:h-[500px]">
+            <motion.div style={{ rotateX, rotateY }} className="relative w-full h-full rounded-[2.5rem] overflow-hidden shadow-2xl border border-border bg-surface">
               <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200" alt="Sierra Render Frame View" className="absolute inset-0 w-full h-full object-cover scale-101" />
             </motion.div>
           </div>

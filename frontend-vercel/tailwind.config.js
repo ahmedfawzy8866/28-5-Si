@@ -8,15 +8,23 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        background: 'var(--background)',
+        foreground: 'var(--foreground)',
+        primary: {
+          DEFAULT: 'var(--primary)',
+          muted: 'var(--primary-muted)',
+        },
+        surface: 'var(--surface)',
+        border: 'var(--border)',
         sbr: {
-          ivory: '#F4F0E8',     // Soft, clean background neutral tone
-          navy: '#071422',      // Luxury editorial typography primary structure
-          navyLight: '#0A1A3A', // CRM sidebar layout node panels 
-          blue: '#1E88D9',      // Active vector geospatial pin indicators & sync counters
+          ivory: '#F4F0E8',
+          navy: '#071422',
+          navyLight: '#0A1A3A',
+          blue: '#1E88D9',
           gold: {
-            light: '#F5E070',   // Metallic gold gradient start color token
-            base: '#C8961A',    // Premium action highlight anchor / CTAs
-            dark: '#987734',    // Luxury brand framing text accents
+            light: '#F5E070',
+            base: '#C8961A',
+            dark: '#987734',
           }
         }
       },
