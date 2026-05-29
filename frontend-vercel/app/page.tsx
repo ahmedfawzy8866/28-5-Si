@@ -1,212 +1,123 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import HeroFilter from "@/components/HeroFilter";
-import { formatPrice } from "@/lib/business-rules";
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import InteractiveCrmMap from '@/components/ui/InteractiveCrmMap';
+import LuxuryVirtualViewport from '@/components/ui/LuxuryVirtualViewport';
+import MobileBottomNav from '@/components/ui/MobileBottomNav';
 
-// ═══════════════════════════════════════════════════════════
-//  SIERRA ESTATES — Landing Page
-//  i:Sierra 2027 | Quiet Luxury | New Cairo Properties
-// ═══════════════════════════════════════════════════════════
-
-interface FilterState {
-  propertyType: string;
-  viewPreference: string;
-  priceTier: string;
-  furnishing: string;
+function PrecisionShieldLogo() {
+  return (
+    <svg width="34" height="40" viewBox="0 0 120 138" fill="none" className="shrink-0 drop-shadow-[0_2px_10px_rgba(200,150,26,0.2)]">
+      <defs>
+        <linearGradient id="gold-grad-metallic" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#F5E070"/><stop offset="50%" stopColor="#C8961A"/><stop offset="100%" stopColor="#987734"/>
+        </linearGradient>
+      </defs>
+      <path d="M60 2L112 21V79Q112 122 60 138Q8 122 8 79V21Z" fill="url(#gold-grad-metallic)"/>
+      <path d="M60 8L106 25V78Q106 114 60 130Q14 114 14 78V25Z" fill="#071422"/>
+      <path d="M14 100 Q35 84 58 72 Q80 58 108 46" stroke="url(#gold-grad-metallic)" strokeWidth="7" fill="none" strokeLinecap="round"/>
+    </svg>
+  );
 }
 
-export default function HomePage() {
-  const [activeFilters, setActiveFilters] = useState<FilterState | null>(null);
+function GoldenStardustCanvas() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const canvas = canvasRef.current; if (!canvas) return;
+    const ctx = canvas.getContext('2d'); if (!ctx) return;
+    let W = (canvas.width = canvas.offsetWidth); let H = (canvas.height = canvas.offsetHeight);
+    const pool = Array.from({ length: 30 }, () => ({
+      x: Math.random() * W, y: H + Math.random() * H,
+      r: Math.random() * 1.2 + 0.4, vy: -Math.random() * 0.3 - 0.1, alpha: Math.random() * 0.5 + 0.1
+    }));
+    let id: number;
+    const loop = () => {
+      ctx.clearRect(0, 0, W, H);
+      pool.forEach((p) => {
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fillStyle = `rgba(200, 150, 26, ${p.alpha})`; ctx.fill();
+        p.y += p.vy; if (p.y < -10) { p.y = H + 10; p.x = Math.random() * W; }
+      });
+      id = requestAnimationFrame(loop);
+    };
+    loop(); return () => cancelAnimationFrame(id);
+  }, []);
+  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none z-10" />;
+}
+
+export default function SierraJuneMasterConsole() {
+  const [lang, setLang] = useState<'en' | 'ar'>('ar');
+  const [activeTab, setActiveTab] = useState('explore');
+  const [mounted, setMounted] = useState(false);
+  const isAr = lang === 'ar';
+
+  useEffect(() => { setMounted(true); }, []);
+
+  const heroRef = useRef<HTMLDivElement>(null);
+  const mX = useMotionValue(0); const mY = useMotionValue(0);
+  const sX = useSpring(mX, { stiffness: 45, damping: 18 });
+  const sY = useSpring(mY, { stiffness: 45, damping: 18 });
+  const rotateX = useTransform(sY, [-300, 300], [5, -5]);
+  const rotateY = useTransform(sX, [-300, 300], [-5, 5]);
+
+  if (!mounted) return null;
 
   return (
-    <main className="min-h-screen bg-[#0A1628]">
-      {/* ── Navbar ────────────────────────────────────── */}
-      <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-[#0A1628]/90 border-b border-[#C9A24D]/10">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#C9A24D] to-[#B8912F] flex items-center justify-center">
-              <span className="text-[#0A1628] font-bold text-sm" style={{ fontFamily: "Inter" }}>
-                SE
-              </span>
-            </div>
-            <div>
-              <h1
-                className="text-lg font-medium text-[#F4F0E8] tracking-wide"
-                style={{ fontFamily: "'Playfair Display', serif" }}
-              >
-                Sierra Estates
-              </h1>
-              <p className="text-[9px] text-[#C9A24D]/60 uppercase tracking-[0.3em]"
-                 style={{ fontFamily: "Inter" }}>
-                Best-in-Class Design
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-6">
-            <a href="#properties" className="text-xs text-[#F4F0E8]/60 hover:text-[#C9A24D] transition-colors"
-               style={{ fontFamily: "Inter" }}>
-              Properties
-            </a>
-            <a href="#about" className="text-xs text-[#F4F0E8]/60 hover:text-[#C9A24D] transition-colors"
-               style={{ fontFamily: "Inter" }}>
-              About
-            </a>
-            <a href="#contact" className="text-xs text-[#F4F0E8]/60 hover:text-[#C9A24D] transition-colors"
-               style={{ fontFamily: "Inter" }}>
-              Contact
-            </a>
+    <div className="min-h-screen bg-[#F4F0E8] text-[#071422] antialiased select-none font-sans overflow-x-hidden pb-16 lg:pb-0" dir={isAr ? 'rtl' : 'ltr'}>
+      <nav className="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-6 py-4 bg-[#F4F0E8]/85 backdrop-blur-xl border-b border-[#071422]/5">
+        <div className="flex items-center gap-3">
+          <PrecisionShieldLogo />
+          <div className="flex flex-col">
+            <span className="font-serif text-lg font-bold tracking-wider text-[#071422] leading-none">{isAr ? 'سييرا AI' : 'SIERRA AI'}</span>
+            <span className="text-[8px] uppercase tracking-[0.32em] font-bold text-gray-400 mt-1">{isAr ? 'المستشار التقني العقاري' : 'PropTech Intelligence'}</span>
           </div>
         </div>
+        <button 
+          onClick={() => setLang(l => l === 'en' ? 'ar' : 'en')}
+          className="px-4 py-1.5 bg-white border border-[#071422]/10 rounded-lg text-xs font-bold transition-all hover:bg-[#071422] hover:text-white"
+        >
+          {isAr ? 'ENGLISH' : 'العربية'}
+        </button>
       </nav>
 
-      {/* ── Hero ──────────────────────────────────────── */}
-      <section className="pt-28 pb-12 px-6">
-        <div className="max-w-5xl mx-auto text-center">
-          <p className="text-[#C9A24D] text-xs font-semibold uppercase tracking-[0.35em] mb-4"
-             style={{ fontFamily: "Inter" }}>
-            Exclusive Collection
-          </p>
-          <h2
-            className="text-4xl md:text-6xl font-light text-[#F4F0E8] leading-tight"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
-            The First Exclusive Destination
-            <br />
-            for <span className="text-[#C9A24D] font-medium">New Cairo Properties</span>
-          </h2>
-          <p className="text-sm text-[#F4F0E8]/40 mt-4 max-w-xl mx-auto" style={{ fontFamily: "Inter" }}>
-            Rent &amp; Resale &middot; AI-Driven Excellence &middot; 1,500+ Elite Brokers
-          </p>
-        </div>
-      </section>
-
-      {/* ── Hero Filter ───────────────────────────────── */}
-      <section className="px-6 pb-16">
-        <HeroFilter
-          onFilter={(filters) => {
-            setActiveFilters(filters);
-            console.log("[Sierra Estates] Filters applied:", filters);
-          }}
-          onAIMatch={(filters) => {
-            setActiveFilters(filters);
-            console.log("[Sierra Estates] AI Match requested:", filters);
-          }}
-        />
-      </section>
-
-      {/* ── Properties Grid Placeholder ───────────────── */}
-      <section id="properties" className="px-6 pb-20">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h3
-                className="text-2xl font-light text-[#F4F0E8]"
-                style={{ fontFamily: "'Playfair Display', serif" }}
-              >
-                Featured Properties
-              </h3>
-              <p className="text-xs text-[#F4F0E8]/40 mt-1" style={{ fontFamily: "Inter" }}>
-                {activeFilters
-                  ? `Filtered: ${activeFilters.propertyType} · ${activeFilters.priceTier}`
-                  : "Curated from our exclusive network"}
-              </p>
+      <section 
+        ref={heroRef} onMouseMove={(e) => { if (!heroRef.current) return; const r = heroRef.current.getBoundingClientRect(); mX.set(e.clientX - (r.left + r.width / 2)); mY.set(e.clientY - (r.top + r.height / 2)); }} onMouseLeave={() => { mX.set(0); mY.set(0); }}
+        className="relative min-h-screen w-full flex items-center justify-center pt-24 px-6 md:px-12 max-w-[1500px] mx-auto overflow-hidden z-10"
+      >
+        <GoldenStardustCanvas />
+        <div className="w-full flex flex-col lg:flex-row items-center justify-between gap-12 relative z-20">
+          <div className="w-full lg:w-[55%] flex flex-col justify-center">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-white border border-gray-200 rounded-full w-max mb-5 shadow-sm">
+              <span className="text-[10px] uppercase tracking-widest font-bold text-[#C8961A]">{isAr ? 'إدارة الأصول العقارية بأحدث النظم السحابية' : 'SaaS Engine Platform OS'}</span>
             </div>
-            <div className="flex gap-2">
-              <button className="px-4 py-2 text-xs bg-[#C9A24D] text-[#0A1628] font-semibold rounded-lg"
-                      style={{ fontFamily: "Inter" }}>
-                Rent
-              </button>
-              <button className="px-4 py-2 text-xs bg-white/[0.04] text-[#F4F0E8]/60 border border-white/[0.06] rounded-lg hover:bg-white/[0.08] transition-colors"
-                      style={{ fontFamily: "Inter" }}>
-                Resale
-              </button>
-            </div>
-          </div>
-
-          {/* Property cards — will be populated from Firestore */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="group bg-white/[0.03] border border-white/[0.06] rounded-xl overflow-hidden hover:border-[#C9A24D]/20 transition-all duration-300"
-              >
-                <div className="h-48 bg-gradient-to-br from-[#0E1D35] to-[#162A45] flex items-center justify-center">
-                  <span className="text-[#F4F0E8]/20 text-sm" style={{ fontFamily: "Inter" }}>
-                    Property Image
-                  </span>
-                </div>
-                <div className="p-5">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-[9px] font-mono text-[#C9A24D]/60">
-                      MIV-{i}F-1.{i}K
-                    </span>
-                    {i === 1 && <span className="value-badge">HIGH VALUE</span>}
-                  </div>
-                  <h4 className="text-sm font-medium text-[#F4F0E8]/90" style={{ fontFamily: "Inter" }}>
-                    {i}-Bedroom Apartment, Mivida
-                  </h4>
-                  <p className="text-xs text-[#F4F0E8]/40 mt-1" style={{ fontFamily: "Inter" }}>
-                    Golf View &middot; Furnished &middot; 150m&sup2;
-                  </p>
-                  <div className="flex items-center justify-between mt-4">
-                    <span className="text-lg font-semibold text-[#C9A24D]" style={{ fontFamily: "Inter" }}>
-                      {formatPrice(1600 * i)}
-                    </span>
-                    <span className="text-[10px] text-[#F4F0E8]/30" style={{ fontFamily: "Inter" }}>
-                      /month
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── About ─────────────────────────────────────── */}
-      <section id="about" className="px-6 py-20 border-t border-white/[0.04]">
-        <div className="max-w-3xl mx-auto text-center">
-          <h3
-            className="text-2xl font-light text-[#F4F0E8] mb-6"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
-            About <span className="text-[#C9A24D]">Sierra Estates</span>
-          </h3>
-          <p className="text-sm text-[#F4F0E8]/60 leading-relaxed" style={{ fontFamily: "Inter" }}>
-            We curate the finest opportunities across the New Cairo market. By combining
-            advanced AI intelligence with an exclusive network of over 1,500 elite brokers
-            and agencies across New Cairo, Madinaty, and El Shorouk, we deliver unmatched
-            value tailored precisely to your needs. Smarter decisions, powered by intelligence.
-          </p>
-        </div>
-      </section>
-
-      {/* ── Footer ────────────────────────────────────── */}
-      <footer id="contact" className="px-6 py-12 bg-[#060E1A] border-t border-white/[0.04]">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="text-center md:text-left">
-            <p className="text-xs text-[#F4F0E8]/60" style={{ fontFamily: "Inter" }}>
-              &copy; {new Date().getFullYear()} Sierra Estates. All rights reserved.
-            </p>
-            <p className="text-[10px] text-[#F4F0E8]/30 mt-1" style={{ fontFamily: "Inter" }}>
-              Best-in-Class Design. AI-Driven Excellence.
+            <h1 className="font-serif text-4xl md:text-6xl lg:text-[4.2rem] leading-[1.08] tracking-tight text-[#071422] font-bold mb-6">
+              {isAr ? (
+                <>قرارات <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F5E070] via-[#C8961A] to-[#987734] font-normal italic">أقوى.</span><br />مدعومة بمخططات الحقيقة البيانية.</>
+              ) : (
+                <>Smarter <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F5E070] via-[#C8961A] to-[#987734] font-normal italic">Decisions.</span><br />Driven by Asset Intelligence.</>
+              )}
+            </h1>
+            <p className="text-sm text-gray-500 font-light max-w-xl mb-8 leading-relaxed">
+              {isAr ? 'استكشف محافظ عقارية فاخرة تم التحقق منها وفهرستها عبر خوارزمية تشفيرSHA256 الردعية لتصفية عروض السماسرة وتأمين رحلتك الاستثمارية بالقاهرة الجديدة.' : 'Curated inventory listings directly bound to live transactional records on the Firestore Spark layer. Fully integrated with official Property Finder gateways under absolute styling tokens compliance.'}
             </p>
           </div>
-          <div className="flex gap-6">
-            <a href="https://wa.me/201061399688" target="_blank" rel="noopener noreferrer"
-               className="text-xs text-[#F4F0E8]/40 hover:text-[#C9A24D] transition-colors"
-               style={{ fontFamily: "Inter" }}>
-              WhatsApp
-            </a>
-            <a href="https://t.me/Sierrablurealtybot" target="_blank" rel="noopener noreferrer"
-               className="text-xs text-[#F4F0E8]/40 hover:text-[#C9A24D] transition-colors"
-               style={{ fontFamily: "Inter" }}>
-              Telegram
-            </a>
+          <div className="w-full lg:w-[45%] h-[450px] perspective-[1500px]">
+            <motion.div style={{ rotateX, rotateY }} className="relative w-full h-full rounded-[2.5rem] overflow-hidden shadow-2xl border border-white bg-white">
+              <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200" alt="Sierra Render Frame View" className="absolute inset-0 w-full h-full object-cover scale-101" />
+            </motion.div>
           </div>
         </div>
-      </footer>
-    </main>
+      </section>
+
+      <section className="py-12 px-6 md:px-12 max-w-[1450px] mx-auto relative z-30">
+        <InteractiveCrmMap isArabic={isAr} />
+      </section>
+
+      <section className="py-12 px-6 md:px-12 max-w-[1450px] mx-auto relative z-30">
+        <LuxuryVirtualViewport tourUrl="https://kuula.co/share/collection/7K_XG?logo=0&info=0&fs=1&vr=1&sd=1&thumbs=1" sbrCode="MVD-3F-110K" />
+      </section>
+
+      <MobileBottomNav currentTab={activeTab} setTab={setActiveTab} isArabic={isAr} />
+    </div>
   );
 }
