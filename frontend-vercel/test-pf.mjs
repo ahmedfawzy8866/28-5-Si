@@ -22,7 +22,8 @@ async function testPF() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-SBR-SECRET-KEY": "sierra-secure-2028"
+        // Local-only test utility — supply the secret via the environment.
+        "X-SBR-SECRET-KEY": process.env.SBR_SECRET_KEY || ""
       },
       body: JSON.stringify(testPayload)
     });
