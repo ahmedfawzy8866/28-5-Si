@@ -1,13 +1,65 @@
 // Jest setup — global mocks for Firebase and external services
 
-// Mock firebase-admin
+// Define mock Firebase environment variables globally before any module imports
+process.env.GCLOUD_PROJECT = 'sierra-blu-dev';
+process.env.FIREBASE_CONFIG = JSON.stringify({
+  projectId: 'sierra-blu-dev',
+  storageBucket: 'sierra-blu-dev.appspot.com',
+});
+
+// Initialize Firestore global mock state
+(global as any).mockDbState = { rawScrapeData: {}, processedDataStore: {} };
+
+Object.defineProperty(global, 'rawScrapeData', {
+  get() { return (global as any).mockDbState.rawScrapeData; },
+  set(val) { (global as any).mockDbState.rawScrapeData = val; },
+  configurable: true
+});
+
+Object.defineProperty(global, 'processedDataStore', {
+  get() { return (global as any).mockDbState.processedDataStore; },
+  set(val) { (global as any).mockDbState.processedDataStore = val; },
+  configurable: true
+});
+
+// --------------------------------------------------------------------------
+// Shared Firestore mock implementation
+// --------------------------------------------------------------------------
+const mockDbInstance = {
+  collection: jest.fn((name: string) => ({
+    add: jest.fn(async (data) => {
+      const id = `mock-id-${Date.now()}`;
+      const state = (global as any).mockDbState;
+      state.rawScrapeData[id] = data;
+      return { id };
+    }),
+    doc: jest.fn((docId) => ({
+      set: jest.fn(async (data) => {
+        const state = (global as any).mockDbState;
+        state.processedDataStore[docId] = data;
+      }),
+      get: jest.fn(async () => ({
+        exists: true,
+        data: () => ({}),
+      })),
+      update: jest.fn(async () => true),
+    })),
+  })),
+};
+
+// Export mockDbInstance globally for pipeline tests or direct references
+(global as any).mockDbInstance = mockDbInstance;
+
+// --------------------------------------------------------------------------
+// Mock subpath files of firebase-admin
+// --------------------------------------------------------------------------
 jest.mock('firebase-admin/app', () => ({
   initializeApp: jest.fn(),
   getApps: jest.fn(() => []),
 }));
 
 jest.mock('firebase-admin/firestore', () => ({
-  getFirestore: jest.fn(),
+  getFirestore: jest.fn(() => mockDbInstance),
   Timestamp: {
     now: jest.fn(() => ({ toDate: () => new Date() })),
   },

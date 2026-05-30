@@ -1,52 +1,17 @@
 /**
  * DataPipeline tests — collectData & processDataForApp
- * Uses manual mocks for firebase-admin and firebase-functions so no real
+ * Uses global setup mocks for firebase-admin and firebase-functions so no real
  * Firebase project is needed to run these tests.
  */
 
-// --------------------------------------------------------------------------
-// Shared Firestore mock state
-// --------------------------------------------------------------------------
-let rawScrapeData = {};
-let processedDataStore = {};
-
-const mockDocRef = (id = 'doc123') => ({
-  id,
-  update: jest.fn().mockResolvedValue(true),
-});
-
-const mockServerTimestamp = jest.fn(() => '__TIMESTAMP__');
-
-const mockDb = {
-  collection: jest.fn((_name) => ({
-    add: jest.fn(async (data) => {
-      const id = `mock-id-${Date.now()}`;
-      rawScrapeData[id] = data;
-      return { id };
-    }),
-    doc: jest.fn((docId) => ({
-      set: jest.fn(async (data) => {
-        processedDataStore[docId] = data;
-      }),
-    })),
-  })),
-};
-
-// --------------------------------------------------------------------------
-// Mock firebase-admin
-// --------------------------------------------------------------------------
-jest.mock('firebase-admin', () => ({
-  apps: [],
-  initializeApp: jest.fn(),
-  firestore: jest.fn(() => mockDb),
-}));
-// The function sources are CommonJS modules, so these test imports must use require().
- 
 const admin = require('firebase-admin');
+
+// Mock server timestamp spy
+const mockServerTimestamp = jest.fn(() => '__TIMESTAMP__');
 admin.firestore.FieldValue = { serverTimestamp: mockServerTimestamp };
 
 // --------------------------------------------------------------------------
-// Mock firebase-functions
+// Mock firebase-functions (virtual mock since it's only required in functions)
 // --------------------------------------------------------------------------
 jest.mock('firebase-functions', () => ({
   https: {
@@ -59,17 +24,17 @@ jest.mock('firebase-functions', () => ({
   },
 }), { virtual: true });
 
-// --------------------------------------------------------------------------
-// Import the functions under test
-// --------------------------------------------------------------------------
- 
+// Import the functions under test AFTER mocking is established
 const { collectData } = require('../../firebase-backend/functions/collectData');
-
 const { processDataForApp } = require('../../firebase-backend/functions/processData');
 
-// --------------------------------------------------------------------------
+// Helper to create document references for trigger testing
+const mockDocRef = (id = 'doc123') => ({
+  id,
+  update: jest.fn().mockResolvedValue(true),
+});
+
 // Helper: build a minimal Express-like req/res pair
-// --------------------------------------------------------------------------
 function mockReqRes(method = 'POST', body = {}) {
   const res = {
     _status: 200,
@@ -86,9 +51,10 @@ function mockReqRes(method = 'POST', body = {}) {
 // --------------------------------------------------------------------------
 describe('collectData (HTTP function)', () => {
   beforeEach(() => {
-    rawScrapeData = {};
+    // Reset global db mock states
+    global.mockDbState.rawScrapeData = {};
+    global.mockDbState.processedDataStore = {};
     jest.clearAllMocks();
-    admin.apps.length = 0;
   });
 
   test('rejects non-POST requests with 405', async () => {
@@ -123,7 +89,8 @@ describe('collectData (HTTP function)', () => {
     const payload = { title: 'Penthouse B' };
     const [req, res] = mockReqRes('POST', payload);
     await collectData(req, res);
-    const stored = Object.values(rawScrapeData)[0];
+    const stored = Object.values(global.mockDbState.rawScrapeData)[0];
+    expect(stored).toBeDefined();
     expect(stored.status).toBe('raw_unprocessed');
     expect(stored.title).toBe('Penthouse B');
   });
@@ -134,7 +101,9 @@ describe('collectData (HTTP function)', () => {
 // --------------------------------------------------------------------------
 describe('processDataForApp (Firestore trigger)', () => {
   beforeEach(() => {
-    processedDataStore = {};
+    // Reset global db mock states
+    global.mockDbState.rawScrapeData = {};
+    global.mockDbState.processedDataStore = {};
     jest.clearAllMocks();
   });
 
@@ -153,7 +122,7 @@ describe('processDataForApp (Firestore trigger)', () => {
     const snap = makeSnap({ title: 'Apartment', price: '2500000', location: 'Mivida', source: 'Bot' });
     await processDataForApp(snap, context);
 
-    const written = processedDataStore['snap-doc-1'];
+    const written = global.mockDbState.processedDataStore['snap-doc-1'];
     expect(written).toBeDefined();
     expect(written.title).toBe('Apartment');
     expect(written.price).toBe(2500000);
@@ -165,7 +134,8 @@ describe('processDataForApp (Firestore trigger)', () => {
     const snap = makeSnap({});
     await processDataForApp(snap, context);
 
-    const written = processedDataStore['snap-doc-1'];
+    const written = global.mockDbState.processedDataStore['snap-doc-1'];
+    expect(written).toBeDefined();
     expect(written.title).toBe('Untitled Property');
     expect(written.price).toBe(0);
     expect(written.location).toBe('Unknown');
@@ -180,11 +150,18 @@ describe('processDataForApp (Firestore trigger)', () => {
 
   test('marks processed_error and does not throw when write fails', async () => {
     // Make processedData write fail
-    mockDb.collection.mockImplementationOnce((name) => {
+    const dbMock = admin.firestore();
+    const originalCollection = dbMock.collection;
+
+    dbMock.collection = jest.fn((name) => {
       if (name === 'processedData') {
-        return { doc: jest.fn(() => ({ set: jest.fn().mockRejectedValue(new Error('Firestore write failed')) })) };
+        return {
+          doc: jest.fn(() => ({
+            set: jest.fn().mockRejectedValue(new Error('Firestore write failed'))
+          }))
+        };
       }
-      return mockDb.collection(name);
+      return originalCollection(name);
     });
 
     const snap = makeSnap({ title: 'Failing Unit' });
@@ -192,5 +169,8 @@ describe('processDataForApp (Firestore trigger)', () => {
     expect(snap.ref.update).toHaveBeenCalledWith(
       expect.objectContaining({ status: 'processed_error', error: expect.any(String) })
     );
+
+    // Restore original mock collection logic
+    dbMock.collection = originalCollection;
   });
 });

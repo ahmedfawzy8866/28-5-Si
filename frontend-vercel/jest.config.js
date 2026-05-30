@@ -6,6 +6,8 @@ const config = {
   testMatch: ['**/__tests__/**/*.test.ts', '**/__tests__/**/*.test.tsx', '**/__tests__/**/*.test.js'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
+    '^firebase-admin$': '<rootDir>/__tests__/__mocks__/firebase-admin.ts',
+    '^firebase-functions$': '<rootDir>/__tests__/__mocks__/firebase-functions.ts',
   },
   collectCoverageFrom: [
     'lib/**/*.{ts,tsx}',
