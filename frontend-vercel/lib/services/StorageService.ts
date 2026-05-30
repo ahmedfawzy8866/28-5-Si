@@ -8,7 +8,10 @@ import { v4 as uuidv4 } from 'uuid';
  */
 export class StorageService {
   private static storage = getStorage(adminApp);
-  private static bucket = this.storage.bucket(process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET);
+  private static get bucket() {
+    const bucketName = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || 'sierra-blu.appspot.com';
+    return this.storage.bucket(bucketName);
+  }
 
   /**
    * Uploads base64 media to Firebase Storage.
