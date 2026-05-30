@@ -15,22 +15,39 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
-const storage = getStorage(app);
+const isConfigValid = !!firebaseConfig.apiKey && firebaseConfig.apiKey !== 'undefined';
+
+let app: any = null;
+let db: any = null;
+let auth: any = null;
+let storage: any = null;
+
+try {
+  app = getApps().length ? getApp() : (isConfigValid ? initializeApp(firebaseConfig) : null);
+  if (app) {
+    db = getFirestore(app);
+    auth = getAuth(app);
+    storage = getStorage(app);
+  }
+} catch (error) {
+  console.warn("Firebase client initialization failed (likely build time):", error);
+}
 
 // Initialize App Check
-if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY) {
-  initializeAppCheck(app, {
-    provider: new ReCaptchaEnterpriseProvider(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY),
-    isTokenAutoRefreshEnabled: true,
-  });
+if (app && typeof window !== 'undefined' && process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY) {
+  try {
+    initializeAppCheck(app, {
+      provider: new ReCaptchaEnterpriseProvider(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY),
+      isTokenAutoRefreshEnabled: true,
+    });
+  } catch (error) {
+    console.error("App Check Initialization Error:", error);
+  }
 }
 
 let analyticsPromise: Promise<any> | null = null;
-if (typeof window !== 'undefined') {
-  analyticsPromise = isSupported().then(yes => yes ? getAnalytics(app) : null);
+if (app && typeof window !== 'undefined') {
+  analyticsPromise = isSupported().then(yes => yes && app ? getAnalytics(app) : null);
 }
 
 export const getAnalyticsInstance = () => analyticsPromise;
