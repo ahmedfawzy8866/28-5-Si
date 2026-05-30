@@ -27,20 +27,38 @@ const G2 = '#C8961A';
 
 const THEMES = {
   dark: {
-    bg: '#0D2035', bgAlt: '#0A1520', bg2: '#122A47',
-    surface: 'rgba(255,255,255,0.055)', surfaceHover: 'rgba(233,193,118,0.10)',
-    card: '#122A47', cardBorder: 'rgba(233,193,118,0.10)',
-    border: 'rgba(233,193,118,0.18)', borderHover: 'rgba(233,193,118,0.45)',
-    text: '#EFF8F7', textSub: 'rgba(239,248,247,0.78)', textMuted: 'rgba(239,248,247,0.50)',
-    navBg: 'rgba(13,32,53,0.96)', footerBg: '#091828', heroBg: '#0A1520',
+    bg: '#050B14',      // Ultra deep midnight navy (from attachment)
+    bgAlt: '#08101E',   // Midnight blue alternate
+    bg2: '#0D172A',      // Dark slate card surface
+    surface: 'rgba(255,255,255,0.045)',
+    surfaceHover: 'rgba(212,175,55,0.08)',
+    card: '#0D172A',
+    cardBorder: 'rgba(212,175,55,0.12)',
+    border: 'rgba(212,175,55,0.18)',
+    borderHover: 'rgba(212,175,55,0.45)',
+    text: '#F4F0E8',     // Warm ivory text (from attachment)
+    textSub: 'rgba(244,240,232,0.78)',
+    textMuted: 'rgba(244,240,232,0.48)',
+    navBg: 'rgba(5,11,20,0.95)',
+    footerBg: '#02060D',
+    heroBg: '#050B14',
   },
   light: {
-    bg: '#D5E8E6', bgAlt: '#C0D6D4', bg2: '#E2EDEC',
-    surface: 'rgba(27,108,168,0.08)', surfaceHover: 'rgba(233,193,118,0.14)',
-    card: '#E2EDEC', cardBorder: 'rgba(27,108,168,0.14)',
-    border: 'rgba(27,108,168,0.20)', borderHover: 'rgba(233,193,118,0.55)',
-    text: '#071422', textSub: 'rgba(7,20,34,0.78)', textMuted: 'rgba(7,20,34,0.56)',
-    navBg: 'rgba(213,232,230,0.97)', footerBg: '#040E1C', heroBg: '#C0D6D4',
+    bg: '#F4F7FC',      // Radiant soft sky-blue tint (from attachment)
+    bgAlt: '#E2EAF4',   // Deeper sky-blue section background
+    bg2: '#FFFFFF',      // Crisp clean white surface
+    surface: 'rgba(15,38,66,0.05)',
+    surfaceHover: 'rgba(181,145,78,0.08)',
+    card: '#FFFFFF',     // Clean white cards (from attachment)
+    cardBorder: 'rgba(15,38,66,0.08)',
+    border: 'rgba(15,38,66,0.12)',
+    borderHover: 'rgba(181,145,78,0.4)',
+    text: '#0F2642',     // Prestigious deep navy blue (from attachment)
+    textSub: 'rgba(15,38,66,0.8)',
+    textMuted: 'rgba(15,38,66,0.5)',
+    navBg: 'rgba(244,247,252,0.96)',
+    footerBg: '#0F2642', // Deep navy footer matching light theme
+    heroBg: '#EBF3FC',
   },
 };
 
@@ -66,7 +84,7 @@ const COPY = {
     secListings: 'Exclusive Listings',
     h2Listings: 'Properties worth your attention.',
     viewAll: 'View All →',
-    searchType: 'Property Type', searchCompound: 'Compound', searchBudget: 'Budget', searchBtn: 'Search',
+    searchType: 'Property Type', searchCompound: 'Compound', searchRooms: 'Rooms', searchPurpose: 'Purpose', searchBudget: 'Budget', searchBtn: 'Search',
     beds: 'bed', baths: 'bath',
     secWhy: 'Why Sierra Blu',
     h2Why: 'The Sierra Blu Standard',
@@ -135,7 +153,7 @@ const COPY = {
     secListings: 'قوائم حصرية',
     h2Listings: 'عقارات تستحق اهتمامك.',
     viewAll: '← عرض الكل',
-    searchType: 'نوع العقار', searchCompound: 'الكمباوند', searchBudget: 'الميزانية', searchBtn: 'بحث',
+    searchType: 'نوع العقار', searchCompound: 'الكمباوند', searchRooms: 'عدد الغرف', searchPurpose: 'الغرض', searchBudget: 'الميزانية', searchBtn: 'بحث',
     beds: 'غرف', baths: 'حمامات',
     secWhy: 'لماذا سييرا بلو',
     h2Why: 'معيار سييرا بلو',
@@ -229,6 +247,10 @@ export default function LandingPage() {
   const th = THEMES[mode];
   const T = COPY[lang];
   const isAr = lang === 'ar';
+
+  // Dynamic high-contrast gold shadowing for light theme contrast
+  const G = mode === 'dark' ? '#E9C176' : '#9F7212';
+  const G2 = mode === 'dark' ? '#C8961A' : '#75530B';
 
   useEffect(() => {
     setMounted(true);
@@ -347,16 +369,18 @@ export default function LandingPage() {
 
               
               {/* HERO FILTER */}
-              <div className="reveal grid grid-cols-1 sm:grid-cols-3 md:grid-cols-[1fr_1fr_1fr_auto] gap-0 rounded-lg overflow-hidden mt-8" style={{ background: mode === 'dark' ? 'rgba(18, 42, 71, 0.8)' : 'rgba(255, 255, 255, 0.8)', border: `1px solid ${th.border}`, boxShadow: '0 8px 32px rgba(0,0,0,0.15)', backdropFilter: 'blur(16px)', animation: loaded ? 'fadeUp .7s ease .6s both' : 'none' }}>
+              <div className="reveal grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.1fr_1.1fr_0.8fr_0.9fr_1.1fr_auto] gap-0 rounded-lg overflow-hidden mt-8" style={{ background: mode === 'dark' ? 'rgba(18, 42, 71, 0.8)' : 'rgba(255, 255, 255, 0.85)', border: `1px solid ${th.border}`, boxShadow: '0 8px 32px rgba(0,0,0,0.15)', backdropFilter: 'blur(16px)', animation: loaded ? 'fadeUp .7s ease .6s both' : 'none' }}>
                 {[
                   { label: T.searchType, opts: isAr ? ['شقة', 'فيلا', 'دوبلكس', 'بنتهاوس'] : ['Apartment', 'Villa', 'Duplex', 'Penthouse'] },
-                  { label: T.searchCompound, opts: isAr ? ['التجمع الخامس', 'مدينتي', 'ماونتن فيو', 'مستقبل'] : ['Fifth Settlement', 'Madinaty', 'Mountain View', 'Mostakbal'] },
-                  { label: T.searchBudget, opts: isAr ? ['أقل من ٥م', '٥م–١٠م', '١٠م–٢٠م', 'أكثر من ٢٠م'] : ['Under 5M EGP', '5–10M EGP', '10–20M EGP', '20M+ EGP'] },
+                  { label: T.searchCompound, opts: isAr ? ['التجمع الخامس', 'مدينتي', 'ماونتن فيو', 'مستقبل سيتي'] : ['Fifth Settlement', 'Madinaty', 'Mountain View', 'Mostakbal City'] },
+                  { label: T.searchRooms, opts: isAr ? ['١ غرفة', '٢ غرفة', '٣ غرف', '٤ غرف', '٥+ غرف'] : ['1 Bed', '2 Beds', '3 Beds', '4 Beds', '5+ Beds'] },
+                  { label: T.searchPurpose, opts: isAr ? ['إيجار', 'إعادة بيع'] : ['For Rent', 'For Resale'] },
+                  { label: T.searchBudget, opts: isAr ? ['أقل من ٥م ج.م', '٥م–١٠م ج.م', '١٠م–٢٠م ج.م', 'أكثر من ٢٠م ج.م'] : ['Under 5M EGP', '5–10M EGP', '10–20M EGP', '20M+ EGP'] },
                 ].map((seg, i) => (
-                  <div key={i} style={{ padding: '14px 18px', borderRight: `1px solid ${th.border}` }}>
-                    <div style={{ fontSize: 9, fontWeight: 500, letterSpacing: '.16em', textTransform: 'uppercase', color: th.textMuted, marginBottom: 3, fontFamily: "'Jost', sans-serif" }}>{seg.label}</div>
+                  <div key={i} style={{ padding: '14px 18px', borderRight: isAr ? 'none' : `1px solid ${th.border}`, borderLeft: isAr ? `1px solid ${th.border}` : 'none' }}>
+                    <div style={{ fontSize: 9, fontWeight: 600, letterSpacing: '.16em', textTransform: 'uppercase', color: mode === 'dark' ? th.textMuted : '#4B6B94', marginBottom: 3, fontFamily: "'Jost', sans-serif" }}>{seg.label}</div>
                     <select style={{ background: 'transparent', border: 'none', outline: 'none', color: th.text, fontFamily: isAr ? "'Cairo', sans-serif" : "'Jost', sans-serif", fontSize: 13, fontWeight: 500, width: '100%', cursor: 'pointer' }}>
-                      {seg.opts.map((o) => <option key={o} value={o} style={{ background: mode === 'dark' ? '#122A47' : '#fff' }}>{o}</option>)}
+                      {seg.opts.map((o) => <option key={o} value={o} style={{ background: mode === 'dark' ? '#122A47' : '#fff', color: mode === 'dark' ? '#fff' : '#0F2642' }}>{o}</option>)}
                     </select>
                   </div>
                 ))}
