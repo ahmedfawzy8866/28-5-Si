@@ -1,14 +1,15 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 
+// Firebase web config is read from environment variables. See .env.example.
 const firebaseConfig = {
-  apiKey: "AIzaSyBZLN2jTTKV34SneGPoWRz1zoRpX5uODjs",
-  authDomain: "sierra-blu.firebaseapp.com",
-  projectId: "sierra-blu",
-  storageBucket: "sierra-blu.firebasestorage.app",
-  messagingSenderId: "941030513456",
-  appId: "1:941030513456:web:56209a1495d69f217086f5",
-  measurementId: "G-ZP054BPJ8Q"
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
 const app = initializeApp(firebaseConfig);

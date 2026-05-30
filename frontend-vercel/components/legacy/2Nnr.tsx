@@ -8,7 +8,7 @@ import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { COLLECTIONS } from '@/lib/models/schema';
 import { useSierraBlu } from '@/hooks/useSierraBlu';
-import { LuxuryCard, EditorialHeading } from '@/components/UI/LuxurySkeleton';
+import { LuxuryCard, EditorialHeading } from '@/components/ui/LuxurySkeleton';
 
 /** Inline version — avoids importing the server-only portfolio-engine on the client */
 async function trackEngagement(
@@ -91,7 +91,7 @@ export default function ConciergePage({ params }: { params: Promise<{ leadId: st
       // Track engagement
       await trackEngagement(portfolio.id, leadId!, 'requested_viewing');
 
-      alert('Viewing request sent! Laila will contact you shortly to arrange the visit.');
+      alert('Viewing request sent! Sierra will contact you shortly to arrange the visit.');
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Failed to request viewing');
     }
