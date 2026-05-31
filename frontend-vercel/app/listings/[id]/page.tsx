@@ -150,7 +150,7 @@ export default function PropertyDetailPage() {
                 
                 if (data.success) {
                   setContactOpen(false);
-                  alert(`Intelligence Synchronized.\n\nLeila (AI): "${data.introMessage}"`);
+                  alert(`Intelligence Synchronized.\n\nSierra (AI): "${data.introMessage}"`);
                 } else {
                   throw new Error(data.error);
                 }

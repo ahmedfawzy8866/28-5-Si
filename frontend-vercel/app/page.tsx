@@ -10,7 +10,7 @@ import ShieldLogo from '@/components/Landing/ShieldLogo';
 import PropCard from '@/components/Landing/PropCard';
 
 import LuxuryVirtualViewport from '@/components/ui/LuxuryVirtualViewport';
-import { Briefcase } from 'lucide-react';
+import { Briefcase, Search } from 'lucide-react';
 
 
 const ParticleCanvas = dynamic(() => import('@/components/Landing/ParticleCanvas'), { ssr: false });
@@ -54,11 +54,11 @@ const COPY = {
     tagline: 'SIERRA-BLU REALTY | BEYOND BROKERAGE',
     nav: ['Properties', 'Intelligence', 'Careers', 'Contact'],
     cta: 'Enter Portal',
-    heroTag: 'Beyond Brokerage',
-    heroH1: ['New Cairo’s first dedicated SaaS platform', 'for Rent and Resale.'],
+    heroTag: 'New Cairo · Rent & Resale',
+    heroH1: ['New Cairo living,', 'matched by intelligence.'],
     heroItalic: '',
-    heroSub: 'The Real in Real Estate.',
-    heroDesc: 'Unlock market-leading opportunities with AI-powered real estate intelligence.',
+    heroSub: 'Rent & Resale · Beyond Brokerage',
+    heroDesc: 'From the Fifth Settlement to Madinaty and Mostakbal City — explore curated rentals and resale homes, matched to you by AI and confirmed by a dedicated Sierra advisor.',
     btnDiscover: 'Explore Properties',
     btnView: 'Meet Sierra AI',
     stats: [['1,200+', 'Properties'], ['98%', 'Match Rate'], ['8+', 'Compounds'], ['4s', 'Response']],
@@ -67,6 +67,7 @@ const COPY = {
     h2Listings: 'Properties worth your attention.',
     viewAll: 'View All →',
     searchType: 'Property Type', searchCompound: 'Compound', searchBudget: 'Budget', searchBtn: 'Search',
+    searchLocation: 'Location', searchBeds: 'Bedrooms',
     beds: 'bed', baths: 'bath',
     secWhy: 'Why Sierra Blu',
     h2Why: 'The Sierra Blu Standard',
@@ -123,11 +124,11 @@ const COPY = {
     tagline: 'استشارات عقارية مدعومة بالذكاء الاصطناعي',
     nav: ['العقارات', 'الذكاء', 'الوظائف', 'اتصل'],
     cta: 'الدخول للبوابة',
-    heroTag: 'أبعد من الوساطة',
-    heroH1: ['قرارات', 'أرقى.'],
-    heroItalic: 'مدعومة بالذكاء.',
-    heroSub: 'دقة. عقار. غاية.',
-    heroDesc: 'عقارات استثنائية، مطابقة بدقة. نوجّه المستثمرين نحو أفخر العناوين في مصر — منتقاة بخبرة إنسانية، مُحسَّنة بالذكاء الاصطناعي.',
+    heroTag: 'القاهرة الجديدة · إيجار وإعادة بيع',
+    heroH1: ['سكن القاهرة الجديدة،', 'مطابقة بالذكاء.'],
+    heroItalic: '',
+    heroSub: 'إيجار وإعادة بيع · أبعد من الوساطة',
+    heroDesc: 'من التجمع الخامس إلى مدينتي ومستقبل سيتي — اكتشف وحدات الإيجار وإعادة البيع المنتقاة، مطابَقة لك بالذكاء الاصطناعي ومؤكَّدة من مستشار سييرا المختص.',
     btnDiscover: 'اكتشف العقارات',
     btnView: 'تعرّف على سييرا',
     stats: [['١٢٠٠+', 'عقار'], ['٩٨٪', 'دقة المطابقة'], ['٨+', 'كمباوند'], ['٤ث', 'الرد']],
@@ -136,6 +137,7 @@ const COPY = {
     h2Listings: 'عقارات تستحق اهتمامك.',
     viewAll: '← عرض الكل',
     searchType: 'نوع العقار', searchCompound: 'الكمباوند', searchBudget: 'الميزانية', searchBtn: 'بحث',
+    searchLocation: 'الموقع', searchBeds: 'غرف النوم',
     beds: 'غرف', baths: 'حمامات',
     secWhy: 'لماذا سييرا بلو',
     h2Why: 'معيار سييرا بلو',
@@ -208,6 +210,48 @@ const ZONE_COORDS: [number, number][] = [
 ];
 
 // ══════════════════════════════════════════════════════════
+//  HERO SEARCH — Property-Finder style (Rent · Resale · New Projects)
+// ══════════════════════════════════════════════════════════
+const HERO_PURPOSES = [
+  { id: 'rent', en: 'Rent', ar: 'إيجار' },
+  { id: 'resale', en: 'Resale', ar: 'إعادة بيع' },
+  { id: 'new', en: 'New Projects', ar: 'مشروعات جديدة' },
+] as const;
+
+type HeroPurpose = (typeof HERO_PURPOSES)[number]['id'];
+
+const HERO_LOCATIONS = {
+  en: ['All New Cairo', 'Fifth Settlement', 'Madinaty', 'Mountain View', 'Mostakbal City', 'Hyde Park', 'Mivida'],
+  ar: ['كل القاهرة الجديدة', 'التجمع الخامس', 'مدينتي', 'ماونتن فيو', 'مستقبل سيتي', 'هايد بارك', 'ميفيدا'],
+};
+
+const HERO_TYPES = {
+  en: ['Any Type', 'Apartment', 'Villa', 'Townhouse', 'Penthouse', 'Duplex', 'Studio'],
+  ar: ['كل الأنواع', 'شقة', 'فيلا', 'تاون هاوس', 'بنتهاوس', 'دوبلكس', 'ستوديو'],
+};
+
+const HERO_BEDS = {
+  en: ['Any', 'Studio', '1', '2', '3', '4', '5+'],
+  ar: ['الكل', 'ستوديو', '١', '٢', '٣', '٤', '+٥'],
+};
+
+// Price bands adapt to intent — rentals quote monthly, sales quote total.
+const HERO_PRICE: Record<HeroPurpose, { en: string[]; ar: string[] }> = {
+  rent: {
+    en: ['Any Price', 'Up to 20K / mo', '20K – 40K / mo', '40K – 80K / mo', '80K+ / mo'],
+    ar: ['أي سعر', 'حتى ٢٠ ألف/شهر', '٢٠ – ٤٠ ألف/شهر', '٤٠ – ٨٠ ألف/شهر', '+٨٠ ألف/شهر'],
+  },
+  resale: {
+    en: ['Any Price', 'Up to 5M', '5M – 10M', '10M – 20M', '20M+'],
+    ar: ['أي سعر', 'حتى ٥ مليون', '٥ – ١٠ مليون', '١٠ – ٢٠ مليون', '+٢٠ مليون'],
+  },
+  new: {
+    en: ['Any Price', 'Up to 6M', '6M – 12M', '12M – 25M', '25M+'],
+    ar: ['أي سعر', 'حتى ٦ مليون', '٦ – ١٢ مليون', '١٢ – ٢٥ مليون', '+٢٥ مليون'],
+  },
+};
+
+// ══════════════════════════════════════════════════════════
 //  MAIN LANDING PAGE
 // ══════════════════════════════════════════════════════════
 export default function LandingPage() {
@@ -223,6 +267,13 @@ export default function LandingPage() {
   const [listingsDealt, setListingsDealt] = useState(false);
   const [featured, setFeatured] = useState<Property[]>([]);
   const listingsSectionRef = useRef<HTMLDivElement>(null);
+
+  // Property-Finder-style hero search state
+  const [purpose, setPurpose] = useState<HeroPurpose>('resale');
+  const [heroLoc, setHeroLoc] = useState(0);
+  const [heroType, setHeroType] = useState(0);
+  const [heroBeds, setHeroBeds] = useState(0);
+  const [heroPrice, setHeroPrice] = useState(0);
 
   const lang = locale === 'ar' ? 'ar' : 'en';
   const mode = (theme === 'light' ? 'light' : 'dark') as 'light' | 'dark';
@@ -346,21 +397,75 @@ export default function LandingPage() {
               </div>
 
               
-              {/* HERO FILTER */}
-              <div className="reveal grid grid-cols-1 sm:grid-cols-3 md:grid-cols-[1fr_1fr_1fr_auto] gap-0 rounded-lg overflow-hidden mt-8" style={{ background: mode === 'dark' ? 'rgba(18, 42, 71, 0.8)' : 'rgba(255, 255, 255, 0.8)', border: `1px solid ${th.border}`, boxShadow: '0 8px 32px rgba(0,0,0,0.15)', backdropFilter: 'blur(16px)', animation: loaded ? 'fadeUp .7s ease .6s both' : 'none' }}>
-                {[
-                  { label: T.searchType, opts: isAr ? ['شقة', 'فيلا', 'دوبلكس', 'بنتهاوس'] : ['Apartment', 'Villa', 'Duplex', 'Penthouse'] },
-                  { label: T.searchCompound, opts: isAr ? ['التجمع الخامس', 'مدينتي', 'ماونتن فيو', 'مستقبل'] : ['Fifth Settlement', 'Madinaty', 'Mountain View', 'Mostakbal'] },
-                  { label: T.searchBudget, opts: isAr ? ['أقل من ٥م', '٥م–١٠م', '١٠م–٢٠م', 'أكثر من ٢٠م'] : ['Under 5M EGP', '5–10M EGP', '10–20M EGP', '20M+ EGP'] },
-                ].map((seg, i) => (
-                  <div key={i} style={{ padding: '14px 18px', borderRight: `1px solid ${th.border}` }}>
-                    <div style={{ fontSize: 9, fontWeight: 500, letterSpacing: '.16em', textTransform: 'uppercase', color: th.textMuted, marginBottom: 3, fontFamily: "'Jost', sans-serif" }}>{seg.label}</div>
-                    <select style={{ background: 'transparent', border: 'none', outline: 'none', color: th.text, fontFamily: isAr ? "'Cairo', sans-serif" : "'Jost', sans-serif", fontSize: 13, fontWeight: 500, width: '100%', cursor: 'pointer' }}>
-                      {seg.opts.map((o) => <option key={o} value={o} style={{ background: mode === 'dark' ? '#122A47' : '#fff' }}>{o}</option>)}
-                    </select>
-                  </div>
-                ))}
-                <button style={{ borderRadius: 0, padding: '0 28px', background: `linear-gradient(135deg,${G2},${G})`, color: '#071422', border: 'none', cursor: 'pointer', fontFamily: "'Jost', sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase' }}>{T.searchBtn}</button>
+              {/* HERO FILTER — Property-Finder-style (Rent · Resale · New Projects) */}
+              <div className="reveal mt-8" style={{ animation: loaded ? 'fadeUp .7s ease .6s both' : 'none' }}>
+                {/* Purpose tabs */}
+                <div className="flex" style={{ gap: 4, flexDirection: isAr ? 'row-reverse' : 'row', marginBottom: -1 }}>
+                  {HERO_PURPOSES.map((p) => {
+                    const active = purpose === p.id;
+                    return (
+                      <button
+                        key={p.id}
+                        onClick={() => { setPurpose(p.id); setHeroPrice(0); }}
+                        aria-pressed={active}
+                        style={{
+                          padding: '9px 22px', border: 'none', cursor: 'pointer',
+                          fontFamily: isAr ? "'Cairo', sans-serif" : "'Jost', sans-serif",
+                          fontSize: 11, fontWeight: 600, letterSpacing: isAr ? '.02em' : '.12em',
+                          textTransform: 'uppercase',
+                          borderTopLeftRadius: 9, borderTopRightRadius: 9,
+                          background: active ? (mode === 'dark' ? 'rgba(18,42,71,0.92)' : 'rgba(255,255,255,0.92)') : (mode === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(7,20,34,0.05)'),
+                          color: active ? G : th.textMuted,
+                          borderBottom: active ? `2px solid ${G}` : '2px solid transparent',
+                          transition: 'all .25s ease',
+                        }}
+                      >
+                        {isAr ? p.ar : p.en}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Search row */}
+                <div
+                  className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-[1.4fr_1fr_0.8fr_1fr_auto] overflow-hidden"
+                  style={{
+                    background: mode === 'dark' ? 'rgba(18, 42, 71, 0.85)' : 'rgba(255, 255, 255, 0.92)',
+                    border: `1px solid ${th.border}`, borderRadius: 12,
+                    boxShadow: '0 10px 36px rgba(0,0,0,0.20)', backdropFilter: 'blur(16px)',
+                  }}
+                >
+                  {[
+                    { label: T.searchLocation, value: heroLoc, set: setHeroLoc, opts: isAr ? HERO_LOCATIONS.ar : HERO_LOCATIONS.en },
+                    { label: T.searchType, value: heroType, set: setHeroType, opts: isAr ? HERO_TYPES.ar : HERO_TYPES.en },
+                    { label: T.searchBeds, value: heroBeds, set: setHeroBeds, opts: isAr ? HERO_BEDS.ar : HERO_BEDS.en },
+                    { label: T.searchBudget, value: heroPrice, set: setHeroPrice, opts: isAr ? HERO_PRICE[purpose].ar : HERO_PRICE[purpose].en },
+                  ].map((seg, i) => (
+                    <div key={i} style={{ padding: '12px 18px', borderInlineEnd: `1px solid ${th.border}` }}>
+                      <div style={{ fontSize: 9, fontWeight: 500, letterSpacing: '.16em', textTransform: 'uppercase', color: th.textMuted, marginBottom: 3, fontFamily: "'Jost', sans-serif", textAlign: isAr ? 'right' : 'left' }}>{seg.label}</div>
+                      <select
+                        value={seg.value}
+                        onChange={(e) => seg.set(Number(e.target.value))}
+                        aria-label={seg.label}
+                        style={{ background: 'transparent', border: 'none', outline: 'none', color: th.text, fontFamily: isAr ? "'Cairo', sans-serif" : "'Jost', sans-serif", fontSize: 13, fontWeight: 500, width: '100%', cursor: 'pointer', textAlign: isAr ? 'right' : 'left' }}
+                      >
+                        {seg.opts.map((o, oi) => <option key={o} value={oi} style={{ background: mode === 'dark' ? '#122A47' : '#fff' }}>{o}</option>)}
+                      </select>
+                    </div>
+                  ))}
+                  <Link
+                    href={`/listings?purpose=${purpose}`
+                      + (heroLoc > 0 ? `&zone=${encodeURIComponent(HERO_LOCATIONS.en[heroLoc])}` : '')
+                      + (heroType > 0 ? `&type=${encodeURIComponent(HERO_TYPES.en[heroType])}` : '')
+                      + (heroBeds > 0 ? `&beds=${encodeURIComponent(HERO_BEDS.en[heroBeds])}` : '')
+                      + (heroPrice > 0 ? `&priceBand=${heroPrice}` : '')}
+                    aria-label={T.searchBtn}
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '0 30px', minHeight: 58, background: `linear-gradient(135deg,${G2},${G})`, color: '#071422', border: 'none', cursor: 'pointer', fontFamily: isAr ? "'Cairo', sans-serif" : "'Jost', sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: isAr ? '.02em' : '.14em', textTransform: 'uppercase', textDecoration: 'none', whiteSpace: 'nowrap' }}
+                  >
+                    <Search size={15} strokeWidth={2.5} />
+                    {T.searchBtn}
+                  </Link>
+                </div>
               </div>
 
               {/* Stats */}
