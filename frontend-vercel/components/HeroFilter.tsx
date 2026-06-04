@@ -9,7 +9,6 @@ import React, { useState, useCallback } from "react";
 // ═══════════════════════════════════════════════════════════
 
 interface FilterState {
-  purpose: string;
   propertyType: string;
   viewPreference: string;
   priceTier: string;
@@ -20,13 +19,6 @@ interface HeroFilterProps {
   onFilter?: (filters: FilterState) => void;
   onAIMatch?: (filters: FilterState) => void;
 }
-
-// Property-Finder-style intent tabs
-const PURPOSES = [
-  { id: "rent", label: "Rent", labelAr: "إيجار" },
-  { id: "resale", label: "Resale", labelAr: "إعادة بيع" },
-  { id: "new", label: "New Projects", labelAr: "مشروعات جديدة" },
-];
 
 const PROPERTY_TYPES = [
   { id: "apartment", label: "Apartment", labelAr: "شقة" },
@@ -73,7 +65,6 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function HeroFilter({ onFilter, onAIMatch }: HeroFilterProps) {
-  const [purpose, setPurpose] = useState("resale");
   const [propertyType, setPropertyType] = useState("apartment");
   const [viewPreference, setViewPreference] = useState("any");
   const [priceTier, setPriceTier] = useState("mid-egp");
@@ -81,12 +72,12 @@ export default function HeroFilter({ onFilter, onAIMatch }: HeroFilterProps) {
   const [showZoneGuide, setShowZoneGuide] = useState(false);
 
   const handleApply = useCallback(() => {
-    onFilter?.({ purpose, propertyType, viewPreference, priceTier, furnishing });
-  }, [purpose, propertyType, viewPreference, priceTier, furnishing, onFilter]);
+    onFilter?.({ propertyType, viewPreference, priceTier, furnishing });
+  }, [propertyType, viewPreference, priceTier, furnishing, onFilter]);
 
   const handleAIMatch = useCallback(() => {
-    onAIMatch?.({ purpose, propertyType, viewPreference, priceTier, furnishing });
-  }, [purpose, propertyType, viewPreference, priceTier, furnishing, onAIMatch]);
+    onAIMatch?.({ propertyType, viewPreference, priceTier, furnishing });
+  }, [propertyType, viewPreference, priceTier, furnishing, onAIMatch]);
 
   return (
     <section className="relative w-full py-10">
@@ -108,25 +99,6 @@ export default function HeroFilter({ onFilter, onAIMatch }: HeroFilterProps) {
           <p className="text-sm text-[#F4F0E8]/50 mt-2" style={{ fontFamily: "Inter, sans-serif" }}>
             Rent &amp; Resale &middot; AI-Driven Excellence
           </p>
-        </div>
-
-        {/* Purpose tabs — Rent · Resale · New Projects */}
-        <div className="flex justify-center gap-1.5 mb-5">
-          {PURPOSES.map((p) => (
-            <button
-              key={p.id}
-              onClick={() => setPurpose(p.id)}
-              aria-pressed={purpose === p.id}
-              className={`px-6 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-[0.12em] transition-all duration-200 ${
-                purpose === p.id
-                  ? "bg-[#C9A24D] text-[#0A1628] shadow-lg shadow-[#C9A24D]/20"
-                  : "bg-white/[0.04] text-[#F4F0E8]/55 hover:bg-white/[0.08] border border-white/[0.06]"
-              }`}
-              style={{ fontFamily: "Inter, sans-serif" }}
-            >
-              {p.label}
-            </button>
-          ))}
         </div>
 
         {/* Filter Panel — glassmorphic */}

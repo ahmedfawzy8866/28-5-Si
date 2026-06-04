@@ -2,7 +2,6 @@ import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getFirestore, collection, query, where, getDocs, Timestamp } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
-import { getAnalytics, isSupported, type Analytics } from 'firebase/analytics';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -18,19 +17,6 @@ const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
 export const storage = getStorage(app);
-
-// Browser-only, feature-detected analytics. Returns null on the server,
-// before isSupported() resolves, or when analytics is unavailable.
-// Consumed by components/CRM/CRMKanban.tsx and components/Listings/AddListingModal.tsx.
-let _analytics: Analytics | null = null;
-if (typeof window !== 'undefined') {
-  isSupported()
-    .then((ok) => { if (ok) _analytics = getAnalytics(app); })
-    .catch(() => { _analytics = null; });
-}
-export function getAnalyticsInstance(): Analytics | null {
-  return _analytics;
-}
 
 export interface FirestoreCrmProperty {
   id: string;

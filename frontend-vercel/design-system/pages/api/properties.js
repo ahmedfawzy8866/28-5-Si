@@ -2,9 +2,8 @@
 // Property Finder API Integration Layer
 
 const PROPERTY_FINDER_BASE = 'https://api.propertyfinder.ae/api/v1';
-// Secrets come from the environment — never hard-code them. See .env.example.
-const API_KEY = process.env.PF_API_KEY;
-const API_SECRET = process.env.PF_API_SECRET;
+const API_KEY = 'YHDNf.LadthM6TyLlAOs8fqQu8IpTt65yhzXE9ae';
+const API_SECRET = 'GBuxCDac4pZ6GEFaTq4crIBNR7YXILon';
 
 // Generate auth token
 const getAuthToken = async () => {

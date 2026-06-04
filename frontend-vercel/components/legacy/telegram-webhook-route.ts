@@ -9,7 +9,7 @@
  *   - وضع العميل  → "سييرا" — بتتكلم بالعربي، بتسأل بـ dropdown، بتجيب وحدات
  *   - وضع الأدمن  → "سييرا أدمن" — لأحمد فوزي، بتبعتله ملخصات وتقارير
  *
- * التوكن: من متغيّر البيئة TELEGRAM_BOT_TOKEN (انظر .env.example)
+ * التوكن الجديد: 8719045454:AAHSafZe5U_JzPGb9AAxeNJPwYSPkkwwddQ
  * ─────────────────────────────────────────────────────────────────────
  */
 
@@ -24,7 +24,7 @@ import { COLLECTIONS } from '@/lib/models/schema';
 // ─── إعدادات ثابتة ───────────────────────────────────────────────────
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN!;
-const ADMIN_ID  = Number(process.env.TELEGRAM_CHAT_ID || '0');
+const ADMIN_ID  = Number(process.env.TELEGRAM_CHAT_ID || '7175892124');
 
 // مراحل الـ dropdown بالعربي — العميل بيختار من دول
 const REQUEST_STEPS = [
