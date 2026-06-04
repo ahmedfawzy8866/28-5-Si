@@ -7,16 +7,17 @@ import { auth } from '@/lib/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import {
   LayoutDashboard, Building2, Users, RefreshCw,
-  ImageIcon, Settings, LogOut, Menu, X, Shield
+  ImageIcon, Settings, LogOut, Menu, X, Shield, Cpu
 } from 'lucide-react';
 
 const NAV_ITEMS = [
-  { href: '/admin/dashboard',  label: 'Dashboard',    icon: LayoutDashboard },
-  { href: '/admin/units',      label: 'Units',        icon: Building2 },
-  { href: '/admin/deals',      label: 'Deals',        icon: Users },
-  { href: '/admin/sync',       label: 'Sync Center',  icon: RefreshCw },
-  { href: '/admin/media',      label: 'Media',        icon: ImageIcon },
-  { href: '/admin/settings',   label: 'Settings',     icon: Settings },
+  { href: '/admin/dashboard',  label: 'Dashboard',       icon: LayoutDashboard },
+  { href: '/intelligence',     label: 'Intelligence OS', icon: Cpu },
+  { href: '/admin/units',      label: 'Units',           icon: Building2 },
+  { href: '/admin/deals',      label: 'Deals',           icon: Users },
+  { href: '/admin/sync',       label: 'Sync Center',     icon: RefreshCw },
+  { href: '/admin/media',      label: 'Media',           icon: ImageIcon },
+  { href: '/admin/settings',   label: 'Settings',        icon: Settings },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
