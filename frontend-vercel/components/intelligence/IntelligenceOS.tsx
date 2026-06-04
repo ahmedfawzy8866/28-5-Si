@@ -660,7 +660,7 @@ function SettingsPage({ toast }: { toast: Toast }) {
         <div className="card-hd"><span className="card-title">🔧 System Configuration</span></div>
         <div className="card-body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           {[
-            { l: 'Firebase Project ID', v: 'sierra-blu-2026', type: 'text' },
+            { l: 'Firebase Project ID', v: 'sierra-estates-2026', type: 'text' },
             { l: 'Gemini API Key', v: '', type: 'password', ph: 'set via GOOGLE_AI_API_KEY env' },
             { l: 'n8n / Webhook Base URL', v: '', type: 'text', ph: 'https://…/webhook' },
           ].map((f, i) => (

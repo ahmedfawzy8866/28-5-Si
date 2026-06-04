@@ -13,7 +13,7 @@ export async function detectAntiPatternsInBrowser(): Promise<unknown> {
   return mod;
 }
 
-export const sierraBluChecks = {
+export const sierraEstatesChecks = {
   stages: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as const,
   criticalAntiPatterns: [
     "side-tab-border",

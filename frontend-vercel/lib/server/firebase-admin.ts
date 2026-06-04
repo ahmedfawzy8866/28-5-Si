@@ -1,5 +1,5 @@
 /**
- * SIERRA BLU — FIREBASE ADMIN SERVICE (V12.1 Hardened)
+ * SIERRA ESTATES — FIREBASE ADMIN SERVICE (V12.1 Hardened)
  * 
  * IMPORTANT: This file must ONLY be imported in server-side components or API routes.
  */
@@ -65,7 +65,7 @@ try {
       console.log('🔐 [Firebase] Attempting Application Default Credentials');
       admin.initializeApp({
         credential: admin.credential.applicationDefault(),
-        projectId: projectId || 'sierra-blu',
+        projectId: projectId || 'sierra-estates',
         storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
       });
     }

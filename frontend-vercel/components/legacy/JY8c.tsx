@@ -8,7 +8,7 @@ interface BrandLogoProps {
 
 /**
  * BRAND LOGO — Strategic Double-Panel Crop
- * The source image (/sierra-blu-logo.jpg) contains two logo variants:
+ * The source image (/sierra-estates-logo.jpg) contains two logo variants:
  * - Left 50%: Dark variant (for dark backgrounds)
  * - Right 50%: Light variant (for light backgrounds)
  * 
@@ -57,7 +57,7 @@ export default function BrandLogo({ size = 'md', themeOverride }: BrandLogoProps
       }}
     >
       <img
-        src="/sierra-blu-logo.jpg"
+        src="/sierra-estates-logo.jpg"
         alt="Sierra AI Realty"
         draggable={false}
         style={{

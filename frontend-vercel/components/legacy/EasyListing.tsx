@@ -746,7 +746,7 @@ export default function EasyListing() {
                    <button 
                     onClick={() => {
                       const link = document.createElement('a');
-                      link.download = `sierra-blu-${generatedCode}.png`;
+                      link.download = `sierra-estates-${generatedCode}.png`;
                       link.href = canvasRef.current?.toDataURL() || '';
                       link.click();
                     }}

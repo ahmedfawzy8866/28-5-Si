@@ -51,7 +51,7 @@ const LABELS = {
     back: '← Back to home',
     eyebrow: 'AI Support · Immersive',
     title: 'Virtual 360° Tours',
-    subtitle: 'SIERRA BLUE REALTY',
+    subtitle: 'SIERRA ESTATES REALTY',
     tagline: 'AI-Powered Luxury Estates',
     desc: 'Capture listing tours on your Samsung Galaxy S24 Ultra and let buyers walk through — drag to look around.',
     dragHint: 'Drag to look around',
@@ -193,7 +193,7 @@ export default function VirtualTourPage() {
             <path d="M30 60 L50 72 L70 60" stroke={GOLD} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
           <div>
-            <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 18, fontWeight: 700, letterSpacing: '.18em', color: GOLD, lineHeight: 1 }}>SIERRA BLUU</div>
+            <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 18, fontWeight: 700, letterSpacing: '.18em', color: GOLD, lineHeight: 1 }}>SIERRA ESTATES</div>
             <div style={{ fontSize: 9, letterSpacing: '.3em', color: 'rgba(248,248,248,0.7)', marginTop: 2 }}>REALTY</div>
           </div>
         </div>

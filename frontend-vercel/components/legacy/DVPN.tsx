@@ -100,7 +100,7 @@ export function LoginPage() {
           <div className="mt-6 pt-6 border-t border-slate-700">
             <p className="text-slate-400 text-xs mb-3">Demo Credentials (if available):</p>
             <div className="bg-slate-700/50 rounded p-3 text-slate-300 text-xs space-y-1 font-mono">
-              <p>Email: admin@sierra-blu.com</p>
+              <p>Email: admin@sierra-estates.com</p>
               <p>Password: Contact your administrator</p>
             </div>
           </div>
