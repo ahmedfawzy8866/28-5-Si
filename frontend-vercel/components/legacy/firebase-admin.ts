@@ -62,7 +62,7 @@ try {
       console.log('🔐 [Firebase] Attempting Application Default Credentials');
       admin.initializeApp({
         credential: admin.credential.applicationDefault(),
-        projectId: projectId || 'sierra-blu',
+        projectId: projectId || 'sierra-estates',
         storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
       });
     }

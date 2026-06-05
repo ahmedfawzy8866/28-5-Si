@@ -1,5 +1,5 @@
 /**
- * SIERRA BLU — DESIGN TOKENS V2.0
+ * SIERRA ESTATES — DESIGN TOKENS V2.0
  * "Gold & Diamond" — خليها زي الذهب والماس
  * ─────────────────────────────────────────────────────────────
  * Light = Ivory/Tiffany · Dark = Midnight Navy · Accent = Real Gold
@@ -18,7 +18,7 @@ export const TOKENS = {
   // ── NAVY (الأزرق الملكي) ─────────────────────────────────────
   // Light mode → Sierra blue (فاتح ومشرق)
   // Dark mode  → Royal/Pepsi blue (ملكي غامق)
-  sierraBlue:  "#1B6CA8",   // Medium bright — light mode primary
+  sierraEstatese:  "#1B6CA8",   // Medium bright — light mode primary
   royalBlue:   "#003087",   // Pepsi/Royal — dark mode primary
   midNavy:     "#0D2D6B",   // Mid — transitions
   deepNavy:    "#071422",   // Darkest — DESIGN.md base

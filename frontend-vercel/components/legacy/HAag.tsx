@@ -116,7 +116,7 @@ function LandingContent() {
           </h1>
           <p className="hero-subtext master-subtext text-ivory/80">
             {isAr 
-              ? 'سييرا بلو ريلتي — أبعد من مجرد وساطة. ذكاء عقاري مدعوم بالبيانات.' 
+              ? 'سييرا إستيتس ريلتي — أبعد من مجرد وساطة. ذكاء عقاري مدعوم بالبيانات.' 
               : 'Sierra AI Realty — Beyond Brokerage. Real Estate Intelligence Powered by Data.'}
           </p>
           <div className="hero-cta-group">
@@ -270,7 +270,7 @@ function LandingContent() {
             
             <div className="lg:col-span-2 flex flex-col md:flex-row gap-8">
                {[
-                 { name: isAr ? 'ماريا ثومبسون' : 'Maria Thompson', role: isAr ? 'مشترية سكنية' : 'Residential Buyer', quote: isAr ? 'جعلت سييرا بلو بحثي عن منزلي بسيطاً للغاية. معرفتهم المحلية ساعدتني في حجز المكان المثالي في ميفيدا.' : 'Sierra AI made my home search incredibly simple. Their local knowledge helped us secure the perfect place in Mivida.' },
+                 { name: isAr ? 'ماريا ثومبسون' : 'Maria Thompson', role: isAr ? 'مشترية سكنية' : 'Residential Buyer', quote: isAr ? 'جعلت سييرا إستيتس بحثي عن منزلي بسيطاً للغاية. معرفتهم المحلية ساعدتني في حجز المكان المثالي في ميفيدا.' : 'Sierra AI made my home search incredibly simple. Their local knowledge helped us secure the perfect place in Mivida.' },
                  { name: isAr ? 'براين رويز' : 'Brian Ruiz', role: isAr ? 'مستثمر عقاري' : 'Real Estate Investor', quote: isAr ? 'شعرت بالدعم في كل خطوة. النصائح الواضحة والتحديثات المستمرة جعلت التجربة سلسة وخالية من أي ضغوط.' : 'We felt supported through every step. Clear advice, quick updates, and genuine care made the entire experience smooth.' }
                ].map((t, i) => (
                  <motion.div key={i} className="testimonial-card flex-1 sbr-shield-glass p-12 relative shadow-sm hover:shadow-xl transition-shadow duration-500">
@@ -357,7 +357,7 @@ function LandingContent() {
         <div className="container footer-grid-wide">
            <div className="footer-col brand-col">
              <img src="/sierra_blu_logo_dark.png" alt="Sierra AI" className="footer-logo-lg" />
-             <p className="tagline">{isAr ? 'سييرا بلو — أبعد من مجرد وساطة.' : 'Sierra AI — Beyond Brokerage.'}</p>
+             <p className="tagline">{isAr ? 'سييرا إستيتس — أبعد من مجرد وساطة.' : 'Sierra AI — Beyond Brokerage.'}</p>
            </div>
            
            <div className="footer-col">

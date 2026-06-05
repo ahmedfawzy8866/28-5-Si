@@ -48,7 +48,7 @@ const THEMES = {
 const COPY = {
   en: {
     dir: 'ltr',
-    brand: 'SIERRA BLU',
+    brand: 'SIERRA ESTATES',
     sub: 'REALTY',
     tagline: 'AI-POWERED REAL ESTATE INTELLIGENCE',
     nav: ['Properties', 'Intelligence', 'About', 'Contact'],
@@ -73,8 +73,8 @@ const COPY = {
     viewAll: 'View All →',
     beds: 'bed',
     baths: 'bath',
-    secWhy: 'Why Sierra Blu',
-    h2Why: 'The Sierra Blu Difference',
+    secWhy: 'Why Sierra Estates',
+    h2Why: 'The Sierra Estates Difference',
     why: [
       {
         icon: '◆',
@@ -102,12 +102,12 @@ const COPY = {
     formPhone: 'Phone Number',
     formSubmit: 'Get Started',
     formSuccess: 'Thank you! We\'ll be in touch shortly.',
-    copyright: '© 2026 Sierra Blu Realty. All rights reserved.',
+    copyright: '© 2026 Sierra Estates Realty. All rights reserved.',
     footerLinks: ['About', 'Contact', 'Privacy', 'Terms'],
   },
   ar: {
     dir: 'rtl',
-    brand: 'سييرا بلو',
+    brand: 'سييرا إستيتس',
     sub: 'وكالة عقارات',
     tagline: 'ذكاء اصطناعي في العقارات',
     nav: ['العقارات', 'الذكاء', 'عنا', 'اتصل بنا'],
@@ -131,8 +131,8 @@ const COPY = {
     viewAll: '← عرض الكل',
     beds: 'غرفة نوم',
     baths: 'حمام',
-    secWhy: 'لماذا سييرا بلو',
-    h2Why: 'الفرق في سييرا بلو',
+    secWhy: 'لماذا سييرا إستيتس',
+    h2Why: 'الفرق في سييرا إستيتس',
     why: [
       { icon: '◆', title: 'اختيار منسق', desc: 'كل عقار تم التحقق منه شخصياً.' },
       { icon: '◈', title: 'استثمار ذكي', desc: 'تحليل العائد بقوة الذكاء الاصطناعي.' },
@@ -148,7 +148,7 @@ const COPY = {
     formPhone: 'رقم الهاتف',
     formSubmit: 'ابدأ الآن',
     formSuccess: 'شكراً! سنتواصل معك قريباً.',
-    copyright: '© 2026 سييرا بلو. جميع الحقوق محفوظة.',
+    copyright: '© 2026 سييرا إستيتس. جميع الحقوق محفوظة.',
     footerLinks: ['عنا', 'اتصل', 'الخصوصية', 'الشروط'],
   },
 };

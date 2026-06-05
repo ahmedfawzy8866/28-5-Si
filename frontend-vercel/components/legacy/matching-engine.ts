@@ -69,7 +69,7 @@ export async function runMatchingForLead(leadId: string): Promise<MatchResult[]>
           propertyTitle: unit.title,
           matchScore: match.matchScore,
           budget: `${lead.budgetMax || lead.budget} EGP`,
-          proposalUrl: `https://sierra-blu.web.app/concierge/${leadId}?unit=${unit.id}`,
+          proposalUrl: `https://sierra-estates.web.app/concierge/${leadId}?unit=${unit.id}`,
           roi: unit.intelligence?.roi || '8-12%'
         });
       }

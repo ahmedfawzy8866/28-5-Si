@@ -3,7 +3,7 @@ import { Timestamp } from 'firebase-admin/firestore';
 import { COLLECTIONS } from '@/lib/models/schema';
 
 /**
- * SIERRA BLU — VOICE SERVICE (V1.0)
+ * SIERRA ESTATES — VOICE SERVICE (V1.0)
  * Handles ElevenLabs integration for Sierra's voice cloning and TTS notes.
  */
 
@@ -59,7 +59,7 @@ export class VoiceService {
         createdAt: Timestamp.now(),
       });
 
-      return `https://sierra-blu-assets.s3.amazonaws.com/voice/sierra_${Date.now()}.mp3`;
+      return `https://sierra-estates-assets.s3.amazonaws.com/voice/sierra_${Date.now()}.mp3`;
 
     } catch (error) {
       console.error("❌ [VoiceService] Generation failed:", error);

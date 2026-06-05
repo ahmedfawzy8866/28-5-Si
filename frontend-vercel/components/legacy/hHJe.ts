@@ -116,7 +116,7 @@ export async function curateConciergePortfolio(leadId: string): Promise<Concierg
     estimatedPortfolioROI: totalROI / conciergeUnits.length,
     createdAt: serverTimestamp(),
     status: 'generated',
-    whatsappLink: `https://sierra-blu.web.app/concierge/${leadId}?gallery=true`,
+    whatsappLink: `https://sierra-estates.web.app/concierge/${leadId}?gallery=true`,
   });
 
   const portfolio: ConciergeSelection = {
@@ -126,7 +126,7 @@ export async function curateConciergePortfolio(leadId: string): Promise<Concierg
     createdAt: Timestamp.now(),
     units: conciergeUnits,
     personalNote,
-    whatsappLink: `https://sierra-blu.web.app/concierge/${leadId}?gallery=true`,
+    whatsappLink: `https://sierra-estates.web.app/concierge/${leadId}?gallery=true`,
     matchingScore: matchSum / conciergeUnits.length,
     estimatedPortfolioROI: totalROI / conciergeUnits.length,
   };

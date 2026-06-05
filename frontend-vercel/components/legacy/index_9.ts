@@ -10,19 +10,19 @@ export const designers = {
     name: "Emil Kowalski",
     philosophy: "Restraint & Speed",
     bestFor: ["productivity tools", "high-frequency interactions", "utility UI"],
-    sierraBluStages: [1, 2, 3, 9, 10],
+    sierraEstatesStages: [1, 2, 3, 9, 10],
   },
   jakub: {
     name: "Jakub Krehel",
     philosophy: "Production Polish",
     bestFor: ["consumer apps", "professional refinement", "shipped products"],
-    sierraBluStages: [4, 5, 6, 7, 8],
+    sierraEstatesStages: [4, 5, 6, 7, 8],
   },
   jhey: {
     name: "Jhey Tompkins",
     philosophy: "Creative Experimentation",
     bestFor: ["portfolios", "playful contexts", "showcase moments"],
-    sierraBluStages: [8],
+    sierraEstatesStages: [8],
   },
 } as const;
 

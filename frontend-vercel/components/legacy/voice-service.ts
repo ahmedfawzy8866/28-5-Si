@@ -58,7 +58,7 @@ export class VoiceService {
         createdAt: serverTimestamp(),
       });
 
-      return `https://sierra-blu-assets.s3.amazonaws.com/voice/sierra_${Date.now()}.mp3`;
+      return `https://sierra-estates-assets.s3.amazonaws.com/voice/sierra_${Date.now()}.mp3`;
 
     } catch (error) {
       console.error("❌ [VoiceService] Generation failed:", error);

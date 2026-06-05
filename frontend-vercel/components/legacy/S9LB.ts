@@ -38,7 +38,7 @@ try {
       // Option B: Use application default credentials (Google Cloud / local Firebase CLI)
       admin.initializeApp({
         credential: admin.credential.applicationDefault(),
-        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'sierra-blu',
+        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'sierra-estates',
         storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
       });
     }

@@ -1,4 +1,4 @@
-// sierra-blue/lib/integrations/property-finder.ts
+// sierra-estatese/lib/integrations/property-finder.ts
 // Property Finder Egypt API V3 — Full Bidirectional Integration
 // Covers: listings push, image CDN sync, lead webhook ingestion, price updates
 

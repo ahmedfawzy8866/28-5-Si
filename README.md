@@ -78,29 +78,34 @@ To run the Next.js development server, make sure the following environment varia
 
 ```ini
 # --- Property Finder Integration API ---
-PF_API_KEY="YHDNf.LadthM6TyLlAOs8fqQu8IpTt65yhzXE9ae"
-PF_API_SECRET="GBuxCDac4pZ6GEFaTq4crIBNR7YXILon"
+PF_API_KEY="your_property_finder_api_key"
+PF_API_SECRET="your_property_finder_api_secret"
 
 # --- Public & Server-Side Firebase Admin Core ---
-NEXT_PUBLIC_FIREBASE_API_KEY="AIzaSyBZLN2jTTKV34SneGPoWRz1zoRpX5uODjs"
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="sierra-blu.firebaseapp.com"
-NEXT_PUBLIC_FIREBASE_PROJECT_ID="sierra-blu"
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="sierra-blu.firebasestorage.app"
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID="941030513456"
-NEXT_PUBLIC_FIREBASE_APP_ID="1:941030513456:web:56209a1495d69f217086f5"
-NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID="G-ZP054BPJ8Q"
+NEXT_PUBLIC_FIREBASE_API_KEY="your_firebase_web_api_key"
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="your-project.firebaseapp.com"
+NEXT_PUBLIC_FIREBASE_PROJECT_ID="your-project-id"
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="your-project.firebasestorage.app"
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID="your_messaging_sender_id"
+NEXT_PUBLIC_FIREBASE_APP_ID="your_firebase_app_id"
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID="your_measurement_id"
 
 # --- Localized AI Agents & Bots Connectors ---
-OPENCLAW_BASE_URL="http://127.0.0.1:18789/v1"
-OPENCLAW_TOKEN="02b25ffca992d1128741c5fb58a34f8b680cfef51bfbec02"
-GOOGLE_AI_API_KEY="AIzaSyArwaR7eiJmwcFUyUzV-vqVHnsyrt5HTZc"
-GOOGLE_MAPS_API_KEY="AIzaSyBFLZ6edyLeVu5aXVgyaawBZqGSwwQvonA"
+OPENCLAW_BASE_URL="https://your-openclaw-endpoint"
+OPENCLAW_TOKEN="your_openclaw_token"
+GOOGLE_AI_API_KEY="your_gemini_api_key"
+GOOGLE_MAPS_API_KEY="your_google_maps_server_key"
 
 # --- Telegram Alert Channels ---
-TELEGRAM_BOT_TOKEN="8719045454:AAHSafZe5U_JzPGb9AAxeNJPwYSPkkwwddQ"
-TELEGRAM_CHAT_ID="7175892124"
-CRON_SECRET="sierra_blu_dev_secret_2026"
+TELEGRAM_BOT_TOKEN="your_telegram_bot_token"
+TELEGRAM_CHAT_ID="your_telegram_chat_id"
+CRON_SECRET="generate_a_long_random_string"
 ```
+
+> ⚠️ **Security:** Never paste live secrets into this README or any tracked file.
+> Use `frontend-vercel/.env.local` (git-ignored) for real values and
+> `frontend-vercel/.env.example` as the template. If a key was ever committed,
+> rotate it.
 
 ---
 

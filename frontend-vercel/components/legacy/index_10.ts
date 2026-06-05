@@ -11,7 +11,7 @@ export interface TasteConfig {
   VISUAL_DENSITY: number;
 }
 
-export const sierraBluTasteConfig: Record<string, TasteConfig> = {
+export const sierraEstatesTasteConfig: Record<string, TasteConfig> = {
   onboarding: {
     DESIGN_VARIANCE: 4,
     MOTION_INTENSITY: 3,
@@ -56,9 +56,9 @@ export function getSkillPath(skill: AvailableSkill): string {
 }
 
 export function getTasteConfigForStage(stage: number): TasteConfig {
-  if (stage <= 2) return sierraBluTasteConfig.onboarding;
-  if (stage <= 5) return sierraBluTasteConfig.propertySearch;
-  if (stage <= 7) return sierraBluTasteConfig.matching;
-  if (stage === 8) return sierraBluTasteConfig.conciergeGallery;
-  return sierraBluTasteConfig.closing;
+  if (stage <= 2) return sierraEstatesTasteConfig.onboarding;
+  if (stage <= 5) return sierraEstatesTasteConfig.propertySearch;
+  if (stage <= 7) return sierraEstatesTasteConfig.matching;
+  if (stage === 8) return sierraEstatesTasteConfig.conciergeGallery;
+  return sierraEstatesTasteConfig.closing;
 }
