@@ -13,10 +13,25 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
-export const db = getFirestore(app);
-export const auth = getAuth(app);
-export const storage = getStorage(app);
+const isConfigValid = !!firebaseConfig.apiKey && firebaseConfig.apiKey !== 'undefined';
+
+let app: any = null;
+let db: any = null;
+let auth: any = null;
+let storage: any = null;
+
+try {
+  app = getApps().length > 0 ? getApp() : (isConfigValid ? initializeApp(firebaseConfig) : null);
+  if (app) {
+    db = getFirestore(app);
+    auth = getAuth(app);
+    storage = getStorage(app);
+  }
+} catch (error) {
+  console.warn("Firebase client initialization failed (likely build time):", error);
+}
+
+export { app, db, auth, storage };
 
 export interface FirestoreCrmProperty {
   id: string;

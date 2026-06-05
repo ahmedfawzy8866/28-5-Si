@@ -122,3 +122,20 @@ body {
   background: rgba(201, 162, 77, 0.3);
   color: var(--ivory);
 }
+
+/* Gold Highlights and Headers with dynamic contrast & soft shadows */
+.gold-text {
+  color: #9F7212;
+  background: linear-gradient(135deg, #9F7212, #75530B);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0.5px 0.5px 1px rgba(15, 38, 66, 0.15);
+}
+
+[data-theme='dark'] .gold-text {
+  color: #E9C176;
+  background: linear-gradient(135deg, #E9C176, #C8961A);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.4);
+}

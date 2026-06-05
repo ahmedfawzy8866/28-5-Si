@@ -27,20 +27,38 @@ const G2 = '#C8961A';
 
 const THEMES = {
   dark: {
-    bg: '#0D2035', bgAlt: '#0A1520', bg2: '#122A47',
-    surface: 'rgba(255,255,255,0.055)', surfaceHover: 'rgba(233,193,118,0.10)',
-    card: '#122A47', cardBorder: 'rgba(233,193,118,0.10)',
-    border: 'rgba(233,193,118,0.18)', borderHover: 'rgba(233,193,118,0.45)',
-    text: '#EFF8F7', textSub: 'rgba(239,248,247,0.78)', textMuted: 'rgba(239,248,247,0.50)',
-    navBg: 'rgba(13,32,53,0.96)', footerBg: '#091828', heroBg: '#0A1520',
+    bg: '#050B14',      // Ultra deep midnight navy (from attachment)
+    bgAlt: '#08101E',   // Midnight blue alternate
+    bg2: '#0D172A',      // Dark slate card surface
+    surface: 'rgba(255,255,255,0.045)',
+    surfaceHover: 'rgba(212,175,55,0.08)',
+    card: '#0D172A',
+    cardBorder: 'rgba(212,175,55,0.12)',
+    border: 'rgba(212,175,55,0.18)',
+    borderHover: 'rgba(212,175,55,0.45)',
+    text: '#F4F0E8',     // Warm ivory text (from attachment)
+    textSub: 'rgba(244,240,232,0.78)',
+    textMuted: 'rgba(244,240,232,0.48)',
+    navBg: 'rgba(5,11,20,0.95)',
+    footerBg: '#02060D',
+    heroBg: '#050B14',
   },
   light: {
-    bg: '#D5E8E6', bgAlt: '#C0D6D4', bg2: '#E2EDEC',
-    surface: 'rgba(27,108,168,0.08)', surfaceHover: 'rgba(233,193,118,0.14)',
-    card: '#E2EDEC', cardBorder: 'rgba(27,108,168,0.14)',
-    border: 'rgba(27,108,168,0.20)', borderHover: 'rgba(233,193,118,0.55)',
-    text: '#071422', textSub: 'rgba(7,20,34,0.78)', textMuted: 'rgba(7,20,34,0.56)',
-    navBg: 'rgba(213,232,230,0.97)', footerBg: '#040E1C', heroBg: '#C0D6D4',
+    bg: '#F4F7FC',      // Radiant soft sky-blue tint (from attachment)
+    bgAlt: '#E2EAF4',   // Deeper sky-blue section background
+    bg2: '#FFFFFF',      // Crisp clean white surface
+    surface: 'rgba(15,38,66,0.05)',
+    surfaceHover: 'rgba(181,145,78,0.08)',
+    card: '#FFFFFF',     // Clean white cards (from attachment)
+    cardBorder: 'rgba(15,38,66,0.08)',
+    border: 'rgba(15,38,66,0.12)',
+    borderHover: 'rgba(181,145,78,0.4)',
+    text: '#0F2642',     // Prestigious deep navy blue (from attachment)
+    textSub: 'rgba(15,38,66,0.8)',
+    textMuted: 'rgba(15,38,66,0.5)',
+    navBg: 'rgba(244,247,252,0.96)',
+    footerBg: '#0F2642', // Deep navy footer matching light theme
+    heroBg: '#EBF3FC',
   },
 };
 
@@ -66,7 +84,7 @@ const COPY = {
     secListings: 'Exclusive Listings',
     h2Listings: 'Properties worth your attention.',
     viewAll: 'View All →',
-    searchType: 'Property Type', searchCompound: 'Compound', searchBudget: 'Budget', searchBtn: 'Search',
+    searchType: 'Property Type', searchCompound: 'Compound', searchRooms: 'Rooms', searchPurpose: 'Purpose', searchBudget: 'Budget', searchBtn: 'Search',
     beds: 'bed', baths: 'bath',
     secWhy: 'Why Sierra Estates',
     h2Why: 'The Sierra Estates Standard',
@@ -135,7 +153,7 @@ const COPY = {
     secListings: 'قوائم حصرية',
     h2Listings: 'عقارات تستحق اهتمامك.',
     viewAll: '← عرض الكل',
-    searchType: 'نوع العقار', searchCompound: 'الكمباوند', searchBudget: 'الميزانية', searchBtn: 'بحث',
+    searchType: 'نوع العقار', searchCompound: 'الكمباوند', searchRooms: 'عدد الغرف', searchPurpose: 'الغرض', searchBudget: 'الميزانية', searchBtn: 'بحث',
     beds: 'غرف', baths: 'حمامات',
     secWhy: 'لماذا سييرا إستيتس',
     h2Why: 'معيار سييرا إستيتس',
@@ -224,11 +242,46 @@ export default function LandingPage() {
   const [featured, setFeatured] = useState<Property[]>([]);
   const listingsSectionRef = useRef<HTMLDivElement>(null);
 
+  // Hero filter state variables (Compound is an open text search field)
+  const [filterType, setFilterType] = useState('');
+  const [filterCompound, setFilterCompound] = useState('');
+  const [filterRooms, setFilterRooms] = useState('');
+  const [filterPurpose, setFilterPurpose] = useState('');
+  const [filterBudget, setFilterBudget] = useState('');
+
+  const [showCompoundDropdown, setShowCompoundDropdown] = useState(false);
+  const compoundDropdownRef = useRef<HTMLDivElement>(null);
+
   const lang = locale === 'ar' ? 'ar' : 'en';
   const mode = (theme === 'light' ? 'light' : 'dark') as 'light' | 'dark';
   const th = THEMES[mode];
   const T = COPY[lang];
   const isAr = lang === 'ar';
+
+  // Dynamic high-contrast gold shadowing for light theme contrast
+  const G = mode === 'dark' ? '#E9C176' : '#9F7212';
+  const G2 = mode === 'dark' ? '#C8961A' : '#75530B';
+
+  const COMPOUNDS = {
+    en: ['Fifth Settlement', 'Madinaty', 'Mountain View', 'Mostakbal City', 'Palm Hills', 'Mivida', 'Sodic East', 'Katameya Dunes'],
+    ar: ['التجمع الخامس', 'مدينتي', 'ماونتن فيو', 'مستقبل سيتي', 'بالم هيلز', 'ميفيدا', 'سوديك إيست', 'قطامية ديونز']
+  };
+
+  const availableCompounds = COMPOUNDS[lang];
+  const filteredCompounds = availableCompounds.filter(c =>
+    c.toLowerCase().includes(filterCompound.toLowerCase())
+  );
+
+  // Click outside compound dropdown to close it
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (compoundDropdownRef.current && !compoundDropdownRef.current.contains(event.target as Node)) {
+        setShowCompoundDropdown(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     setMounted(true);
@@ -395,19 +448,161 @@ export default function LandingPage() {
 
               
               {/* HERO FILTER */}
-              <div className="reveal grid grid-cols-1 sm:grid-cols-3 md:grid-cols-[1fr_1fr_1fr_auto] gap-0 rounded-lg overflow-hidden mt-8" style={{ background: mode === 'dark' ? 'rgba(18, 42, 71, 0.8)' : 'rgba(255, 255, 255, 0.8)', border: `1px solid ${th.border}`, boxShadow: '0 8px 32px rgba(0,0,0,0.15)', backdropFilter: 'blur(16px)', animation: loaded ? 'fadeUp .7s ease .6s both' : 'none' }}>
-                {[
-                  { label: T.searchType, opts: isAr ? ['شقة', 'فيلا', 'دوبلكس', 'بنتهاوس'] : ['Apartment', 'Villa', 'Duplex', 'Penthouse'] },
-                  { label: T.searchCompound, opts: isAr ? ['التجمع الخامس', 'مدينتي', 'ماونتن فيو', 'مستقبل'] : ['Fifth Settlement', 'Madinaty', 'Mountain View', 'Mostakbal'] },
-                  { label: T.searchBudget, opts: isAr ? ['أقل من ٥م', '٥م–١٠م', '١٠م–٢٠م', 'أكثر من ٢٠م'] : ['Under 5M EGP', '5–10M EGP', '10–20M EGP', '20M+ EGP'] },
-                ].map((seg, i) => (
-                  <div key={i} style={{ padding: '14px 18px', borderRight: `1px solid ${th.border}` }}>
-                    <div style={{ fontSize: 9, fontWeight: 500, letterSpacing: '.16em', textTransform: 'uppercase', color: th.textMuted, marginBottom: 3, fontFamily: "'Jost', sans-serif" }}>{seg.label}</div>
-                    <select style={{ background: 'transparent', border: 'none', outline: 'none', color: th.text, fontFamily: isAr ? "'Cairo', sans-serif" : "'Jost', sans-serif", fontSize: 13, fontWeight: 500, width: '100%', cursor: 'pointer' }}>
-                      {seg.opts.map((o) => <option key={o} value={o} style={{ background: mode === 'dark' ? '#122A47' : '#fff' }}>{o}</option>)}
-                    </select>
+              <div className="reveal grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.1fr_1.2fr_0.8fr_0.9fr_1.1fr_auto] gap-0 rounded-lg overflow-hidden mt-8" style={{ background: mode === 'dark' ? 'rgba(18, 42, 71, 0.8)' : 'rgba(255, 255, 255, 0.85)', border: `1px solid ${th.border}`, boxShadow: '0 8px 32px rgba(0,0,0,0.15)', backdropFilter: 'blur(16px)', animation: loaded ? 'fadeUp .7s ease .6s both' : 'none' }}>
+                
+                {/* 1. Property Type */}
+                <div style={{ padding: '14px 18px', borderRight: isAr ? 'none' : `1px solid ${th.border}`, borderLeft: isAr ? `1px solid ${th.border}` : 'none' }}>
+                  <div style={{ fontSize: 9, fontWeight: 600, letterSpacing: '.16em', textTransform: 'uppercase', color: mode === 'dark' ? th.textMuted : '#4B6B94', marginBottom: 3, fontFamily: "'Jost', sans-serif" }}>{T.searchType}</div>
+                  <select 
+                    value={filterType}
+                    onChange={(e) => setFilterType(e.target.value)}
+                    style={{ background: 'transparent', border: 'none', outline: 'none', color: th.text, fontFamily: isAr ? "'Cairo', sans-serif" : "'Jost', sans-serif", fontSize: 13, fontWeight: 500, width: '100%', cursor: 'pointer' }}
+                  >
+                    <option value="" style={{ background: mode === 'dark' ? '#122A47' : '#fff', color: mode === 'dark' ? '#fff' : '#0F2642' }}>{isAr ? 'الكل' : 'All Types'}</option>
+                    {(isAr ? ['شقة', 'فيلا', 'دوبلكس', 'بنتهاوس'] : ['Apartment', 'Villa', 'Duplex', 'Penthouse']).map((o) => (
+                      <option key={o} value={o} style={{ background: mode === 'dark' ? '#122A47' : '#fff', color: mode === 'dark' ? '#fff' : '#0F2642' }}>{o}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* 2. Compound (OPEN TEXT SEARCH & DROPDOWN) */}
+                <div 
+                  ref={compoundDropdownRef}
+                  style={{ 
+                    padding: '14px 18px', 
+                    borderRight: isAr ? 'none' : `1px solid ${th.border}`, 
+                    borderLeft: isAr ? `1px solid ${th.border}` : 'none', 
+                    position: 'relative' 
+                  }}
+                >
+                  <div style={{ fontSize: 9, fontWeight: 600, letterSpacing: '.16em', textTransform: 'uppercase', color: mode === 'dark' ? th.textMuted : '#4B6B94', marginBottom: 3, fontFamily: "'Jost', sans-serif" }}>{T.searchCompound}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <input 
+                      type="text" 
+                      value={filterCompound}
+                      onFocus={() => setShowCompoundDropdown(true)}
+                      onChange={(e) => {
+                        setFilterCompound(e.target.value);
+                        setShowCompoundDropdown(true);
+                      }}
+                      placeholder={isAr ? "ابحث أو اكتب الكمباوند..." : "Type any compound..."}
+                      style={{ background: 'transparent', border: 'none', outline: 'none', color: th.text, fontFamily: isAr ? "'Cairo', sans-serif" : "'Jost', sans-serif", fontSize: 13, fontWeight: 500, width: '100%', cursor: 'text', padding: 0 }}
+                      className="placeholder-muted"
+                    />
+                    <span style={{ fontSize: 11, opacity: 0.5, filter: mode === 'dark' ? 'none' : 'invert(0.2)' }}>🔍</span>
                   </div>
-                ))}
+
+                  {/* Open Dropdown List */}
+                  {showCompoundDropdown && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '100%',
+                      left: isAr ? 'auto' : 0,
+                      right: isAr ? 0 : 'auto',
+                      marginTop: 8,
+                      width: 'calc(100% + 24px)',
+                      minWidth: 250,
+                      background: mode === 'dark' ? 'rgba(10, 21, 32, 0.96)' : 'rgba(255, 255, 255, 0.98)',
+                      backdropFilter: 'blur(24px)',
+                      border: `1px solid ${th.border}`,
+                      borderRadius: 8,
+                      boxShadow: '0 12px 40px rgba(0,0,0,0.25)',
+                      zIndex: 500,
+                      maxHeight: 240,
+                      overflowY: 'auto',
+                      padding: '6px 0',
+                    }}>
+                      {filteredCompounds.length > 0 ? (
+                        filteredCompounds.map((c) => (
+                          <div 
+                            key={c}
+                            onClick={() => {
+                              setFilterCompound(c);
+                              setShowCompoundDropdown(false);
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = mode === 'dark' ? 'rgba(233,193,118,0.1)' : 'rgba(15,38,66,0.05)';
+                              e.currentTarget.style.color = G;
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = 'transparent';
+                              e.currentTarget.style.color = th.text;
+                            }}
+                            style={{
+                              padding: '10px 18px',
+                              fontSize: 12,
+                              fontWeight: 500,
+                              color: th.text,
+                              cursor: 'pointer',
+                              fontFamily: isAr ? "'Cairo', sans-serif" : "'Jost', sans-serif",
+                              transition: 'all 0.2s',
+                              textAlign: isAr ? 'right' : 'left',
+                            }}
+                          >
+                            {c}
+                          </div>
+                        ))
+                      ) : (
+                        <div style={{
+                          padding: '10px 18px',
+                          fontSize: 11,
+                          color: th.textMuted,
+                          fontFamily: isAr ? "'Cairo', sans-serif" : "'Jost', sans-serif",
+                          textAlign: 'center',
+                        }}>
+                          {isAr ? 'لا توجد نتائج' : 'No compounds found'}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* 3. Rooms */}
+                <div style={{ padding: '14px 18px', borderRight: isAr ? 'none' : `1px solid ${th.border}`, borderLeft: isAr ? `1px solid ${th.border}` : 'none' }}>
+                  <div style={{ fontSize: 9, fontWeight: 600, letterSpacing: '.16em', textTransform: 'uppercase', color: mode === 'dark' ? th.textMuted : '#4B6B94', marginBottom: 3, fontFamily: "'Jost', sans-serif" }}>{T.searchRooms}</div>
+                  <select 
+                    value={filterRooms}
+                    onChange={(e) => setFilterRooms(e.target.value)}
+                    style={{ background: 'transparent', border: 'none', outline: 'none', color: th.text, fontFamily: isAr ? "'Cairo', sans-serif" : "'Jost', sans-serif", fontSize: 13, fontWeight: 500, width: '100%', cursor: 'pointer' }}
+                  >
+                    <option value="" style={{ background: mode === 'dark' ? '#122A47' : '#fff', color: mode === 'dark' ? '#fff' : '#0F2642' }}>{isAr ? 'الكل' : 'All Rooms'}</option>
+                    {(isAr ? ['١ غرفة', '٢ غرفة', '٣ غرف', '٤ غرف', '٥+ غرف'] : ['1 Bed', '2 Beds', '3 Beds', '4 Beds', '5+ Beds']).map((o) => (
+                      <option key={o} value={o} style={{ background: mode === 'dark' ? '#122A47' : '#fff', color: mode === 'dark' ? '#fff' : '#0F2642' }}>{o}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* 4. Purpose */}
+                <div style={{ padding: '14px 18px', borderRight: isAr ? 'none' : `1px solid ${th.border}`, borderLeft: isAr ? `1px solid ${th.border}` : 'none' }}>
+                  <div style={{ fontSize: 9, fontWeight: 600, letterSpacing: '.16em', textTransform: 'uppercase', color: mode === 'dark' ? th.textMuted : '#4B6B94', marginBottom: 3, fontFamily: "'Jost', sans-serif" }}>{T.searchPurpose}</div>
+                  <select 
+                    value={filterPurpose}
+                    onChange={(e) => setFilterPurpose(e.target.value)}
+                    style={{ background: 'transparent', border: 'none', outline: 'none', color: th.text, fontFamily: isAr ? "'Cairo', sans-serif" : "'Jost', sans-serif", fontSize: 13, fontWeight: 500, width: '100%', cursor: 'pointer' }}
+                  >
+                    <option value="" style={{ background: mode === 'dark' ? '#122A47' : '#fff', color: mode === 'dark' ? '#fff' : '#0F2642' }}>{isAr ? 'الكل' : 'All Purpose'}</option>
+                    {(isAr ? ['إيجار', 'إعادة بيع'] : ['For Rent', 'For Resale']).map((o) => (
+                      <option key={o} value={o} style={{ background: mode === 'dark' ? '#122A47' : '#fff', color: mode === 'dark' ? '#fff' : '#0F2642' }}>{o}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* 5. Budget */}
+                <div style={{ padding: '14px 18px', borderRight: isAr ? 'none' : `1px solid ${th.border}`, borderLeft: isAr ? `1px solid ${th.border}` : 'none' }}>
+                  <div style={{ fontSize: 9, fontWeight: 600, letterSpacing: '.16em', textTransform: 'uppercase', color: mode === 'dark' ? th.textMuted : '#4B6B94', marginBottom: 3, fontFamily: "'Jost', sans-serif" }}>{T.searchBudget}</div>
+                  <select 
+                    value={filterBudget}
+                    onChange={(e) => setFilterBudget(e.target.value)}
+                    style={{ background: 'transparent', border: 'none', outline: 'none', color: th.text, fontFamily: isAr ? "'Cairo', sans-serif" : "'Jost', sans-serif", fontSize: 13, fontWeight: 500, width: '100%', cursor: 'pointer' }}
+                  >
+                    <option value="" style={{ background: mode === 'dark' ? '#122A47' : '#fff', color: mode === 'dark' ? '#fff' : '#0F2642' }}>{isAr ? 'الكل' : 'All Budgets'}</option>
+                    {(isAr ? ['أقل من ٥م ج.م', '٥م–١٠م ج.م', '١٠م–٢٠م ج.م', 'أكثر من ٢٠م ج.م'] : ['Under 5M EGP', '5–10M EGP', '10–20M EGP', '20M+ EGP']).map((o) => (
+                      <option key={o} value={o} style={{ background: mode === 'dark' ? '#122A47' : '#fff', color: mode === 'dark' ? '#fff' : '#0F2642' }}>{o}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* 6. Search Button */}
                 <button style={{ borderRadius: 0, padding: '0 28px', background: `linear-gradient(135deg,${G2},${G})`, color: '#071422', border: 'none', cursor: 'pointer', fontFamily: "'Jost', sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase' }}>{T.searchBtn}</button>
               </div>
 
