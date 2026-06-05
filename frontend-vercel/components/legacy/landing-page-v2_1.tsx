@@ -253,7 +253,7 @@ function LandingContent() {
           {/* Paragraph */}
           <p className="text-base sm:text-xl font-light text-neutral-400 max-w-2xl mx-auto mb-12 leading-relaxed">
             {ar
-              ? "سييرا بلو — أبعد من مجرد وساطة. نجمع بين أفضل العقارات في التجمع الخامس مع ذكاء اصطناعي يجد لك ما يناسبك بدقة."
+              ? "سييرا إستيتس — أبعد من مجرد وساطة. نجمع بين أفضل العقارات في التجمع الخامس مع ذكاء اصطناعي يجد لك ما يناسبك بدقة."
               : "Sierra AI Realty — curating the finest properties across New Cairo's top compounds, powered by AI that understands exactly what you're looking for."}
           </p>
 
@@ -443,7 +443,7 @@ function LandingContent() {
                 <div>
                   <div className="text-[9px] font-bold text-neutral-500 uppercase tracking-widest mb-1">Sierra AI Advisor 🤖</div>
                   <div className="bg-neutral-900 border border-white/5 rounded-xl p-4 text-white">
-                    {ar ? "أهلاً! أنا سييرا 👋 مساعدتك الذكية في سييرا بلو. حضرتك بتدور على إيه؟" : "Hello! I'm Sierra 👋 Your AI real estate advisor at Sierra AI. How can I help you today?"}
+                    {ar ? "أهلاً! أنا سييرا 👋 مساعدتك الذكية في سييرا إستيتس. حضرتك بتدور على إيه؟" : "Hello! I'm Sierra 👋 Your AI real estate advisor at Sierra AI. How can I help you today?"}
                   </div>
                 </div>
                 

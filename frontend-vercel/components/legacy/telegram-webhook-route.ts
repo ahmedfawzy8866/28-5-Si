@@ -30,7 +30,7 @@ const ADMIN_ID  = Number(process.env.TELEGRAM_CHAT_ID || '7175892124');
 const REQUEST_STEPS = [
   {
     key: 'type',
-    question: 'أهلاً! أنا سييرا 👋\nمساعدك الذكي في سييرا بلو\n\nحضرتك عايز/ة إيه؟',
+    question: 'أهلاً! أنا سييرا 👋\nمساعدك الذكي في سييرا إستيتس\n\nحضرتك عايز/ة إيه؟',
     options: ['شراء وحدة', 'إيجار وحدة', 'استثمار عقاري', 'إعادة بيع'],
   },
   {
@@ -199,7 +199,7 @@ async function handleAdminMode(chatId: number, text: string) {
     const listingsSnap = await getDocs(collection(db, COLLECTIONS.units));
     const leadsSnap    = await getDocs(collection(db, COLLECTIONS.stakeholders));
     await sendMessage(chatId, `
-<b>📊 إحصائيات سييرا بلو</b>
+<b>📊 إحصائيات سييرا إستيتس</b>
 <b>الوحدات:</b> ${listingsSnap.size}
 <b>العملاء:</b> ${leadsSnap.size}
 <b>الحالة:</b> ✅ كل الأنظمة تعمل
@@ -273,7 +273,7 @@ async function handleAdminMode(chatId: number, text: string) {
         messages: [
           {
             role: 'system',
-            content: `أنت سييرا، المساعدة الذكية لسييرا بلو العقارية. تجاوب باحترافية وإيجاز.`,
+            content: `أنت سييرا، المساعدة الذكية لسييرا إستيتس العقارية. تجاوب باحترافية وإيجاز.`,
           },
           { role: 'user', content: text },
         ],
@@ -328,7 +328,7 @@ async function handleClientMode(chatId: number, text: string) {
         clientMsg += `• ${u.title || 'وحدة'} — ${u.compound} — EGP ${Number(u.price || 0).toLocaleString()}\n`;
       });
     }
-    clientMsg += '\n<i>سييرا — سييرا بلو العقارية 🏡</i>';
+    clientMsg += '\n<i>سييرا — سييرا إستيتس العقارية 🏡</i>';
     await sendMessage(chatId, clientMsg);
 
     // بعت الملخص لأحمد فوزي

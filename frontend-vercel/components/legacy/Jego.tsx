@@ -22,7 +22,7 @@ const notoArabic = Noto_Sans_Arabic({
 });
 
 export const metadata: Metadata = {
-  title: 'Sierra AI Realty | سييرا بلو العقارية',
+  title: 'Sierra AI Realty | سييرا إستيتس العقارية',
   description: 'Cinematic Luxury Real Estate — Premium properties across Egypt\'s most exclusive communities | عقارات فاخرة في أرقى المجتمعات المصرية',
   keywords: ['real estate', 'luxury', 'Egypt', 'عقارات', 'فاخرة', 'مصر', 'Sierra AI'],
 };

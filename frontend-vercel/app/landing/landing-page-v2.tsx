@@ -495,7 +495,7 @@ function LandingContent() {
           </h1>
           <p className="sb-hero-sub reveal">
             {ar
-              ? "سييرا بلو — أبعد من مجرد وساطة. نجمع بين أفضل العقارات في التجمع الخامس مع ذكاء اصطناعي يجد لك ما يناسبك بدقة."
+              ? "سييرا إستيتس — أبعد من مجرد وساطة. نجمع بين أفضل العقارات في التجمع الخامس مع ذكاء اصطناعي يجد لك ما يناسبك بدقة."
               : "Sierra Estates Realty — curating the finest properties across New Cairo's top compounds, powered by AI that understands exactly what you're looking for."}
           </p>
           <div className="sb-hero-btns reveal">
@@ -661,7 +661,7 @@ function LandingContent() {
               <div>
                 <div className="sb-chat-name">Sierra · سييرا 🤖</div>
                 <div className="sb-chat-bubble sb-chat-bot">
-                  {ar ? "أهلاً! أنا سييرا 👋\nمساعدتك الذكية في سييرا بلو. حضرتك عايز/ة إيه؟" : "Hello! I'm Sierra 👋\nYour AI real estate advisor at Sierra Estates. What are you looking for?"}
+                  {ar ? "أهلاً! أنا سييرا 👋\nمساعدتك الذكية في سييرا إستيتس. حضرتك عايز/ة إيه؟" : "Hello! I'm Sierra 👋\nYour AI real estate advisor at Sierra Estates. What are you looking for?"}
                 </div>
               </div>
               <div className="sb-chat-bubble sb-chat-user">{ar ? "عايز فيلا في ميفيدا، ٣ غرف، حوالي ١٥ مليون" : "Looking for a 3BR villa in Mivida, around 15M EGP"}</div>

@@ -51,8 +51,8 @@ const COPY = {
   en: {
     dir: 'ltr' as const,
     brand: 'SIERRA ESTATES', sub: 'REALTY',
-    tagline: 'SIERRA-BLU REALTY | BEYOND BROKERAGE',
-    nav: ['Properties', 'Intelligence', 'Virtual Tour', 'Careers', 'Contact'],
+    tagline: 'SIERRA ESTATES REALTY | BEYOND BROKERAGE',
+    nav: ['Properties', 'Intelligence', 'Virtual Tour', 'ROI Analysis', 'Map', 'Careers', 'Contact'],
     cta: 'Enter Portal',
     heroTag: 'Beyond Brokerage',
     heroH1: ['New Cairo’s first dedicated SaaS platform', 'for Rent and Resale.'],
@@ -119,9 +119,9 @@ const COPY = {
   },
   ar: {
     dir: 'rtl' as const,
-    brand: 'سييرا بلو', sub: 'للعقارات',
+    brand: 'سييرا إستيتس', sub: 'للعقارات',
     tagline: 'استشارات عقارية مدعومة بالذكاء الاصطناعي',
-    nav: ['العقارات', 'الذكاء', 'جولة افتراضية', 'الوظائف', 'اتصل'],
+    nav: ['العقارات', 'الذكاء', 'جولة افتراضية', 'تحليل العائد', 'الخريطة', 'الوظائف', 'اتصل'],
     cta: 'الدخول للبوابة',
     heroTag: 'أبعد من الوساطة',
     heroH1: ['قرارات', 'أرقى.'],
@@ -137,8 +137,8 @@ const COPY = {
     viewAll: '← عرض الكل',
     searchType: 'نوع العقار', searchCompound: 'الكمباوند', searchBudget: 'الميزانية', searchBtn: 'بحث',
     beds: 'غرف', baths: 'حمامات',
-    secWhy: 'لماذا سييرا بلو',
-    h2Why: 'معيار سييرا بلو',
+    secWhy: 'لماذا سييرا إستيتس',
+    h2Why: 'معيار سييرا إستيتس',
     why: [
       { icon: '◆', title: 'اختيار بعناية', desc: 'كل قائمة يراجعها مستشارونا الكبار شخصياً. لا ضجيج، لا مبالغة — فقط عقارات تستوفي معاييرنا الصارمة.' },
       { icon: '◈', title: 'مبني على البيانات', desc: 'نمذجة عائد الاستثمار بالذكاء الاصطناعي، ومقارنات السوق الحية، وتحليل ممرات النمو. قرارات مبنية على الأدلة.' },
@@ -183,7 +183,7 @@ const COPY = {
     footNav: 'روابط التنقل', footNavLinks: ['العقارات', 'الذكاء', 'عنّا', 'الوظائف', 'اتصل'],
     footMarkets: 'الأسواق', footMarketLinks: ['القاهرة الجديدة', 'التجمع الخامس', 'مدينتي', 'مستقبل سيتي', 'ماونتن فيو'],
     footContact: 'تواصل معنا',
-    copyright: '© ٢٠٢٦ سييرا بلو للعقارات. جميع الحقوق محفوظة.',
+    copyright: '© ٢٠٢٦ سييرا إستيتس للعقارات. جميع الحقوق محفوظة.',
     legal: ['سياسة الخصوصية', 'شروط الخدمة', 'ملفات الارتباط'],
   },
 };
@@ -303,10 +303,26 @@ export default function LandingPage() {
           {T.nav.map((n) => {
             const isCareers = n === 'Careers' || n === 'الوظائف';
             const isVirtualTour = n === 'Virtual Tour' || n === 'جولة افتراضية';
-            
+            const isROI = n === 'ROI Analysis' || n === 'تحليل العائد';
+            const isMap = n === 'Map' || n === 'الخريطة';
+
             if (isVirtualTour) {
               return (
                 <Link key={n} href="/virtual-tour" className="hover:text-secondary transition-colors cursor-pointer" style={{ textDecoration: 'none', fontSize: 11, fontWeight: 500, letterSpacing: '.13em', textTransform: 'uppercase', color: th.textSub, fontFamily: isAr ? "'Cairo', sans-serif" : "'Jost', sans-serif" }}>
+                  {n}
+                </Link>
+              );
+            }
+            if (isROI) {
+              return (
+                <Link key={n} href="/roi" className="hover:text-secondary transition-colors cursor-pointer" style={{ textDecoration: 'none', fontSize: 11, fontWeight: 500, letterSpacing: '.13em', textTransform: 'uppercase', color: th.textSub, fontFamily: isAr ? "'Cairo', sans-serif" : "'Jost', sans-serif" }}>
+                  {n}
+                </Link>
+              );
+            }
+            if (isMap) {
+              return (
+                <Link key={n} href="/map" className="hover:text-secondary transition-colors cursor-pointer" style={{ textDecoration: 'none', fontSize: 11, fontWeight: 500, letterSpacing: '.13em', textTransform: 'uppercase', color: th.textSub, fontFamily: isAr ? "'Cairo', sans-serif" : "'Jost', sans-serif" }}>
                   {n}
                 </Link>
               );
@@ -613,6 +629,39 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ══ AI HUB SERVICES ══ */}
+      <section style={{ background: mode === 'dark' ? '#071420' : th.bgAlt, padding: '96px 0', borderTop: `1px solid ${th.border}` }}>
+        <div style={sec}>
+          <div className="reveal text-center mb-14">
+            <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '.24em', textTransform: 'uppercase', color: G, marginBottom: 10, fontFamily: "'Jost', sans-serif" }}>
+              {isAr ? 'منصة الذكاء' : 'Platform'}
+            </div>
+            <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(28px, 4vw, 52px)', fontWeight: 300, lineHeight: 1.1, letterSpacing: '-0.02em', color: th.text }}>
+              {isAr ? 'مجموعة الذكاء الاصطناعي' : 'AI Intelligence Suite'}
+            </h2>
+          </div>
+          <div className="grid md:grid-cols-3 gap-5">
+            {[
+              { icon: '◈', title: 'Sierra AI Advisor', titleAr: 'مستشار سييرا الذكي', desc: 'Natural language property search. Ask in Arabic or English, get matched listings in seconds.', descAr: 'بحث عقاري بلغة طبيعية. اسأل بالعربية أو الإنجليزية واحصل على عقارات مطابقة خلال ثوانٍ.', href: '/' },
+              { icon: '⬡', title: 'Virtual 360° Tours', titleAr: 'جولات ٣٦٠ درجة', desc: 'Drag-to-explore panoramic tours captured on S24 Ultra. Walk through before you visit.', descAr: 'جولات بانورامية بالسحب تُلتقط بـ S24 الترا. تجول قبل الزيارة.', href: '/virtual-tour' },
+              { icon: '◉', title: 'ROI Intelligence', titleAr: 'ذكاء عائد الاستثمار', desc: 'Live yield leaderboard + interactive calculator for gross/net returns and payback analysis.', descAr: 'قائمة العوائد الحية وحاسبة تفاعلية للعوائد الإجمالية والصافية وتحليل الاسترداد.', href: '/roi' },
+              { icon: '◆', title: 'Intelligence Map', titleAr: 'الخريطة الذكية', desc: 'Compound pins over a live map of New Cairo. Click any pin to see available units.', descAr: 'دبابيس الكمباوندات على خريطة حية للقاهرة الجديدة. اضغط أي دبوس لرؤية الوحدات المتاحة.', href: '/map' },
+              { icon: '◈', title: 'AI Matching Engine', titleAr: 'محرك المطابقة الذكي', desc: 'Property matching based on your investment criteria. Response in under 4 seconds.', descAr: 'مطابقة العقارات بناءً على معايير استثمارك. رد في أقل من ٤ ثوانٍ.', href: '/' },
+              { icon: '⊕', title: 'Market Analytics', titleAr: 'تحليلات السوق', desc: 'Growth corridors, rental yield trends and off-market signals updated from live data.', descAr: 'ممرات النمو واتجاهات عائد الإيجار وإشارات خارج السوق محدّثة من البيانات الحية.', href: '/intelligence' },
+            ].map((svc, i) => (
+              <Link key={i} href={svc.href} style={{ textDecoration: 'none' }}>
+                <div className="reveal rounded-[14px] p-8 transition-all hover:-translate-y-1 cursor-pointer" style={{ background: mode === 'dark' ? 'rgba(9,24,40,0.85)' : th.surface, border: `1px solid ${th.border}`, textAlign: isAr ? 'right' : 'left', height: '100%' }}>
+                  <div style={{ fontSize: 32, color: G, marginBottom: 16, fontFamily: "'Cormorant Garamond', serif" }}>{svc.icon}</div>
+                  <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 500, color: th.text, marginBottom: 8 }}>{isAr ? svc.titleAr : svc.title}</h3>
+                  <div style={{ width: 32, height: 2, background: `linear-gradient(90deg,${G2},${G})`, borderRadius: 1, marginBottom: 12, marginLeft: isAr ? 'auto' : 0 }} />
+                  <p style={{ fontSize: 13, fontWeight: 300, lineHeight: 1.8, color: th.textSub, fontFamily: isAr ? "'Cairo', sans-serif" : "'Jost', sans-serif" }}>{isAr ? svc.descAr : svc.desc}</p>
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
